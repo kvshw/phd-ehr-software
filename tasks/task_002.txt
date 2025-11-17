@@ -1,0 +1,20 @@
+# Task ID: 2
+# Title: Setup Database Schema
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Create the PostgreSQL database schema as specified in the PRD, including tables for patients, vitals, labs, imaging, suggestions, user_actions, and adaptations.
+# Details:
+Create schema.sql file with the following tables:
+- patients (id, name, age, sex, primary_diagnosis)
+- vitals (patient_id, timestamp, hr, bp_sys, bp_dia, spo2, rr, temp, pain)
+- labs (patient_id, timestamp, lab_type, value, normal_range)
+- imaging (id, patient_id, type, file_path, created_at)
+- suggestions (id, patient_id, type, text, source, explanation, created_at)
+- user_actions (user_id, patient_id, action_type, metadata, timestamp)
+- adaptations (user_id, patient_id, plan_json, timestamp)
+- users (id, email, password_hash, role)
+Ensure proper foreign key constraints and indexes.
+
+# Test Strategy:
+Validate schema with PostgreSQL validator. Test schema creation in a test database to ensure all tables are created correctly with proper relationships.

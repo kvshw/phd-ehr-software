@@ -1,0 +1,20 @@
+# Task ID: 17
+# Title: Implement Diagnosis Suggestion Service
+# Status: pending
+# Dependencies: 3, 6, 7
+# Priority: high
+# Description: Create the diagnosis suggestion service that provides rule-based clinical suggestions with explanations.
+# Details:
+Implement a Python service that:
+- Exposes an API endpoint for diagnosis suggestions
+- Accepts patient data including vitals, labs, and diagnoses
+- Implements rule-based logic for generating suggestions
+- Returns structured output with suggestions, confidence scores, sources, and explanations
+- Includes proper logging and error handling
+- Follows the output format specified in the PRD
+- Ensures all suggestions include clear explanations
+- Includes safety checks to prevent prescriptive suggestions
+Package as a Docker container.
+
+# Test Strategy:
+Unit test suggestion logic with different patient scenarios. Test API endpoint with valid and invalid inputs. Verify output format matches PRD specification. Test safety checks for prescriptive language. Test containerization.

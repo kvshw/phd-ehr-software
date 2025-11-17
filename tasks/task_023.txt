@@ -1,0 +1,22 @@
+# Task ID: 23
+# Title: Implement Researcher Dashboard
+# Status: pending
+# Dependencies: 5, 22
+# Priority: low
+# Description: Create the researcher dashboard that displays analytics, logs, and model performance metrics.
+# Details:
+Create a Next.js page with:
+- Authentication for researcher role
+- Metrics display:
+  - Suggestion acceptance/ignore rate
+  - Time spent on each section
+  - Layout adaptation events
+  - Model performance counters
+  - Potential fairness indicators
+- Log viewer with filtering and search
+- Charts and visualizations for key metrics
+- Export functionality for research data
+Implement responsive design with TailwindCSS.
+
+# Test Strategy:
+Test authentication and authorization for researcher role. Verify correct display of metrics and logs. Test filtering and search functionality. Test data export. Ensure responsive design works across different screen sizes.

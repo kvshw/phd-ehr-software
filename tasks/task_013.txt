@@ -1,0 +1,19 @@
+# Task ID: 13
+# Title: Implement Image Viewer Component
+# Status: pending
+# Dependencies: 8, 10
+# Priority: medium
+# Description: Create an interactive medical image viewer component with zoom/pan capabilities and AI heatmap overlay toggle.
+# Details:
+Create a React component that:
+- Fetches image data from the API
+- Displays medical images with zoom/pan controls
+- Supports toggling AI heatmap overlay on/off
+- Displays AI label and explanation when available
+- Handles different image types (X-ray, MRI)
+- Supports responsive sizing
+- Handles loading states and error conditions
+Use a suitable image viewer library compatible with Next.js.
+
+# Test Strategy:
+Test image loading and display with different image types. Test zoom/pan functionality. Test heatmap overlay toggle. Test responsive behavior on different screen sizes.

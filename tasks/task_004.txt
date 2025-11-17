@@ -1,0 +1,18 @@
+# Task ID: 4
+# Title: Implement Authentication and RBAC Backend
+# Status: pending
+# Dependencies: 2, 3
+# Priority: high
+# Description: Implement JWT authentication and role-based access control (RBAC) for the three user roles: clinician, researcher, and admin.
+# Details:
+Create authentication service in backend/services with:
+- JWT token generation and validation
+- Password hashing and verification
+- Role-based middleware for route protection
+- Login endpoint (/auth/login)
+- User creation endpoint (/auth/register) for admin use
+- Token refresh endpoint (/auth/refresh)
+Implement role-based redirects based on user type.
+
+# Test Strategy:
+Unit test JWT generation and validation. Test role-based access control with different user roles. Integration test login flow and protected routes.

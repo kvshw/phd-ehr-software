@@ -1,0 +1,23 @@
+# Task ID: 9
+# Title: Implement Clinician Dashboard (Patient List) Frontend
+# Status: pending
+# Dependencies: 5, 6
+# Priority: high
+# Description: Create the clinician dashboard showing the patient list with risk badges, flags, sorting, and filtering capabilities.
+# Details:
+Create a Next.js page with:
+- Table/grid view of patients showing:
+  - Patient ID
+  - Age, Sex
+  - Primary diagnosis
+  - Last updated time
+  - Risk badge (Routine/Needs Attention/High Concern)
+  - Flags for vital risk score and image status
+- Sorting functionality by priority, name, risk level
+- Filtering by ward, risk level, imaging availability
+- Click handler to navigate to patient detail page
+- Responsive design with TailwindCSS
+Implement state management with Zustand or Context API.
+
+# Test Strategy:
+Test sorting and filtering functionality. Verify correct display of patient data, risk badges, and flags. Test navigation to patient detail page. Ensure responsive design works across different screen sizes.

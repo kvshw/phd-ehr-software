@@ -1,0 +1,19 @@
+# Task ID: 15
+# Title: Implement Vital Risk Model Service
+# Status: pending
+# Dependencies: 3, 7
+# Priority: high
+# Description: Create the vital risk prediction model service that analyzes vital signs trends and produces risk assessments.
+# Details:
+Implement a Python service that:
+- Exposes an API endpoint for vital risk prediction
+- Accepts input of most recent 12-hour vital trends
+- Implements a rule-based or simple ML model for risk assessment
+- Returns structured output with risk level, score, top features, and explanation
+- Includes proper logging and error handling
+- Follows the output format specified in the PRD
+- Includes model version information
+Package as a Docker container.
+
+# Test Strategy:
+Unit test risk prediction logic with different input scenarios. Test API endpoint with valid and invalid inputs. Verify output format matches PRD specification. Test containerization.

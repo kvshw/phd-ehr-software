@@ -1,0 +1,19 @@
+# Task ID: 25
+# Title: Implement Safety and Transparency Features
+# Status: pending
+# Dependencies: 14, 21, 22
+# Priority: high
+# Description: Create safety and transparency features throughout the system, including AI status panels, adaptation logs, and suggestion audit trails.
+# Details:
+Implement:
+- AI Status Panel showing active models and their versions
+- Clear labeling of all AI outputs as "Experimental"
+- Adaptation notification system to inform users of UI changes
+- Suggestion audit trail accessible to clinicians
+- Explainability components for all AI suggestions
+- Safety guardrails preventing prescriptive suggestions
+- Transparency in data usage and model behavior
+Ensure all AI components follow safety and transparency requirements from the PRD.
+
+# Test Strategy:
+Verify all AI outputs are clearly labeled. Test explainability components for different suggestions. Verify adaptation notifications are clear and informative. Test audit trail accessibility and completeness. Verify safety guardrails prevent prescriptive suggestions.

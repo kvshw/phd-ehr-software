@@ -1,0 +1,95 @@
+# Project Intelligence: Self-Adaptive AI-Assisted EHR Research Platform
+
+## Critical Project Context
+- This is a RESEARCH PLATFORM, not a production medical device
+- ALL data must be synthetic or anonymized - NO PHI allowed
+- ALL AI outputs must be labeled "Experimental"
+- Safety and transparency are paramount throughout
+
+## Architecture Patterns
+
+### Frontend (Next.js)
+- Use App Router (Next.js 14+)
+- TypeScript for all components
+- TailwindCSS for styling
+- Zustand or Context API for state management
+- Axios for API calls
+- Components should be modular and reusable
+
+### Backend (FastAPI)
+- Use dependency injection for services
+- Pydantic models for validation
+- SQLAlchemy for database ORM
+- JWT authentication with role-based access
+- All endpoints should have proper error handling
+- Log all AI interactions for research
+
+### Model Services
+- Independent Python microservices
+- FastAPI for API endpoints
+- Version all model outputs
+- Include explanations for all predictions
+- Never make prescriptive suggestions
+
+### MAPE-K Adaptation Engine
+- Monitor: Collect user behavior and system data
+- Analyze: Apply rules to determine adaptations
+- Plan: Generate JSON layout plans
+- Execute: Frontend applies adaptations
+- Knowledge: Store rules, thresholds, explanations
+
+## Code Style Preferences
+
+### Python
+- Use type hints everywhere
+- Follow PEP 8
+- Use Black for formatting
+- Document all functions with docstrings
+
+### TypeScript/React
+- Use functional components with hooks
+- Prefer TypeScript interfaces over types for props
+- Use meaningful component and variable names
+- Keep components small and focused
+
+## Safety Requirements
+- All AI suggestions must include explanations
+- No autonomous clinical actions
+- All outputs clearly labeled as experimental
+- Comprehensive logging for audit trails
+- No PHI in logs or storage
+
+## Testing Strategy
+- Unit tests for all services
+- Integration tests for API endpoints
+- Component tests for UI
+- Test with synthetic data only
+- Verify no PHI leakage in logs
+
+## Common Patterns
+
+### API Endpoints
+- Use `/api/v1/` prefix
+- Return consistent error formats
+- Include version information
+- Log all requests for research
+
+### Database
+- Use migrations (Alembic)
+- Foreign keys for relationships
+- Indexes for performance
+- No PHI in any table
+
+### Error Handling
+- Use proper HTTP status codes
+- Return user-friendly error messages
+- Log errors for debugging
+- Never expose internal errors to users
+
+## Development Workflow
+1. Read Memory Bank files before starting work
+2. Check task dependencies in tasks.json
+3. Update progress.md after completing work
+4. Document decisions in systemPatterns.md
+5. Update .cursorrules when discovering new patterns
+

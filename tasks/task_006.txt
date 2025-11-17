@@ -1,0 +1,18 @@
+# Task ID: 6
+# Title: Implement Patient CRUD API Endpoints
+# Status: pending
+# Dependencies: 2, 4
+# Priority: high
+# Description: Create backend API endpoints for patient data management, including listing, searching, and retrieving patient details.
+# Details:
+Implement FastAPI endpoints:
+- GET /patients - List all patients with pagination and filtering
+- GET /patients/{id} - Get detailed patient information
+- POST /patients - Create new synthetic patient (admin only)
+- PUT /patients/{id} - Update patient information (admin only)
+- DELETE /patients/{id} - Delete patient (admin only)
+- GET /patients/search - Search patients by various criteria
+Ensure proper role-based access control for each endpoint.
+
+# Test Strategy:
+Unit test each endpoint for correct data handling. Test authorization with different user roles. Test pagination, filtering, and search functionality.

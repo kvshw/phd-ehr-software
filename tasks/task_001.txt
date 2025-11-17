@@ -1,0 +1,34 @@
+# Task ID: 1
+# Title: Setup Project Repository and Directory Structure
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Initialize the project repository with the directory structure specified in the PRD, including frontend, backend, model-services, database, and devops directories.
+# Details:
+Create the following directory structure:
+- /app
+  - /frontend
+    - /components
+    - /pages
+    - /services
+  - /backend
+    - /api
+    - /models
+    - /routes
+    - /services
+    - /adaptation_engine
+  - /model-services
+    - /vital-risk
+    - /image-analysis
+    - /diagnosis-helper
+  - /database
+    - schema.sql
+  - /devops
+    - docker-compose.yml
+    - Dockerfile.backend
+    - Dockerfile.frontend
+    - Dockerfile.model
+Initialize git repository and add a README.md with project overview.
+
+# Test Strategy:
+Verify all directories exist and are correctly structured. Ensure git repository is initialized with initial commit.

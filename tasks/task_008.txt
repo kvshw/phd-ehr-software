@@ -1,0 +1,17 @@
+# Task ID: 8
+# Title: Implement Imaging API Endpoints
+# Status: pending
+# Dependencies: 2, 4
+# Priority: high
+# Description: Create backend API endpoints for managing medical imaging data, including upload, retrieval, and metadata management.
+# Details:
+Implement FastAPI endpoints:
+- GET /imaging/{patient_id} - List all images for a patient
+- GET /imaging/{image_id} - Get specific image metadata
+- GET /imaging/file/{image_id} - Stream image file from object storage
+- POST /imaging - Upload new image with metadata (admin/researcher only)
+- DELETE /imaging/{image_id} - Delete image (admin only)
+Integrate with MinIO/S3 for object storage of image files.
+
+# Test Strategy:
+Test image upload and retrieval flow. Verify correct metadata storage in database and file storage in object storage. Test authorization with different user roles.

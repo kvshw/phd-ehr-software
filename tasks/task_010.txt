@@ -1,0 +1,25 @@
+# Task ID: 10
+# Title: Implement Patient Detail Page Base Components
+# Status: pending
+# Dependencies: 5, 6, 7, 8
+# Priority: high
+# Description: Create the base structure and components for the patient detail page, including the layout for all required sections.
+# Details:
+Create a Next.js page with:
+- Header with patient name, ID, and key demographics
+- Tab or section navigation for different content areas
+- Base components for each section:
+  - Summary
+  - Demographics
+  - Diagnoses
+  - Medications
+  - Allergies
+  - Vitals (placeholder for trend graph)
+  - Labs (placeholder for table)
+  - Imaging (placeholder for viewer)
+  - AI Suggestions Panel (placeholder)
+- Implement responsive layout with TailwindCSS
+- Setup state management for section ordering/priority
+
+# Test Strategy:
+Test navigation between sections. Verify responsive layout across different screen sizes. Test initial state management for section ordering.

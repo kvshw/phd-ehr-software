@@ -1,0 +1,568 @@
+📘 PRODUCT REQUIREMENTS DOCUMENT (PRD)
+Self-Adaptive AI-Assisted EHR Research Platform
+
+Version: 1.0
+Prepared For: Cursor-based Implementation
+Audience: Engineers, AI Researchers, Designers, Clinical Collaborators
+Date: 2025
+
+1. PRODUCT OVERVIEW
+1.1 Product Summary
+
+We are building a self-adaptive, AI-assisted Electronic Health Record (EHR) research platform designed to:
+
+Reduce clinician cognitive load
+
+Provide context-aware suggestions using rules + AI models
+
+Integrate image analysis models
+
+Integrate vital & diagnosis prediction models
+
+Provide full explainability, safety, transparency
+
+Use synthetic or anonymized data only
+
+Serve as a research platform, not a production medical device
+
+This product will act as a reference architecture for future safe, privacy-centric adaptive medical AI.
+
+2. GOALS & NON-GOALS
+2.1 Primary Goals
+
+Provide a clinician-facing EHR interface with:
+
+Prioritized patient list
+
+Patient detail page
+
+Imaging viewer with AI annotations
+
+Suggestions panel with plain-language explanations
+
+Provide adaptive behaviors using MAPE-K architecture
+
+Provide safe, transparent model integration
+
+Provide detailed logs for research purposes
+
+Allow researchers to study:
+
+Cognitive load reduction
+
+Trust & interpretability
+
+Bias, fairness, risk management
+
+2.2 Secondary Goals
+
+Serve as a testbed for pediatric brain-health applications
+
+Support iterative pilots every ~15 days
+
+2.3 Non-Goals (For MVP)
+
+No integration with real hospital databases
+
+No autonomous ordering/diagnosis actions
+
+No high-risk clinical automation
+
+No mobile app (desktop only)
+
+3. USERS & PERSONAS
+3.1 Primary Users
+Clinician (Orthopaedics / General Medicine)
+
+Needs simple, clear patient overviews
+
+Wants helpful suggestions, not overload
+
+Cares about safety, correctness, speed
+
+3.2 Secondary Users
+Researcher / PhD Team
+
+Needs logs, analytics, and model outputs for studies
+
+Needs transparency into system adaptations and model behavior
+
+Admin / Engineer
+
+Manages system versions, logs, synthetic data
+
+4. HIGH-LEVEL SYSTEM ARCHITECTURE
+
+Components:
+
+Frontend Web Application
+
+React/Next.js
+
+Clinician UI + Researcher Dashboard
+
+Backend API
+
+FastAPI (Python)
+
+Authentication, RBAC, data access, logging
+
+Adaptation Engine (MAPE-K)
+
+Monitors user actions + patient context
+
+Analyzes signals
+
+Plans UI adaptations
+
+Executes layout changes
+
+Model Services
+
+Vital Risk Prediction Service
+
+Image Analysis Service
+
+Diagnosis Suggestion Service
+
+LLM-based Summarization Service (optional)
+
+Database
+
+PostgreSQL
+
+Stores EHR-like records + model outputs + logs
+
+Object Storage
+
+MinIO/S3 for imaging files
+
+Safety & Transparency Layer
+
+AI Status Panel
+
+Adaptation Logs
+
+Suggestion Audit Trail
+
+5. FRONTEND REQUIREMENTS
+5.1 Technology Stack
+
+Next.js 14+
+
+TypeScript
+
+TailwindCSS
+
+Zustand or Context API for state
+
+Axios for API calls
+
+6. FRONTEND FEATURES
+6.1 Login Page
+
+Requirements
+
+Email/password login
+
+Backend-issued JWT session token
+
+Redirect by role:
+
+Clinician → Dashboard
+
+Researcher → Safety Dashboard
+
+Admin → System Controls
+
+6.2 Clinician Dashboard (Patient List)
+
+Fields for each patient:
+
+Patient ID (synthetic)
+
+Age, Sex
+
+Primary diagnosis
+
+Last updated time
+
+Risk badge:
+
+Routine
+
+Needs Attention
+
+High Concern
+
+Flags:
+
+Vital risk score (low/medium/high)
+
+Image flag (normal/suspicious/abnormal)
+
+Functionality
+
+Sort by: priority, name, risk level
+
+Filter by:
+
+Ward
+
+Risk level
+
+Imaging available
+
+Click → Patient Detail Page
+
+6.3 Patient Detail Page
+Sections:
+
+Summary
+
+Demographics
+
+Diagnoses
+
+Medications
+
+Allergies
+
+Last imaging & labs
+
+Vitals (Trend Graph)
+
+BP, HR, SpO2, RR, Temp, Pain
+
+Highlight abnormal values
+
+Labs
+
+Simple table; flag abnormalities
+
+Imaging
+
+Image viewer:
+
+Zoom/pan
+
+AI heatmap overlay (toggle on/off)
+
+AI label + explanation
+
+AI Suggestions Panel
+
+Cards containing:
+
+Suggestion text
+
+Explanation
+
+Relevance score
+
+Buttons:
+
+Accept
+
+Ignore
+
+Mark as not relevant
+
+Adaptive Layout
+
+Sections move up/down based on:
+
+Patient risk
+
+Clinician behavior
+
+Model outputs
+
+7. BACKEND REQUIREMENTS (FastAPI)
+7.1 Authentication & RBAC
+
+JWT authentication
+
+Roles:
+
+clinician
+
+researcher
+
+admin
+
+7.2 CRUD Endpoints
+/patients
+
+List patients
+
+Get patient detail
+
+Search patients
+
+/vitals
+
+Get time-series
+
+Add synthetic vitals
+
+/labs
+
+Get labs
+
+Insert synthetic labs
+
+/imaging
+
+Upload image
+
+Get image metadata
+
+7.3 AI Service Routing
+/ai/vitals-risk
+
+Calls vital model microservice
+
+/ai/image-analysis
+
+Sends image to GPU service
+
+/ai/diagnosis-helper
+
+Returns rule-based suggestions + explanations
+
+/ai/summarize (optional)
+
+Routes to LLM summarizer
+
+7.4 Adaptation Engine API
+/adapt/apply
+
+Receives context → returns layout plan
+
+/adapt/log-event
+
+Logs user behavior
+
+7.5 Logging Endpoints
+/logs/user-actions
+/logs/suggestions
+/logs/adaptations
+8. MODEL SERVICES REQUIREMENTS
+8.1 Image Analysis Model Service
+
+Input:
+
+Image ID
+
+Image type (X-ray / MRI)
+
+Output:
+
+{
+  "version": "1.0",
+  "abnormality_score": 0.78,
+  "classification": "suspicious",
+  "heatmap_url": "/static/heatmaps/123.png",
+  "explanation": "Opacity area detected in upper quadrant."
+}
+
+8.2 Vital Risk Model Service
+
+Input: most recent 12 hr trends
+Output:
+
+{
+  "risk_level": "high",
+  "score": 0.82,
+  "top_features": ["heart_rate_increasing", "bp_low"],
+  "explanation": "Rising HR + falling BP → high risk."
+}
+
+8.3 Diagnosis Suggestion Service
+
+Rule-based + optional ML.
+
+Output:
+
+{
+  "suggestions": [
+    {
+      "id": "dx-postop-infection",
+      "text": "Post-operative fever + redness may indicate infection.",
+      "confidence": 0.7,
+      "source": "rules",
+      "explanation": "Triggered due to fever>38 and wound redness."
+    }
+  ]
+}
+
+9. MAPE-K ADAPTATION ENGINE REQUIREMENTS
+9.1 Monitor
+
+Collect:
+
+Navigation patterns
+
+Suggestion accept/ignore
+
+Patient risk changes
+
+Model outputs
+
+9.2 Analyze
+
+Rules:
+
+If clinician consistently scrolls to vitals → raise its priority
+
+If image flags high → move imaging up
+
+If many suggestions are ignored → reduce frequency
+
+9.3 Plan
+
+Output JSON layout plan:
+
+{
+  "order": ["summary", "vitals", "imaging", "labs", "notes"],
+  "suggestion_density": "low",
+  "flags": { ... }
+}
+
+9.4 Execute
+
+Frontend rearranges components based on the JSON plan.
+
+9.5 Knowledge Base
+
+Stores:
+
+Rules
+
+Thresholds
+
+Explanations
+
+Safety guardrails
+
+Model versioning
+
+10. SAFETY & PRIVACY REQUIREMENTS
+
+Synthetic/anonymized data only
+
+No PHI in logs
+
+Suggestions are never prescriptive
+
+All AI outputs labelled "Experimental"
+
+Explainability required for every model suggestion
+
+No autonomous clinical actions
+
+11. ANALYTICS & RESEARCHER DASHBOARD
+Metrics:
+
+Suggestion acceptance/ignore rate
+
+Time spent on each section
+
+Layout adaptation events
+
+Model performance counters (non-clinical)
+
+Potential fairness indicators
+
+12. DATABASE SCHEMA (PostgreSQL)
+12.1 Tables
+patients
+id, name, age, sex, primary_diagnosis
+
+vitals
+patient_id, timestamp, hr, bp_sys, bp_dia, spo2, rr, temp, pain
+
+labs
+patient_id, timestamp, lab_type, value, normal_range
+
+imaging
+id, patient_id, type, file_path, created_at
+
+suggestions
+id, patient_id, type, text, source, explanation, created_at
+
+user_actions
+user_id, patient_id, action_type, metadata, timestamp
+
+adaptations
+user_id, patient_id, plan_json, timestamp
+
+13. ACCEPTANCE CRITERIA
+MVP Acceptance Criteria
+
+ Login + RBAC functional
+
+ Patient list with prioritization works
+
+ Patient detail displays all sections
+
+ Image viewer + AI heatmap functional
+
+ Vital risk model integrated
+
+ Diagnosis helper integrated
+
+ Suggestions panel fully functional
+
+ Adaptation engine changes UI layout
+
+ All logs correctly stored
+
+ Researcher dashboard shows analytics
+
+ All AI suggestions include explanations
+
+14. RELEASE PHASES
+Phase 1 – Core EHR + Basic Suggestion Rules
+Phase 2 – Vital Model Integration
+Phase 3 – Image Model Integration
+Phase 4 – MAPE-K Adaptivity
+Phase 5 – Researcher Dashboard + Fairness Tools
+Phase 6 – Pilot Testing & Iteration
+15. DIRECTORY STRUCTURE (For Cursor)
+/app
+  /frontend
+    /components
+    /pages
+    /services
+  /backend
+    /api
+    /models
+    /routes
+    /services
+    /adaptation_engine
+  /model-services
+    /vital-risk
+    /image-analysis
+    /diagnosis-helper
+  /database
+    schema.sql
+  /devops
+    docker-compose.yml
+    Dockerfile.backend
+    Dockerfile.frontend
+    Dockerfile.model
+
+16. LICENSE & OPEN-SCIENCE EXPECTATION
+
+MIT License or Apache 2.0 recommended
+
+All synthetic data scripts publicly released
+
+No patient-identifiable information allowed
+
+✔ READY FOR IMPLEMENTATION
+
+This PRD is specifically structured so Cursor can break it into tasks, generate files, scaffold the backend/frontend, create the architecture, and build each service incrementally.
+

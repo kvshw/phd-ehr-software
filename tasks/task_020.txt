@@ -1,0 +1,20 @@
+# Task ID: 20
+# Title: Implement MAPE-K Analyze and Plan Components
+# Status: pending
+# Dependencies: 19
+# Priority: medium
+# Description: Create the Analyze and Plan components of the MAPE-K adaptation engine that process monitoring data and generate adaptation plans.
+# Details:
+Implement Python services that:
+- Analyze collected monitoring data
+- Apply rules for UI adaptation, such as:
+  - If clinician consistently scrolls to vitals → raise its priority
+  - If image flags high → move imaging up
+  - If many suggestions are ignored → reduce frequency
+- Generate JSON layout plans with section ordering and suggestion density
+- Store adaptation plans in the database
+- Implement proper error handling and logging
+Ensure all adaptation rules are transparent and explainable.
+
+# Test Strategy:
+Test analysis logic with different monitoring data scenarios. Verify correct generation of adaptation plans. Test rule application and priority determination. Verify database storage of adaptation plans.

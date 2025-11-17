@@ -1,0 +1,16 @@
+# Task ID: 18
+# Title: Implement AI Service Routing in Backend
+# Status: pending
+# Dependencies: 4, 15, 16, 17
+# Priority: high
+# Description: Create backend API endpoints that route requests to the appropriate AI model services and handle responses.
+# Details:
+Implement FastAPI endpoints:
+- POST /ai/vitals-risk - Routes to vital risk model service
+- POST /ai/image-analysis - Routes to image analysis model service
+- POST /ai/diagnosis-helper - Routes to diagnosis suggestion service
+- POST /ai/summarize (optional) - Routes to LLM summarizer service
+Implement proper error handling, timeout management, and response caching where appropriate. Ensure all AI outputs are stored in the database for audit and research purposes.
+
+# Test Strategy:
+Test routing to each model service. Verify correct handling of responses and errors. Test timeout scenarios. Verify database storage of AI outputs.

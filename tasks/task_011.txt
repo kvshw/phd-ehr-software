@@ -1,0 +1,18 @@
+# Task ID: 11
+# Title: Implement Vitals Trend Graph Component
+# Status: pending
+# Dependencies: 7, 10
+# Priority: medium
+# Description: Create an interactive vitals trend graph component for the patient detail page that highlights abnormal values.
+# Details:
+Create a React component that:
+- Fetches time-series vitals data from the API
+- Displays interactive line charts for BP, HR, SpO2, RR, Temp, Pain
+- Highlights abnormal values based on normal ranges
+- Supports time range selection
+- Includes tooltips with detailed information
+- Handles loading states and error conditions
+Use a charting library compatible with Next.js (e.g., Recharts, Chart.js).
+
+# Test Strategy:
+Test data fetching and rendering with different data sets. Verify correct highlighting of abnormal values. Test time range selection. Test responsive behavior on different screen sizes.

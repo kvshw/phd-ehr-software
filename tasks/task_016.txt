@@ -1,0 +1,20 @@
+# Task ID: 16
+# Title: Implement Image Analysis Model Service
+# Status: pending
+# Dependencies: 3, 8
+# Priority: high
+# Description: Create the image analysis model service that processes medical images and produces abnormality assessments with heatmaps.
+# Details:
+Implement a Python service that:
+- Exposes an API endpoint for image analysis
+- Accepts input of image ID and type (X-ray/MRI)
+- Implements a rule-based or simple ML model for image analysis
+- Generates heatmaps highlighting areas of interest
+- Returns structured output with abnormality score, classification, heatmap URL, and explanation
+- Includes proper logging and error handling
+- Follows the output format specified in the PRD
+- Includes model version information
+Package as a Docker container.
+
+# Test Strategy:
+Unit test image analysis logic with different input images. Test API endpoint with valid and invalid inputs. Verify output format matches PRD specification. Test heatmap generation. Test containerization.

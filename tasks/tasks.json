@@ -1,0 +1,338 @@
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Setup Project Repository and Directory Structure",
+      "description": "Initialize the project repository with the directory structure specified in the PRD, including frontend, backend, model-services, database, and devops directories.",
+      "status": "pending",
+      "dependencies": [],
+      "priority": "high",
+      "details": "Create the following directory structure:\n- /app\n  - /frontend\n    - /components\n    - /pages\n    - /services\n  - /backend\n    - /api\n    - /models\n    - /routes\n    - /services\n    - /adaptation_engine\n  - /model-services\n    - /vital-risk\n    - /image-analysis\n    - /diagnosis-helper\n  - /database\n    - schema.sql\n  - /devops\n    - docker-compose.yml\n    - Dockerfile.backend\n    - Dockerfile.frontend\n    - Dockerfile.model\nInitialize git repository and add a README.md with project overview.",
+      "testStrategy": "Verify all directories exist and are correctly structured. Ensure git repository is initialized with initial commit."
+    },
+    {
+      "id": 2,
+      "title": "Setup Database Schema",
+      "description": "Create the PostgreSQL database schema as specified in the PRD, including tables for patients, vitals, labs, imaging, suggestions, user_actions, and adaptations.",
+      "status": "pending",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Create schema.sql file with the following tables:\n- patients (id, name, age, sex, primary_diagnosis)\n- vitals (patient_id, timestamp, hr, bp_sys, bp_dia, spo2, rr, temp, pain)\n- labs (patient_id, timestamp, lab_type, value, normal_range)\n- imaging (id, patient_id, type, file_path, created_at)\n- suggestions (id, patient_id, type, text, source, explanation, created_at)\n- user_actions (user_id, patient_id, action_type, metadata, timestamp)\n- adaptations (user_id, patient_id, plan_json, timestamp)\n- users (id, email, password_hash, role)\nEnsure proper foreign key constraints and indexes.",
+      "testStrategy": "Validate schema with PostgreSQL validator. Test schema creation in a test database to ensure all tables are created correctly with proper relationships."
+    },
+    {
+      "id": 3,
+      "title": "Setup Docker Environment",
+      "description": "Create Docker configuration files for development and deployment environments, including docker-compose.yml and Dockerfiles for frontend, backend, and model services.",
+      "status": "pending",
+      "dependencies": [
+        1
+      ],
+      "priority": "high",
+      "details": "Create the following files:\n- docker-compose.yml: Define services for frontend (Next.js), backend (FastAPI), PostgreSQL database, MinIO/S3 for object storage, and model services\n- Dockerfile.frontend: Next.js 14+ with TypeScript, TailwindCSS\n- Dockerfile.backend: FastAPI with Python dependencies\n- Dockerfile.model: Base image for model services with necessary ML libraries\nEnsure proper networking between services and volume mounts for persistent data.",
+      "testStrategy": "Test docker-compose up to ensure all services start correctly. Verify network connectivity between services and proper volume mounting."
+    },
+    {
+      "id": 4,
+      "title": "Implement Authentication and RBAC Backend",
+      "description": "Implement JWT authentication and role-based access control (RBAC) for the three user roles: clinician, researcher, and admin.",
+      "status": "pending",
+      "dependencies": [
+        2,
+        3
+      ],
+      "priority": "high",
+      "details": "Create authentication service in backend/services with:\n- JWT token generation and validation\n- Password hashing and verification\n- Role-based middleware for route protection\n- Login endpoint (/auth/login)\n- User creation endpoint (/auth/register) for admin use\n- Token refresh endpoint (/auth/refresh)\nImplement role-based redirects based on user type.",
+      "testStrategy": "Unit test JWT generation and validation. Test role-based access control with different user roles. Integration test login flow and protected routes."
+    },
+    {
+      "id": 5,
+      "title": "Implement Login Page Frontend",
+      "description": "Create the login page with email/password authentication that redirects users based on their role.",
+      "status": "pending",
+      "dependencies": [
+        3,
+        4
+      ],
+      "priority": "high",
+      "details": "Create a Next.js page with:\n- Email and password input fields with validation\n- Form submission handling with Axios to backend API\n- JWT token storage in secure HTTP-only cookies\n- Error handling for invalid credentials\n- Redirect logic:\n  - Clinician → Dashboard\n  - Researcher → Safety Dashboard\n  - Admin → System Controls\nImplement responsive design with TailwindCSS.",
+      "testStrategy": "Test form validation, API integration, error handling, and role-based redirects. Ensure responsive design works across different screen sizes."
+    },
+    {
+      "id": 6,
+      "title": "Implement Patient CRUD API Endpoints",
+      "description": "Create backend API endpoints for patient data management, including listing, searching, and retrieving patient details.",
+      "status": "pending",
+      "dependencies": [
+        2,
+        4
+      ],
+      "priority": "high",
+      "details": "Implement FastAPI endpoints:\n- GET /patients - List all patients with pagination and filtering\n- GET /patients/{id} - Get detailed patient information\n- POST /patients - Create new synthetic patient (admin only)\n- PUT /patients/{id} - Update patient information (admin only)\n- DELETE /patients/{id} - Delete patient (admin only)\n- GET /patients/search - Search patients by various criteria\nEnsure proper role-based access control for each endpoint.",
+      "testStrategy": "Unit test each endpoint for correct data handling. Test authorization with different user roles. Test pagination, filtering, and search functionality."
+    },
+    {
+      "id": 7,
+      "title": "Implement Vitals and Labs API Endpoints",
+      "description": "Create backend API endpoints for managing vitals and labs data, including time-series data retrieval and synthetic data insertion.",
+      "status": "pending",
+      "dependencies": [
+        2,
+        4
+      ],
+      "priority": "high",
+      "details": "Implement FastAPI endpoints:\n- GET /vitals/{patient_id} - Get time-series vitals data with optional time range filtering\n- POST /vitals - Add synthetic vitals data (admin/researcher only)\n- GET /labs/{patient_id} - Get labs data with optional filtering\n- POST /labs - Insert synthetic labs data (admin/researcher only)\nImplement data validation and proper error handling.",
+      "testStrategy": "Unit test each endpoint for correct data handling and validation. Test time-series data retrieval with different time ranges. Test authorization with different user roles."
+    },
+    {
+      "id": 8,
+      "title": "Implement Imaging API Endpoints",
+      "description": "Create backend API endpoints for managing medical imaging data, including upload, retrieval, and metadata management.",
+      "status": "pending",
+      "dependencies": [
+        2,
+        4
+      ],
+      "priority": "high",
+      "details": "Implement FastAPI endpoints:\n- GET /imaging/{patient_id} - List all images for a patient\n- GET /imaging/{image_id} - Get specific image metadata\n- GET /imaging/file/{image_id} - Stream image file from object storage\n- POST /imaging - Upload new image with metadata (admin/researcher only)\n- DELETE /imaging/{image_id} - Delete image (admin only)\nIntegrate with MinIO/S3 for object storage of image files.",
+      "testStrategy": "Test image upload and retrieval flow. Verify correct metadata storage in database and file storage in object storage. Test authorization with different user roles."
+    },
+    {
+      "id": 9,
+      "title": "Implement Clinician Dashboard (Patient List) Frontend",
+      "description": "Create the clinician dashboard showing the patient list with risk badges, flags, sorting, and filtering capabilities.",
+      "status": "pending",
+      "dependencies": [
+        5,
+        6
+      ],
+      "priority": "high",
+      "details": "Create a Next.js page with:\n- Table/grid view of patients showing:\n  - Patient ID\n  - Age, Sex\n  - Primary diagnosis\n  - Last updated time\n  - Risk badge (Routine/Needs Attention/High Concern)\n  - Flags for vital risk score and image status\n- Sorting functionality by priority, name, risk level\n- Filtering by ward, risk level, imaging availability\n- Click handler to navigate to patient detail page\n- Responsive design with TailwindCSS\nImplement state management with Zustand or Context API.",
+      "testStrategy": "Test sorting and filtering functionality. Verify correct display of patient data, risk badges, and flags. Test navigation to patient detail page. Ensure responsive design works across different screen sizes."
+    },
+    {
+      "id": 10,
+      "title": "Implement Patient Detail Page Base Components",
+      "description": "Create the base structure and components for the patient detail page, including the layout for all required sections.",
+      "status": "pending",
+      "dependencies": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "priority": "high",
+      "details": "Create a Next.js page with:\n- Header with patient name, ID, and key demographics\n- Tab or section navigation for different content areas\n- Base components for each section:\n  - Summary\n  - Demographics\n  - Diagnoses\n  - Medications\n  - Allergies\n  - Vitals (placeholder for trend graph)\n  - Labs (placeholder for table)\n  - Imaging (placeholder for viewer)\n  - AI Suggestions Panel (placeholder)\n- Implement responsive layout with TailwindCSS\n- Setup state management for section ordering/priority",
+      "testStrategy": "Test navigation between sections. Verify responsive layout across different screen sizes. Test initial state management for section ordering."
+    },
+    {
+      "id": 11,
+      "title": "Implement Vitals Trend Graph Component",
+      "description": "Create an interactive vitals trend graph component for the patient detail page that highlights abnormal values.",
+      "status": "pending",
+      "dependencies": [
+        7,
+        10
+      ],
+      "priority": "medium",
+      "details": "Create a React component that:\n- Fetches time-series vitals data from the API\n- Displays interactive line charts for BP, HR, SpO2, RR, Temp, Pain\n- Highlights abnormal values based on normal ranges\n- Supports time range selection\n- Includes tooltips with detailed information\n- Handles loading states and error conditions\nUse a charting library compatible with Next.js (e.g., Recharts, Chart.js).",
+      "testStrategy": "Test data fetching and rendering with different data sets. Verify correct highlighting of abnormal values. Test time range selection. Test responsive behavior on different screen sizes."
+    },
+    {
+      "id": 12,
+      "title": "Implement Labs Table Component",
+      "description": "Create a labs table component for the patient detail page that displays lab results and flags abnormalities.",
+      "status": "pending",
+      "dependencies": [
+        7,
+        10
+      ],
+      "priority": "medium",
+      "details": "Create a React component that:\n- Fetches labs data from the API\n- Displays a sortable and filterable table of lab results\n- Highlights abnormal values based on normal ranges\n- Supports pagination for large numbers of results\n- Includes date/time information and trending indicators\n- Handles loading states and error conditions",
+      "testStrategy": "Test data fetching and rendering with different data sets. Verify correct highlighting of abnormal values. Test sorting, filtering, and pagination. Test responsive behavior on different screen sizes."
+    },
+    {
+      "id": 13,
+      "title": "Implement Image Viewer Component",
+      "description": "Create an interactive medical image viewer component with zoom/pan capabilities and AI heatmap overlay toggle.",
+      "status": "pending",
+      "dependencies": [
+        8,
+        10
+      ],
+      "priority": "medium",
+      "details": "Create a React component that:\n- Fetches image data from the API\n- Displays medical images with zoom/pan controls\n- Supports toggling AI heatmap overlay on/off\n- Displays AI label and explanation when available\n- Handles different image types (X-ray, MRI)\n- Supports responsive sizing\n- Handles loading states and error conditions\nUse a suitable image viewer library compatible with Next.js.",
+      "testStrategy": "Test image loading and display with different image types. Test zoom/pan functionality. Test heatmap overlay toggle. Test responsive behavior on different screen sizes."
+    },
+    {
+      "id": 14,
+      "title": "Implement AI Suggestions Panel Component",
+      "description": "Create the AI suggestions panel component that displays cards with suggestions, explanations, and relevance scores.",
+      "status": "pending",
+      "dependencies": [
+        10
+      ],
+      "priority": "medium",
+      "details": "Create a React component that:\n- Displays suggestion cards with:\n  - Suggestion text\n  - Explanation\n  - Relevance score\n  - Action buttons (Accept, Ignore, Mark as not relevant)\n- Handles user interactions with suggestions\n- Sends feedback to the backend API\n- Clearly labels all AI outputs as \"Experimental\"\n- Handles loading states and error conditions\n- Supports different suggestion densities based on adaptation engine",
+      "testStrategy": "Test rendering of suggestion cards with different data. Test user interaction with action buttons. Verify API calls for feedback. Test responsive behavior on different screen sizes."
+    },
+    {
+      "id": 15,
+      "title": "Implement Vital Risk Model Service",
+      "description": "Create the vital risk prediction model service that analyzes vital signs trends and produces risk assessments.",
+      "status": "pending",
+      "dependencies": [
+        3,
+        7
+      ],
+      "priority": "high",
+      "details": "Implement a Python service that:\n- Exposes an API endpoint for vital risk prediction\n- Accepts input of most recent 12-hour vital trends\n- Implements a rule-based or simple ML model for risk assessment\n- Returns structured output with risk level, score, top features, and explanation\n- Includes proper logging and error handling\n- Follows the output format specified in the PRD\n- Includes model version information\nPackage as a Docker container.",
+      "testStrategy": "Unit test risk prediction logic with different input scenarios. Test API endpoint with valid and invalid inputs. Verify output format matches PRD specification. Test containerization."
+    },
+    {
+      "id": 16,
+      "title": "Implement Image Analysis Model Service",
+      "description": "Create the image analysis model service that processes medical images and produces abnormality assessments with heatmaps.",
+      "status": "pending",
+      "dependencies": [
+        3,
+        8
+      ],
+      "priority": "high",
+      "details": "Implement a Python service that:\n- Exposes an API endpoint for image analysis\n- Accepts input of image ID and type (X-ray/MRI)\n- Implements a rule-based or simple ML model for image analysis\n- Generates heatmaps highlighting areas of interest\n- Returns structured output with abnormality score, classification, heatmap URL, and explanation\n- Includes proper logging and error handling\n- Follows the output format specified in the PRD\n- Includes model version information\nPackage as a Docker container.",
+      "testStrategy": "Unit test image analysis logic with different input images. Test API endpoint with valid and invalid inputs. Verify output format matches PRD specification. Test heatmap generation. Test containerization."
+    },
+    {
+      "id": 17,
+      "title": "Implement Diagnosis Suggestion Service",
+      "description": "Create the diagnosis suggestion service that provides rule-based clinical suggestions with explanations.",
+      "status": "pending",
+      "dependencies": [
+        3,
+        6,
+        7
+      ],
+      "priority": "high",
+      "details": "Implement a Python service that:\n- Exposes an API endpoint for diagnosis suggestions\n- Accepts patient data including vitals, labs, and diagnoses\n- Implements rule-based logic for generating suggestions\n- Returns structured output with suggestions, confidence scores, sources, and explanations\n- Includes proper logging and error handling\n- Follows the output format specified in the PRD\n- Ensures all suggestions include clear explanations\n- Includes safety checks to prevent prescriptive suggestions\nPackage as a Docker container.",
+      "testStrategy": "Unit test suggestion logic with different patient scenarios. Test API endpoint with valid and invalid inputs. Verify output format matches PRD specification. Test safety checks for prescriptive language. Test containerization."
+    },
+    {
+      "id": 18,
+      "title": "Implement AI Service Routing in Backend",
+      "description": "Create backend API endpoints that route requests to the appropriate AI model services and handle responses.",
+      "status": "pending",
+      "dependencies": [
+        4,
+        15,
+        16,
+        17
+      ],
+      "priority": "high",
+      "details": "Implement FastAPI endpoints:\n- POST /ai/vitals-risk - Routes to vital risk model service\n- POST /ai/image-analysis - Routes to image analysis model service\n- POST /ai/diagnosis-helper - Routes to diagnosis suggestion service\n- POST /ai/summarize (optional) - Routes to LLM summarizer service\nImplement proper error handling, timeout management, and response caching where appropriate. Ensure all AI outputs are stored in the database for audit and research purposes.",
+      "testStrategy": "Test routing to each model service. Verify correct handling of responses and errors. Test timeout scenarios. Verify database storage of AI outputs."
+    },
+    {
+      "id": 19,
+      "title": "Implement MAPE-K Monitor Component",
+      "description": "Create the Monitor component of the MAPE-K adaptation engine that collects user behavior and system data.",
+      "status": "pending",
+      "dependencies": [
+        4,
+        6,
+        7,
+        8,
+        18
+      ],
+      "priority": "medium",
+      "details": "Implement a Python service that:\n- Creates API endpoints for logging user actions\n- Collects navigation patterns\n- Tracks suggestion accept/ignore actions\n- Monitors patient risk changes\n- Captures model outputs\n- Stores all collected data in the database\n- Implements proper data validation and error handling\nEnsure no PHI or identifiable information is logged.",
+      "testStrategy": "Test data collection with different user actions. Verify correct storage in database. Test data validation and error handling. Verify no PHI is captured in logs."
+    },
+    {
+      "id": 20,
+      "title": "Implement MAPE-K Analyze and Plan Components",
+      "description": "Create the Analyze and Plan components of the MAPE-K adaptation engine that process monitoring data and generate adaptation plans.",
+      "status": "pending",
+      "dependencies": [
+        19
+      ],
+      "priority": "medium",
+      "details": "Implement Python services that:\n- Analyze collected monitoring data\n- Apply rules for UI adaptation, such as:\n  - If clinician consistently scrolls to vitals → raise its priority\n  - If image flags high → move imaging up\n  - If many suggestions are ignored → reduce frequency\n- Generate JSON layout plans with section ordering and suggestion density\n- Store adaptation plans in the database\n- Implement proper error handling and logging\nEnsure all adaptation rules are transparent and explainable.",
+      "testStrategy": "Test analysis logic with different monitoring data scenarios. Verify correct generation of adaptation plans. Test rule application and priority determination. Verify database storage of adaptation plans."
+    },
+    {
+      "id": 21,
+      "title": "Implement MAPE-K Execute Component and Frontend Integration",
+      "description": "Create the Execute component of the MAPE-K adaptation engine and integrate it with the frontend to enable adaptive UI.",
+      "status": "pending",
+      "dependencies": [
+        10,
+        20
+      ],
+      "priority": "medium",
+      "details": "Implement:\n- Backend API endpoint to serve adaptation plans\n- Frontend service to fetch and apply adaptation plans\n- React components that respond to adaptation plans by:\n  - Reordering sections based on priority\n  - Adjusting suggestion density\n  - Highlighting relevant sections\n  - Applying other UI adaptations\n- Implement smooth transitions between UI states\nEnsure all adaptations are visible to the user and can be reset if needed.",
+      "testStrategy": "Test frontend adaptation with different adaptation plans. Verify correct reordering of sections and UI adjustments. Test transitions between different UI states. Verify user awareness of adaptations."
+    },
+    {
+      "id": 22,
+      "title": "Implement Logging and Audit Trail System",
+      "description": "Create a comprehensive logging and audit trail system for user actions, AI suggestions, and system adaptations.",
+      "status": "pending",
+      "dependencies": [
+        18,
+        19,
+        20
+      ],
+      "priority": "medium",
+      "details": "Implement:\n- Backend API endpoints for log retrieval\n- Structured logging format for all system events\n- User action logging (views, clicks, navigation)\n- AI suggestion logging (presentation, user response)\n- Adaptation logging (triggers, plans, executions)\n- Ensure all logs are timestamped and associated with users\n- Implement log rotation and archiving\nEnsure no PHI or identifiable information is logged.",
+      "testStrategy": "Test log generation for different system events. Verify correct storage and retrieval of logs. Test log format and content. Verify no PHI is captured in logs."
+    },
+    {
+      "id": 23,
+      "title": "Implement Researcher Dashboard",
+      "description": "Create the researcher dashboard that displays analytics, logs, and model performance metrics.",
+      "status": "pending",
+      "dependencies": [
+        5,
+        22
+      ],
+      "priority": "low",
+      "details": "Create a Next.js page with:\n- Authentication for researcher role\n- Metrics display:\n  - Suggestion acceptance/ignore rate\n  - Time spent on each section\n  - Layout adaptation events\n  - Model performance counters\n  - Potential fairness indicators\n- Log viewer with filtering and search\n- Charts and visualizations for key metrics\n- Export functionality for research data\nImplement responsive design with TailwindCSS.",
+      "testStrategy": "Test authentication and authorization for researcher role. Verify correct display of metrics and logs. Test filtering and search functionality. Test data export. Ensure responsive design works across different screen sizes."
+    },
+    {
+      "id": 24,
+      "title": "Implement Admin System Controls",
+      "description": "Create the admin dashboard for system management, user administration, and synthetic data generation.",
+      "status": "pending",
+      "dependencies": [
+        5,
+        22
+      ],
+      "priority": "low",
+      "details": "Create a Next.js page with:\n- Authentication for admin role\n- User management (create, edit, delete users)\n- Synthetic data generation controls\n- System logs and monitoring\n- Model service status and version information\n- Configuration settings for adaptation rules\n- Database management tools\nImplement responsive design with TailwindCSS.",
+      "testStrategy": "Test authentication and authorization for admin role. Verify user management functionality. Test synthetic data generation. Verify system monitoring and configuration capabilities. Ensure responsive design works across different screen sizes."
+    },
+    {
+      "id": 25,
+      "title": "Implement Safety and Transparency Features",
+      "description": "Create safety and transparency features throughout the system, including AI status panels, adaptation logs, and suggestion audit trails.",
+      "status": "pending",
+      "dependencies": [
+        14,
+        21,
+        22
+      ],
+      "priority": "high",
+      "details": "Implement:\n- AI Status Panel showing active models and their versions\n- Clear labeling of all AI outputs as \"Experimental\"\n- Adaptation notification system to inform users of UI changes\n- Suggestion audit trail accessible to clinicians\n- Explainability components for all AI suggestions\n- Safety guardrails preventing prescriptive suggestions\n- Transparency in data usage and model behavior\nEnsure all AI components follow safety and transparency requirements from the PRD.",
+      "testStrategy": "Verify all AI outputs are clearly labeled. Test explainability components for different suggestions. Verify adaptation notifications are clear and informative. Test audit trail accessibility and completeness. Verify safety guardrails prevent prescriptive suggestions."
+    }
+  ],
+  "metadata": {
+    "projectName": "Self-Adaptive AI-Assisted EHR Research Platform",
+    "totalTasks": 25,
+    "sourceFile": "PRD Implementation",
+    "generatedAt": "2023-11-14"
+  }
+}

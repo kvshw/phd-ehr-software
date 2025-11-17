@@ -1,0 +1,21 @@
+# Task ID: 14
+# Title: Implement AI Suggestions Panel Component
+# Status: pending
+# Dependencies: 10
+# Priority: medium
+# Description: Create the AI suggestions panel component that displays cards with suggestions, explanations, and relevance scores.
+# Details:
+Create a React component that:
+- Displays suggestion cards with:
+  - Suggestion text
+  - Explanation
+  - Relevance score
+  - Action buttons (Accept, Ignore, Mark as not relevant)
+- Handles user interactions with suggestions
+- Sends feedback to the backend API
+- Clearly labels all AI outputs as "Experimental"
+- Handles loading states and error conditions
+- Supports different suggestion densities based on adaptation engine
+
+# Test Strategy:
+Test rendering of suggestion cards with different data. Test user interaction with action buttons. Verify API calls for feedback. Test responsive behavior on different screen sizes.

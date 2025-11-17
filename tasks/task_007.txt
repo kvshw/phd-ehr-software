@@ -1,0 +1,16 @@
+# Task ID: 7
+# Title: Implement Vitals and Labs API Endpoints
+# Status: pending
+# Dependencies: 2, 4
+# Priority: high
+# Description: Create backend API endpoints for managing vitals and labs data, including time-series data retrieval and synthetic data insertion.
+# Details:
+Implement FastAPI endpoints:
+- GET /vitals/{patient_id} - Get time-series vitals data with optional time range filtering
+- POST /vitals - Add synthetic vitals data (admin/researcher only)
+- GET /labs/{patient_id} - Get labs data with optional filtering
+- POST /labs - Insert synthetic labs data (admin/researcher only)
+Implement data validation and proper error handling.
+
+# Test Strategy:
+Unit test each endpoint for correct data handling and validation. Test time-series data retrieval with different time ranges. Test authorization with different user roles.
