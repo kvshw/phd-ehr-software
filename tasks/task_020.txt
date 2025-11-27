@@ -1,6 +1,6 @@
 # Task ID: 20
 # Title: Implement MAPE-K Analyze and Plan Components
-# Status: pending
+# Status: done
 # Dependencies: 19
 # Priority: medium
 # Description: Create the Analyze and Plan components of the MAPE-K adaptation engine that process monitoring data and generate adaptation plans.

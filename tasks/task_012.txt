@@ -1,6 +1,6 @@
 # Task ID: 12
 # Title: Implement Labs Table Component
-# Status: pending
+# Status: done
 # Dependencies: 7, 10
 # Priority: medium
 # Description: Create a labs table component for the patient detail page that displays lab results and flags abnormalities.

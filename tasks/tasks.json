@@ -4,7 +4,7 @@
       "id": 1,
       "title": "Setup Project Repository and Directory Structure",
       "description": "Initialize the project repository with the directory structure specified in the PRD, including frontend, backend, model-services, database, and devops directories.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [],
       "priority": "high",
       "details": "Create the following directory structure:\n- /app\n  - /frontend\n    - /components\n    - /pages\n    - /services\n  - /backend\n    - /api\n    - /models\n    - /routes\n    - /services\n    - /adaptation_engine\n  - /model-services\n    - /vital-risk\n    - /image-analysis\n    - /diagnosis-helper\n  - /database\n    - schema.sql\n  - /devops\n    - docker-compose.yml\n    - Dockerfile.backend\n    - Dockerfile.frontend\n    - Dockerfile.model\nInitialize git repository and add a README.md with project overview.",
@@ -14,7 +14,7 @@
       "id": 2,
       "title": "Setup Database Schema",
       "description": "Create the PostgreSQL database schema as specified in the PRD, including tables for patients, vitals, labs, imaging, suggestions, user_actions, and adaptations.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         1
       ],
@@ -26,7 +26,7 @@
       "id": 3,
       "title": "Setup Docker Environment",
       "description": "Create Docker configuration files for development and deployment environments, including docker-compose.yml and Dockerfiles for frontend, backend, and model services.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         1
       ],
@@ -38,7 +38,7 @@
       "id": 4,
       "title": "Implement Authentication and RBAC Backend",
       "description": "Implement JWT authentication and role-based access control (RBAC) for the three user roles: clinician, researcher, and admin.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2,
         3
@@ -51,7 +51,7 @@
       "id": 5,
       "title": "Implement Login Page Frontend",
       "description": "Create the login page with email/password authentication that redirects users based on their role.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         3,
         4
@@ -64,7 +64,7 @@
       "id": 6,
       "title": "Implement Patient CRUD API Endpoints",
       "description": "Create backend API endpoints for patient data management, including listing, searching, and retrieving patient details.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2,
         4
@@ -77,7 +77,7 @@
       "id": 7,
       "title": "Implement Vitals and Labs API Endpoints",
       "description": "Create backend API endpoints for managing vitals and labs data, including time-series data retrieval and synthetic data insertion.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2,
         4
@@ -90,7 +90,7 @@
       "id": 8,
       "title": "Implement Imaging API Endpoints",
       "description": "Create backend API endpoints for managing medical imaging data, including upload, retrieval, and metadata management.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         2,
         4
@@ -103,7 +103,7 @@
       "id": 9,
       "title": "Implement Clinician Dashboard (Patient List) Frontend",
       "description": "Create the clinician dashboard showing the patient list with risk badges, flags, sorting, and filtering capabilities.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         5,
         6
@@ -116,7 +116,7 @@
       "id": 10,
       "title": "Implement Patient Detail Page Base Components",
       "description": "Create the base structure and components for the patient detail page, including the layout for all required sections.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         5,
         6,
@@ -131,7 +131,7 @@
       "id": 11,
       "title": "Implement Vitals Trend Graph Component",
       "description": "Create an interactive vitals trend graph component for the patient detail page that highlights abnormal values.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         7,
         10
@@ -144,7 +144,7 @@
       "id": 12,
       "title": "Implement Labs Table Component",
       "description": "Create a labs table component for the patient detail page that displays lab results and flags abnormalities.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         7,
         10
@@ -157,7 +157,7 @@
       "id": 13,
       "title": "Implement Image Viewer Component",
       "description": "Create an interactive medical image viewer component with zoom/pan capabilities and AI heatmap overlay toggle.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         8,
         10
@@ -170,7 +170,7 @@
       "id": 14,
       "title": "Implement AI Suggestions Panel Component",
       "description": "Create the AI suggestions panel component that displays cards with suggestions, explanations, and relevance scores.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         10
       ],
@@ -182,7 +182,7 @@
       "id": 15,
       "title": "Implement Vital Risk Model Service",
       "description": "Create the vital risk prediction model service that analyzes vital signs trends and produces risk assessments.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         3,
         7
@@ -195,7 +195,7 @@
       "id": 16,
       "title": "Implement Image Analysis Model Service",
       "description": "Create the image analysis model service that processes medical images and produces abnormality assessments with heatmaps.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         3,
         8
@@ -208,7 +208,7 @@
       "id": 17,
       "title": "Implement Diagnosis Suggestion Service",
       "description": "Create the diagnosis suggestion service that provides rule-based clinical suggestions with explanations.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         3,
         6,
@@ -222,7 +222,7 @@
       "id": 18,
       "title": "Implement AI Service Routing in Backend",
       "description": "Create backend API endpoints that route requests to the appropriate AI model services and handle responses.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         4,
         15,
@@ -237,7 +237,7 @@
       "id": 19,
       "title": "Implement MAPE-K Monitor Component",
       "description": "Create the Monitor component of the MAPE-K adaptation engine that collects user behavior and system data.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         4,
         6,
@@ -253,7 +253,7 @@
       "id": 20,
       "title": "Implement MAPE-K Analyze and Plan Components",
       "description": "Create the Analyze and Plan components of the MAPE-K adaptation engine that process monitoring data and generate adaptation plans.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         19
       ],
@@ -265,7 +265,7 @@
       "id": 21,
       "title": "Implement MAPE-K Execute Component and Frontend Integration",
       "description": "Create the Execute component of the MAPE-K adaptation engine and integrate it with the frontend to enable adaptive UI.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         10,
         20
@@ -278,7 +278,7 @@
       "id": 22,
       "title": "Implement Logging and Audit Trail System",
       "description": "Create a comprehensive logging and audit trail system for user actions, AI suggestions, and system adaptations.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         18,
         19,
@@ -292,7 +292,7 @@
       "id": 23,
       "title": "Implement Researcher Dashboard",
       "description": "Create the researcher dashboard that displays analytics, logs, and model performance metrics.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         5,
         22
@@ -305,7 +305,7 @@
       "id": 24,
       "title": "Implement Admin System Controls",
       "description": "Create the admin dashboard for system management, user administration, and synthetic data generation.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         5,
         22
@@ -318,7 +318,7 @@
       "id": 25,
       "title": "Implement Safety and Transparency Features",
       "description": "Create safety and transparency features throughout the system, including AI status panels, adaptation logs, and suggestion audit trails.",
-      "status": "pending",
+      "status": "done",
       "dependencies": [
         14,
         21,

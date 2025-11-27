@@ -18,9 +18,12 @@
 - **CORS**: FastAPI CORS middleware
 
 ### Database
-- **Type**: PostgreSQL 14+
-- **ORM**: SQLAlchemy
-- **Migrations**: Alembic
+- **Type**: Supabase (PostgreSQL 17.6.1)
+- **Project ID**: gzlfyxwsffubglatvcau
+- **Region**: us-east-1
+- **ORM**: SQLAlchemy (backend) / Supabase Client (frontend)
+- **Migrations**: Supabase MCP / Alembic (for direct SQL)
+- **Connection**: Supabase REST API or direct PostgreSQL connection
 
 ### Storage
 - **Object Storage**: MinIO (S3-compatible) or AWS S3
@@ -42,21 +45,31 @@
 ### Prerequisites
 - Node.js 18+
 - Python 3.11+
-- PostgreSQL 14+
-- Docker & Docker Compose
+- Supabase account (project already created: gzlfyxwsffubglatvcau)
+- Docker & Docker Compose (for local services like MinIO)
 
 ### Environment Variables
 ```
+# Supabase
+SUPABASE_URL=https://gzlfyxwsffubglatvcau.supabase.co
+SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+DATABASE_URL=postgresql://postgres:[PASSWORD]@db.gzlfyxwsffubglatvcau.supabase.co:5432/postgres
+
 # Backend
-DATABASE_URL=postgresql://user:pass@localhost/ehr_db
 JWT_SECRET_KEY=...
 JWT_ALGORITHM=HS256
-MINIO_ENDPOINT=localhost:9000
-MINIO_ACCESS_KEY=...
-MINIO_SECRET_KEY=...
+BACKEND_PORT=8000
 
 # Frontend
 NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_SUPABASE_URL=https://gzlfyxwsffubglatvcau.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+
+# MinIO/S3
+MINIO_ENDPOINT=localhost:9000
+MINIO_ACCESS_KEY=...
+MINIO_SECRET_KEY=...
 ```
 
 ## Technical Constraints

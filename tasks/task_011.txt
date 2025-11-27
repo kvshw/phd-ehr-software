@@ -1,6 +1,6 @@
 # Task ID: 11
 # Title: Implement Vitals Trend Graph Component
-# Status: pending
+# Status: done
 # Dependencies: 7, 10
 # Priority: medium
 # Description: Create an interactive vitals trend graph component for the patient detail page that highlights abnormal values.

@@ -1,6 +1,6 @@
 # Task ID: 7
 # Title: Implement Vitals and Labs API Endpoints
-# Status: pending
+# Status: done
 # Dependencies: 2, 4
 # Priority: high
 # Description: Create backend API endpoints for managing vitals and labs data, including time-series data retrieval and synthetic data insertion.

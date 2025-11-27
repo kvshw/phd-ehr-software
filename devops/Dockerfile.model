@@ -1,0 +1,40 @@
+# Model Services Dockerfile (base image for all model services)
+FROM python:3.11-slim AS base
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    postgresql-client \
+    curl \
+    libglib2.0-0 \
+    libgl1 \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy base requirements for model services
+COPY app/model-services/requirements.txt* ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+    fastapi \
+    uvicorn[standard] \
+    pydantic \
+    python-multipart \
+    httpx \
+    numpy \
+    pandas \
+    scikit-learn \
+    pillow \
+    && if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
+
+# Copy common model service utilities (if any)
+COPY app/model-services/ ./model-services/
+
+# Default command (should be overridden in docker-compose)
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"]
+

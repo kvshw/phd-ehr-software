@@ -45,8 +45,8 @@ This platform serves as a research testbed for studying:
 ### Prerequisites
 - Node.js 18+
 - Python 3.11+
-- PostgreSQL 14+
-- Docker & Docker Compose
+- Supabase account (project already created)
+- Docker & Docker Compose (for local services)
 
 ### Setup
 
@@ -56,15 +56,16 @@ git clone <repository-url>
 cd "Medical EHR Software"
 ```
 
-2. **Start services with Docker**
+2. **Configure environment variables**
 ```bash
-docker-compose up -d
+cp .env.example .env
+# Edit .env and add your Supabase Service Role Key
+# Get it from: https://supabase.com/dashboard/project/gzlfyxwsffubglatvcau/settings/api
 ```
 
-3. **Run database migrations**
+3. **Start local services with Docker** (MinIO, model services)
 ```bash
-cd app/backend
-alembic upgrade head
+docker-compose up -d
 ```
 
 4. **Start backend**

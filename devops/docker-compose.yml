@@ -1,0 +1,182 @@
+services:
+  # MinIO for object storage (S3-compatible)
+  minio:
+    image: minio/minio:latest
+    container_name: ehr-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - ehr-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # MinIO Client for bucket initialization
+  minio-setup:
+    image: minio/mc:latest
+    container_name: ehr-minio-setup
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb myminio/ehr-images --ignore-existing;
+      /usr/bin/mc anonymous set download myminio/ehr-images;
+      exit 0;
+      "
+    networks:
+      - ehr-network
+
+  # Backend API (FastAPI)
+  backend:
+    build:
+      context: ..
+      dockerfile: devops/Dockerfile.backend
+    container_name: ehr-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET_NAME=ehr-images
+      - VITAL_RISK_SERVICE_URL=http://vital-risk-service:8001
+      - IMAGE_ANALYSIS_SERVICE_URL=http://image-analysis-service:8002
+      - DIAGNOSIS_HELPER_SERVICE_URL=http://diagnosis-helper-service:8003
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ../app/backend:/app
+    networks:
+      - ehr-network
+    depends_on:
+      minio:
+        condition: service_healthy
+      minio-setup:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Frontend (Next.js)
+  frontend:
+    build:
+      context: ..
+      dockerfile: devops/Dockerfile.frontend
+    container_name: ehr-frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ../.env
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    volumes:
+      - ../app/frontend:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - ehr-network
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # Vital Risk Model Service
+  vital-risk-service:
+    build:
+      context: ..
+      dockerfile: devops/Dockerfile.model
+    container_name: ehr-vital-risk-service
+    working_dir: /app/model-services/vital-risk
+    ports:
+      - "8001:8001"
+    env_file:
+      - ../.env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+    volumes:
+      - ../app/model-services/vital-risk:/app/model-services/vital-risk
+    networks:
+      - ehr-network
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+
+  # Image Analysis Model Service
+  image-analysis-service:
+    build:
+      context: ..
+      dockerfile: devops/Dockerfile.model
+    container_name: ehr-image-analysis-service
+    working_dir: /app/model-services/image-analysis
+    ports:
+      - "8002:8002"
+    env_file:
+      - ../.env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET_NAME=ehr-images
+    volumes:
+      - ../app/model-services/image-analysis:/app/model-services/image-analysis
+    networks:
+      - ehr-network
+    depends_on:
+      - minio
+    command: uvicorn main:app --host 0.0.0.0 --port 8002 --reload
+
+  # Diagnosis Helper Service
+  diagnosis-helper-service:
+    build:
+      context: ..
+      dockerfile: devops/Dockerfile.model
+    container_name: ehr-diagnosis-helper-service
+    working_dir: /app/model-services/diagnosis-helper
+    ports:
+      - "8003:8003"
+    env_file:
+      - ../.env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+    volumes:
+      - ../app/model-services/diagnosis-helper:/app/model-services/diagnosis-helper
+    networks:
+      - ehr-network
+    command: uvicorn main:app --host 0.0.0.0 --port 8003 --reload
+
+volumes:
+  minio-data:
+    driver: local
+
+networks:
+  ehr-network:
+    driver: bridge
+

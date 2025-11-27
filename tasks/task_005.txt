@@ -1,6 +1,6 @@
 # Task ID: 5
 # Title: Implement Login Page Frontend
-# Status: pending
+# Status: done
 # Dependencies: 3, 4
 # Priority: high
 # Description: Create the login page with email/password authentication that redirects users based on their role.

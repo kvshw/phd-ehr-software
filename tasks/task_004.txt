@@ -1,6 +1,6 @@
 # Task ID: 4
 # Title: Implement Authentication and RBAC Backend
-# Status: pending
+# Status: done
 # Dependencies: 2, 3
 # Priority: high
 # Description: Implement JWT authentication and role-based access control (RBAC) for the three user roles: clinician, researcher, and admin.

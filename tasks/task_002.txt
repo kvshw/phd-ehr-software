@@ -1,6 +1,6 @@
 # Task ID: 2
 # Title: Setup Database Schema
-# Status: pending
+# Status: done
 # Dependencies: 1
 # Priority: high
 # Description: Create the PostgreSQL database schema as specified in the PRD, including tables for patients, vitals, labs, imaging, suggestions, user_actions, and adaptations.

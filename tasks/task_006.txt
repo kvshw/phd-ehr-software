@@ -1,6 +1,6 @@
 # Task ID: 6
 # Title: Implement Patient CRUD API Endpoints
-# Status: pending
+# Status: done
 # Dependencies: 2, 4
 # Priority: high
 # Description: Create backend API endpoints for patient data management, including listing, searching, and retrieving patient details.
