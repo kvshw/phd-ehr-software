@@ -7,7 +7,7 @@ A research platform implementing MAPE-K architecture for self-adaptive Electroni
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
 ![License](https://img.shields.io/badge/License-Research-orange)
 
-## 🎯 Overview
+## Overview
 
 This platform demonstrates a novel approach to EHR personalization using:
 
@@ -17,7 +17,7 @@ This platform demonstrates a novel approach to EHR personalization using:
 - **Role-Based Interfaces**: Adaptive dashboards for Doctors, Nurses, and Admins
 - **Privacy-Preserving**: Federated learning and data anonymization
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -36,7 +36,7 @@ This platform demonstrates a novel approach to EHR personalization using:
 └─────────────────────────────────────────────────────────┘
 ```
 
-## 🚀 Live Demo
+## Live Demo
 
 - **Frontend**: [https://your-app.vercel.app](https://your-app.vercel.app)
 - **API Docs**: [https://your-backend.com/docs](https://your-backend.com/docs)
@@ -49,7 +49,7 @@ This platform demonstrates a novel approach to EHR personalization using:
 | Nurse | nurse@demo.com | demo123 |
 | Admin | admin@demo.com | demo123 |
 
-## ✨ Key Features
+## Key Features
 
 ### Self-Adaptive Dashboard
 - Automatically learns user preferences
@@ -71,7 +71,7 @@ This platform demonstrates a novel approach to EHR personalization using:
 - Fairness metrics across user groups
 - A/B testing framework
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - Next.js 14 (App Router)
@@ -88,7 +88,7 @@ This platform demonstrates a novel approach to EHR personalization using:
 ### Database
 - PostgreSQL (via Supabase)
 
-## 📦 Local Development
+## Local Development
 
 ### Prerequisites
 - Node.js 20+
@@ -124,7 +124,7 @@ cd devops
 docker-compose up -d
 ```
 
-## 🌐 Deployment
+## Deployment
 
 ### Frontend (Vercel)
 
@@ -141,13 +141,13 @@ docker-compose up -d
    - `SECRET_KEY`: JWT secret
    - `CORS_ORIGINS`: Frontend URL
 
-## 📊 API Documentation
+## API Documentation
 
 When running locally, visit:
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
-## 🔬 Research
+## Research
 
 This platform supports PhD research in self-adaptive systems for healthcare. Key research areas:
 
@@ -155,17 +155,15 @@ This platform supports PhD research in self-adaptive systems for healthcare. Key
 2. **Human-AI Collaboration**: Trust and override behavior
 3. **Privacy-Preserving ML**: Federated learning patterns
 
-## 📝 License
+## License
 
 This is a research project. Please contact the authors for usage permissions.
 
-## 👥 Authors
+## Authors
 
 - Kavishwa Wendakoon - PhD Candidate
 - Nirnaya Tripathi - Supervisor
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- University of Oulu
-- Supabase for database hosting
-- Vercel for frontend hosting
+- University of Oulu and M3S Unit
