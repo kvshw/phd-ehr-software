@@ -161,11 +161,11 @@ This is a research project. Please contact the authors for usage permissions.
 
 ## 👥 Authors
 
-- [Your Name] - PhD Candidate
-- [Supervisor Name] - Supervisor
+- Kavishwa Wendakoon - PhD Candidate
+- Nirnaya Tripathi - Supervisor
 
 ## 🙏 Acknowledgments
 
-- [University/Institution]
+- University of Oulu
 - Supabase for database hosting
 - Vercel for frontend hosting
