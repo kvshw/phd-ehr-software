@@ -2,13 +2,20 @@
 Application configuration
 """
 from pydantic_settings import BaseSettings
-from typing import Optional
+from typing import Optional, List
 from pathlib import Path
 import os
 
 # Get project root (2 levels up from this file)
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 ENV_FILE = PROJECT_ROOT / ".env"
+
+# Default localhost origins for development
+DEFAULT_CORS_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://frontend:3000",
+]
 
 
 class Settings(BaseSettings):
@@ -22,16 +29,19 @@ class Settings(BaseSettings):
     # JWT
     JWT_SECRET_KEY: str = "your-secret-key-change-in-production"
     JWT_ALGORITHM: str = "HS256"
-    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 480  # 8 hours for development/demo (was 30 minutes)
-    JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 30  # 30 days (was 7 days)
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 480  # 8 hours for development/demo
+    JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 30  # 30 days
     
-    # CORS - Allow all origins in development, restrict in production
-    CORS_ORIGINS: list = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://frontend:3000",
-        "http://localhost:*",  # Allow any localhost port
-    ]
+    # CORS - Set via CORS_ORIGINS env var (comma-separated) for production
+    # Example: CORS_ORIGINS=https://your-app.vercel.app,https://your-other-domain.com
+    CORS_ORIGINS: str = ""  # Will be parsed in property
+    
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """Parse CORS_ORIGINS from env var or use defaults"""
+        if self.CORS_ORIGINS:
+            return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+        return DEFAULT_CORS_ORIGINS
     
     # API
     API_V1_PREFIX: str = "/api/v1"

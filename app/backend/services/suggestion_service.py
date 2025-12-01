@@ -17,9 +17,32 @@ class SuggestionService:
     def get_suggestions_by_patient_id(
         db: Session,
         patient_id: UUID,
+        user_id: Optional[UUID] = None,
     ) -> tuple[List[Suggestion], int]:
-        """Get suggestions for a patient"""
+        """
+        Get suggestions for a patient, excluding those already given feedback by the user.
+        
+        Args:
+            db: Database session
+            patient_id: Patient ID
+            user_id: Optional user ID to filter out suggestions with existing feedback
+            
+        Returns:
+            Tuple of (suggestions list, total count)
+        """
+        from models.suggestion_feedback import SuggestionFeedback
+        
         query = select(Suggestion).where(Suggestion.patient_id == patient_id)
+        
+        # If user_id is provided, exclude suggestions that already have feedback from this user
+        if user_id:
+            # Subquery to get suggestion IDs that have feedback from this user
+            feedbacked_suggestion_ids = select(SuggestionFeedback.suggestion_id).where(
+                SuggestionFeedback.clinician_id == user_id
+            )
+            # Exclude those suggestions
+            query = query.where(~Suggestion.id.in_(feedbacked_suggestion_ids))
+        
         query = query.order_by(Suggestion.created_at.desc())
 
         suggestions = db.execute(query).scalars().all()

@@ -1,10 +1,12 @@
 /**
  * Specialty-based Quick Actions Component
  * Shows relevant quick actions based on the doctor's specialty
+ * Tracks usage for MAPE-K self-adaptation
  */
 'use client';
 
 import React from 'react';
+import { monitorService } from '@/lib/monitorService';
 
 // Quick actions by specialty
 const SPECIALTY_ACTIONS: Record<string, Array<{
@@ -103,7 +105,22 @@ export function SpecialtyQuickActions({ specialty }: SpecialtyQuickActionsProps)
         {actions.map((action) => (
           <button
             key={action.id}
-            className={`p-4 rounded-xl border-2 border-gray-100 bg-gradient-to-br from-gray-50 to-white hover:border-${action.color}-300 hover:shadow-md transition-all text-left group`}
+            onClick={() => {
+              // Track usage for self-adaptation
+              monitorService.logDashboardAction({
+                actionType: 'quick_action_click',
+                featureId: action.id,
+                metadata: {
+                  specialty,
+                  action_label: action.label,
+                },
+              });
+              // Navigate or perform action (can be customized)
+              if (action.href && action.href !== '#') {
+                window.location.href = action.href;
+              }
+            }}
+            className={`p-4 rounded-xl border-2 border-gray-100 bg-gradient-to-br from-gray-50 to-white hover:border-${action.color}-300 hover:shadow-md transition-all text-left group cursor-pointer`}
           >
             <div className={`text-2xl mb-2 group-hover:scale-110 transition-transform`}>
               {action.icon}

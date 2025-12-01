@@ -70,8 +70,13 @@ export function PatientCardGrid() {
         }
       }
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to load patients');
-      console.error('Error fetching patients:', err);
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Request timeout - the server is taking longer than expected. Please try again.');
+        console.error('Timeout fetching patients:', err);
+      } else {
+        setError(err.response?.data?.detail || 'Failed to load patients');
+        console.error('Error fetching patients:', err);
+      }
     } finally {
       setLoading(false);
     }
@@ -137,7 +142,7 @@ export function PatientCardGrid() {
                 setPage(1);
               }}
               placeholder="Search by name..."
-              className="w-full px-4 py-2.5 border border-blue-200 rounded-xl shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              className="w-full px-4 py-2.5 border border-blue-200 rounded-xl shadow focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
             />
           </div>
           <div>

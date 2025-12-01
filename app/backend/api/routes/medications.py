@@ -9,6 +9,7 @@ from uuid import UUID
 from core.database import get_db
 from core.dependencies import get_current_user, require_clinician
 from services.medication_service import MedicationService
+from services.anonymization_service import AnonymizationService
 from schemas.medication import MedicationCreate, MedicationUpdate, MedicationResponse
 
 router = APIRouter(prefix="/medications", tags=["medications"])
@@ -36,9 +37,23 @@ async def get_patient_medications(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    """Get all medications for a patient"""
+    """
+    Get all medications for a patient.
+    Available to all authenticated users (clinician, researcher, admin).
+    
+    **Data Access:**
+    - **Clinicians**: See full medication data (including prescriber IDs)
+    - **Researchers/Admins**: See anonymized data (prescriber IDs removed)
+    """
     medications = MedicationService.get_medications_by_patient(db, patient_id, status_filter)
-    return [MedicationResponse.model_validate(medication) for medication in medications]
+    
+    # Apply anonymization based on user role
+    if AnonymizationService.should_anonymize(current_user.role):
+        medication_dicts = [MedicationResponse.model_validate(m).model_dump() for m in medications]
+        anonymized_dicts = AnonymizationService.anonymize_medication_list(medication_dicts, current_user.role)
+        return [MedicationResponse(**d) for d in anonymized_dicts]
+    else:
+        return [MedicationResponse.model_validate(medication) for medication in medications]
 
 
 @router.get("/{medication_id}", response_model=MedicationResponse)
@@ -47,14 +62,28 @@ async def get_medication(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    """Get a medication by ID"""
+    """
+    Get a medication by ID.
+    Available to all authenticated users (clinician, researcher, admin).
+    
+    **Data Access:**
+    - **Clinicians**: See full medication data (including prescriber IDs)
+    - **Researchers/Admins**: See anonymized data (prescriber IDs removed)
+    """
     medication = MedicationService.get_medication_by_id(db, medication_id)
     if not medication:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Medication not found",
         )
-    return MedicationResponse.model_validate(medication)
+    
+    # Apply anonymization based on user role
+    if AnonymizationService.should_anonymize(current_user.role):
+        medication_dict = MedicationResponse.model_validate(medication).model_dump()
+        anonymized_dict = AnonymizationService.anonymize_medication(medication_dict, current_user.role)
+        return MedicationResponse(**anonymized_dict)
+    else:
+        return MedicationResponse.model_validate(medication)
 
 
 @router.put("/{medication_id}", response_model=MedicationResponse)

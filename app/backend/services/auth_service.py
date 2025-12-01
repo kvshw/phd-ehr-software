@@ -44,7 +44,7 @@ class AuthService:
             raise ValueError("User with this email already exists")
 
         # Validate role
-        valid_roles = ["clinician", "researcher", "admin"]
+        valid_roles = ["clinician", "researcher", "admin", "nurse", "doctor"]
         if user_data.role not in valid_roles:
             raise ValueError(f"Invalid role. Must be one of: {', '.join(valid_roles)}")
 
@@ -128,7 +128,7 @@ class AuthService:
 
         # Update role if provided
         if user_data.role is not None:
-            valid_roles = ["clinician", "researcher", "admin"]
+            valid_roles = ["clinician", "researcher", "admin", "nurse", "doctor"]
             if user_data.role not in valid_roles:
                 raise ValueError(f"Invalid role. Must be one of: {', '.join(valid_roles)}")
             user.role = user_data.role

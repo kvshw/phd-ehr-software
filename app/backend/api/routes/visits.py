@@ -18,6 +18,7 @@ from schemas.visit import (
     VisitListResponse,
 )
 from services.visit_service import VisitService
+from services.anonymization_service import AnonymizationService
 
 router = APIRouter(prefix="/visits", tags=["Visits"])
 
@@ -50,19 +51,37 @@ async def get_patient_visits(
     """
     Get all visits for a specific patient.
     Returns visits ordered by most recent first.
+    
+    **Data Access:**
+    - **Clinicians**: See full visit data with provider information
+    - **Researchers/Admins**: See anonymized visits (provider IDs removed)
     """
     skip = (page - 1) * page_size
     visits, total = VisitService.get_visits_by_patient(db, patient_id, skip, page_size)
     
     total_pages = (total + page_size - 1) // page_size
     
-    return VisitListResponse(
-        items=visits,
-        total=total,
-        page=page,
-        page_size=page_size,
-        total_pages=total_pages
-    )
+    # Apply anonymization based on user role
+    if AnonymizationService.should_anonymize(current_user.role):
+        visit_dicts = [VisitResponse.model_validate(v).model_dump() for v in visits]
+        anonymized_dicts = AnonymizationService.anonymize_visit_list(visit_dicts, current_user.role)
+        anonymized_visits = [VisitResponse(**d) for d in anonymized_dicts]
+        return VisitListResponse(
+            items=anonymized_visits,
+            total=total,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages
+        )
+    else:
+        visit_responses = [VisitResponse.model_validate(v) for v in visits]
+        return VisitListResponse(
+            items=visit_responses,
+            total=total,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages
+        )
 
 
 @router.get("/my-visits", response_model=VisitListResponse)
@@ -97,14 +116,48 @@ async def get_visit(
 ):
     """
     Get a specific visit by ID.
+    
+    **Data Access:**
+    - **Clinicians**: See full visit data with provider information
+    - **Researchers/Admins**: See anonymized visit (provider IDs removed)
     """
+    visit = VisitService.get_visit_by_id(db, visit_id)
+    if not visit:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Visit with ID {visit_id} not found",
+        )
+    
+    # Apply anonymization based on user role
+    if AnonymizationService.should_anonymize(current_user.role):
+        visit_dict = VisitResponse.model_validate(visit).model_dump() if hasattr(visit, '__dict__') else visit
+        if isinstance(visit_dict, dict):
+            anonymized_dict = AnonymizationService.anonymize_visit(visit_dict, current_user.role)
+            return VisitResponse(**anonymized_dict)
+        else:
+            # If visit is already a VisitResponse, convert to dict first
+            visit_dict = visit.model_dump() if hasattr(visit, 'model_dump') else dict(visit)
+            anonymized_dict = AnonymizationService.anonymize_visit(visit_dict, current_user.role)
+            return VisitResponse(**anonymized_dict)
+    else:
+        if hasattr(visit, '__dict__'):
+            return VisitResponse.model_validate(visit)
+        else:
+            return visit
     visit = VisitService.get_visit_by_id(db, visit_id)
     if not visit:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Visit not found"
         )
-    return visit
+    
+    # Apply anonymization based on user role
+    if AnonymizationService.should_anonymize(current_user.role):
+        visit_dict = VisitResponse.model_validate(visit).model_dump()
+        anonymized_dict = AnonymizationService.anonymize_visit(visit_dict, current_user.role)
+        return VisitResponse(**anonymized_dict)
+    else:
+        return VisitResponse.model_validate(visit)
 
 
 @router.put("/{visit_id}", response_model=VisitResponse)

@@ -14,6 +14,17 @@ from .medication import Medication
 from .allergy import Allergy
 from .conversation import ConversationSession, ConversationTranscript, ConversationAnalysis
 from .suggestion_feedback import SuggestionFeedback, FeedbackAggregation, LearningEvent
+from .bandit_state import BanditState, BanditAdaptationLog
+from .transfer_learning import GlobalFeaturePrior, SpecialtyFeaturePrior, TransferLearningLog
+from .federated_learning import (
+    FLRound,
+    FLClientUpdate,
+    FLGlobalModel,
+    FLClient,
+    FLPolicyRound,
+    FLPolicyUpdate,
+)
+from .patient_referral import PatientReferral
 
 __all__ = [
     "User",
@@ -35,4 +46,16 @@ __all__ = [
     "SuggestionFeedback",
     "FeedbackAggregation",
     "LearningEvent",
+    "BanditState",
+    "BanditAdaptationLog",
+    "GlobalFeaturePrior",
+    "SpecialtyFeaturePrior",
+    "TransferLearningLog",
+    "FLRound",
+    "FLClientUpdate",
+    "FLGlobalModel",
+    "FLClient",
+    "FLPolicyRound",
+    "FLPolicyUpdate",
+    "PatientReferral",
 ]

@@ -27,10 +27,13 @@ import { RiskLevel } from '@/components/RiskBadge';
 import { monitorService } from '@/lib/monitorService';
 import { adaptationService } from '@/lib/adaptationService';
 import { AdaptationIndicator } from '@/components/patient-detail/AdaptationIndicator';
+import { BanditIndicator } from '@/components/adaptation/BanditIndicator';
+import { TransferLearningIndicator } from '@/components/adaptation/TransferLearningIndicator';
 import { SuggestionAuditTrail } from '@/components/safety/SuggestionAuditTrail';
 import { AIStatusPanel } from '@/components/safety/AIStatusPanel';
 import { TransparencyInfo } from '@/components/safety/TransparencyInfo';
 import { TopHeader } from '@/components/layout/TopHeader';
+import { AnonymizationNotice } from '@/components/common/AnonymizationNotice';
 
 export default function PatientDetailPage() {
   const params = useParams();
@@ -65,22 +68,30 @@ export default function PatientDetailPage() {
     });
   };
 
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false);
+
   useEffect(() => {
-    checkAuth();
+    const doCheck = async () => {
+      await checkAuth();
+      setHasCheckedAuth(true);
+    };
+    doCheck();
   }, [checkAuth]);
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
+    // Only redirect AFTER auth check has completed
+    if (hasCheckedAuth && !authLoading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, authLoading, router]);
+  }, [hasCheckedAuth, isAuthenticated, authLoading, router]);
 
   useEffect(() => {
-    if (patientId && isAuthenticated) {
+    // Only fetch patient after auth check completes and user is authenticated
+    if (hasCheckedAuth && patientId && isAuthenticated) {
       fetchPatient();
       fetchAndApplyAdaptation();
     }
-  }, [patientId, isAuthenticated]);
+  }, [hasCheckedAuth, patientId, isAuthenticated]);
 
   const fetchAndApplyAdaptation = async () => {
     try {
@@ -136,7 +147,8 @@ export default function PatientDetailPage() {
     }
   };
 
-  if (authLoading || loading) {
+  // Show loading until auth check completes
+  if (!hasCheckedAuth || authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -147,8 +159,9 @@ export default function PatientDetailPage() {
     );
   }
 
-  if (!isAuthenticated) {
-    return null;
+  // Only redirect if auth check completed and user is not authenticated
+  if (hasCheckedAuth && !isAuthenticated) {
+    return null; // Will redirect to login
   }
 
   if (error) {
@@ -258,7 +271,17 @@ export default function PatientDetailPage() {
 
           <PatientHeader patient={patient} riskLevel={riskLevel} />
 
-          <AdaptationIndicator />
+          {patient.is_anonymized && (
+            <div className="mt-4">
+              <AnonymizationNotice />
+            </div>
+          )}
+
+          <div className="mt-4 flex items-start gap-3 flex-wrap">
+            <AdaptationIndicator />
+            <BanditIndicator showDetails={true} />
+            <TransferLearningIndicator showDetails={true} />
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow border border-gray-200 p-6">

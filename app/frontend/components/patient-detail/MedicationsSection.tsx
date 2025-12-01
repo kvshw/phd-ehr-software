@@ -149,7 +149,7 @@ export function MedicationsSection({ patientId }: MedicationsSectionProps) {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
           >
             <option value="all">All</option>
             <option value="active">Active</option>
@@ -190,7 +190,7 @@ export function MedicationsSection({ patientId }: MedicationsSectionProps) {
                   required
                   value={formData.medication_name}
                   onChange={(e) => setFormData({ ...formData, medication_name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder="e.g., Metformin"
                 />
               </div>
@@ -200,7 +200,7 @@ export function MedicationsSection({ patientId }: MedicationsSectionProps) {
                   type="text"
                   value={formData.generic_name || ''}
                   onChange={(e) => setFormData({ ...formData, generic_name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                 />
               </div>
               <div>
@@ -209,7 +209,7 @@ export function MedicationsSection({ patientId }: MedicationsSectionProps) {
                   type="text"
                   value={formData.dosage || ''}
                   onChange={(e) => setFormData({ ...formData, dosage: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder="e.g., 500mg"
                 />
               </div>
@@ -219,7 +219,7 @@ export function MedicationsSection({ patientId }: MedicationsSectionProps) {
                   type="text"
                   value={formData.frequency || ''}
                   onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder="e.g., twice daily"
                 />
               </div>
@@ -228,7 +228,7 @@ export function MedicationsSection({ patientId }: MedicationsSectionProps) {
                 <select
                   value={formData.route || ''}
                   onChange={(e) => setFormData({ ...formData, route: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                 >
                   <option value="">Select route</option>
                   <option value="oral">Oral</option>
@@ -245,7 +245,7 @@ export function MedicationsSection({ patientId }: MedicationsSectionProps) {
                   type="text"
                   value={formData.quantity || ''}
                   onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder="e.g., 30 tablets"
                 />
               </div>

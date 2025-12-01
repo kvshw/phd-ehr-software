@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
   const accessToken = request.cookies.get('access_token');
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/login', '/api/auth'];
+  const publicRoutes = ['/login', '/register', '/api/auth'];
   const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
 
   // Allow API routes to pass through

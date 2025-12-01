@@ -1,11 +1,38 @@
 """
 MAPE-K Analyze Component
 Analyzes collected monitoring data to determine what adaptations are needed
+
+Enhanced with:
+- Multi-window analysis (7/30/90 days)
+- Exponential decay for recency weighting
+- Drift detection for non-stationarity
+- Context-aware windows
 """
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from uuid import UUID
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
+from sqlalchemy import select, and_, func
+import math
+import logging
+
 from services.user_action_service import UserActionService
+
+logger = logging.getLogger(__name__)
+
+
+# Default window configurations
+DEFAULT_WINDOWS = [7, 30, 90]  # days
+
+# Exponential decay weights (sum to 1.0)
+DECAY_WEIGHTS = {
+    7: 0.5,    # 50% weight for recent 7 days
+    30: 0.3,   # 30% weight for 30 days
+    90: 0.2,   # 20% weight for 90 days
+}
+
+# Drift detection thresholds
+DRIFT_THRESHOLD = 0.3  # 30% change between windows indicates drift
 
 
 class MAPEKAnalyzeService:
@@ -374,4 +401,460 @@ class MAPEKAnalyzeService:
             "common_sequences": [{"sequence": k, "count": v} for k, v in common_sequences],
             "workflow_patterns": workflows[:10]  # Top 10 workflows
         }
+
+    # ============================================================================
+    # Phase 6: Multi-Window Analysis with Exponential Decay
+    # ============================================================================
+
+    @staticmethod
+    def analyze_with_windows(
+        db: Session,
+        user_id: UUID,
+        patient_id: Optional[UUID] = None,
+        windows: List[int] = None,
+        decay_weights: Dict[int, float] = None
+    ) -> Dict[str, Any]:
+        """
+        Analyze user behavior across multiple time windows.
+        
+        Provides a more nuanced understanding by:
+        1. Analyzing short-term (7 days), medium-term (30 days), and long-term (90 days) patterns
+        2. Applying exponential decay to weight recent data more heavily
+        3. Detecting drift between windows (behavioral changes)
+        4. Generating window-aware insights
+        
+        Args:
+            db: Database session
+            user_id: User to analyze
+            patient_id: Optional patient context
+            windows: List of window sizes in days (default: [7, 30, 90])
+            decay_weights: Custom weights for each window (must sum to 1.0)
+        
+        Returns:
+            Combined analysis with window-specific and weighted results
+        """
+        if windows is None:
+            windows = DEFAULT_WINDOWS
+        if decay_weights is None:
+            decay_weights = DECAY_WEIGHTS
+        
+        # Validate weights sum to 1.0
+        if windows and decay_weights:
+            total_weight = sum(decay_weights.get(w, 0) for w in windows)
+            if abs(total_weight - 1.0) > 0.01:
+                logger.warning(f"Decay weights sum to {total_weight}, normalizing...")
+                decay_weights = {
+                    w: decay_weights.get(w, 0) / total_weight
+                    for w in windows
+                }
+        
+        # Analyze each window
+        window_results = {}
+        for window in sorted(windows):
+            window_results[window] = MAPEKAnalyzeService._analyze_window(
+                db, user_id, patient_id, window
+            )
+        
+        # Combine with exponential decay
+        combined = MAPEKAnalyzeService._combine_with_decay(
+            window_results, decay_weights
+        )
+        
+        # Detect drift between windows
+        drift_analysis = MAPEKAnalyzeService._detect_drift(window_results)
+        
+        # Generate multi-window insights
+        insights = MAPEKAnalyzeService._generate_window_insights(
+            window_results, drift_analysis
+        )
+        
+        # Calculate confidence based on data availability
+        confidence = MAPEKAnalyzeService._calculate_analysis_confidence(
+            window_results
+        )
+        
+        return {
+            "user_id": str(user_id),
+            "patient_id": str(patient_id) if patient_id else None,
+            "windows_analyzed": windows,
+            "window_results": {
+                f"{w}_day": r for w, r in window_results.items()
+            },
+            "combined_analysis": combined,
+            "drift_analysis": drift_analysis,
+            "insights": insights,
+            "confidence": confidence,
+            "methodology": "multi_window_exponential_decay"
+        }
+
+    @staticmethod
+    def _analyze_window(
+        db: Session,
+        user_id: UUID,
+        patient_id: Optional[UUID],
+        days: int
+    ) -> Dict[str, Any]:
+        """Analyze data for a specific time window."""
+        from models.user_action import UserAction
+        
+        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        
+        # Get navigation patterns for this window
+        navigation_patterns = UserActionService.get_navigation_patterns(
+            db, user_id, patient_id=patient_id, days=days
+        )
+        
+        # Get suggestion actions for this window
+        suggestion_actions = UserActionService.get_suggestion_actions(
+            db, user_id=user_id, patient_id=patient_id, days=days
+        )
+        
+        # Analyze navigation
+        nav_analysis = MAPEKAnalyzeService._analyze_navigation(navigation_patterns)
+        
+        # Analyze suggestions
+        suggestion_analysis = MAPEKAnalyzeService._analyze_suggestions(suggestion_actions)
+        
+        # Get feature frequencies
+        feature_counts = {}
+        section_time_spent = {}
+        
+        try:
+            query = select(UserAction).where(
+                and_(
+                    UserAction.user_id == user_id,
+                    UserAction.timestamp >= cutoff_date
+                )
+            )
+            
+            result = db.execute(query)
+            actions = list(result.scalars().all())
+            
+            for action in actions:
+                action_data = action.action_metadata or {}
+                feature_id = action_data.get('feature_id') or action_data.get('to_section')
+                
+                if feature_id:
+                    feature_counts[feature_id] = feature_counts.get(feature_id, 0) + 1
+                    
+                    # Estimate time spent (using action frequency as proxy)
+                    time_spent = action_data.get('time_spent', 1)  # default 1 second
+                    section_time_spent[feature_id] = section_time_spent.get(feature_id, 0) + time_spent
+        
+        except Exception as e:
+            logger.warning(f"Error analyzing window {days}: {e}")
+        
+        # Calculate daily averages
+        daily_avg = {
+            feature: count / days
+            for feature, count in feature_counts.items()
+        }
+        
+        return {
+            "window_days": days,
+            "navigation": nav_analysis,
+            "suggestions": suggestion_analysis,
+            "feature_counts": feature_counts,
+            "feature_daily_averages": daily_avg,
+            "section_time_spent": section_time_spent,
+            "total_actions": nav_analysis.get("total_navigations", 0) + suggestion_analysis.get("total_actions", 0),
+            "data_points": len(navigation_patterns) + len(suggestion_actions)
+        }
+
+    @staticmethod
+    def _combine_with_decay(
+        window_results: Dict[int, Dict],
+        decay_weights: Dict[int, float]
+    ) -> Dict[str, Any]:
+        """
+        Combine window results using exponential decay weighting.
+        
+        Recent data (7 days) gets higher weight than older data (90 days).
+        This balances recency with stability.
+        """
+        # Combine feature scores
+        combined_features = {}
+        combined_acceptance_rate = 0.0
+        combined_ignore_rate = 0.0
+        total_weight = 0.0
+        
+        for window, result in window_results.items():
+            weight = decay_weights.get(window, 0)
+            if weight <= 0:
+                continue
+            
+            total_weight += weight
+            
+            # Weighted feature counts
+            daily_avgs = result.get("feature_daily_averages", {})
+            for feature, avg in daily_avgs.items():
+                if feature not in combined_features:
+                    combined_features[feature] = 0.0
+                combined_features[feature] += avg * weight
+            
+            # Weighted suggestion rates
+            suggestions = result.get("suggestions", {})
+            combined_acceptance_rate += suggestions.get("acceptance_rate", 0) * weight
+            combined_ignore_rate += suggestions.get("ignore_rate", 0) * weight
+        
+        # Normalize if weights don't sum to 1
+        if total_weight > 0 and abs(total_weight - 1.0) > 0.01:
+            combined_features = {
+                k: v / total_weight for k, v in combined_features.items()
+            }
+            combined_acceptance_rate /= total_weight
+            combined_ignore_rate /= total_weight
+        
+        # Rank features by weighted score
+        ranked_features = sorted(
+            combined_features.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )
+        
+        return {
+            "weighted_feature_scores": dict(ranked_features),
+            "top_features": [f[0] for f in ranked_features[:5]],
+            "weighted_acceptance_rate": round(combined_acceptance_rate, 3),
+            "weighted_ignore_rate": round(combined_ignore_rate, 3),
+            "decay_weights_used": decay_weights
+        }
+
+    @staticmethod
+    def _detect_drift(
+        window_results: Dict[int, Dict]
+    ) -> Dict[str, Any]:
+        """
+        Detect drift (non-stationarity) in user behavior across windows.
+        
+        Compares short-term vs long-term patterns to identify:
+        - Emerging features (rising usage)
+        - Declining features (falling usage)
+        - Stable features (consistent usage)
+        - Changed preferences (sudden shifts)
+        """
+        windows = sorted(window_results.keys())
+        
+        if len(windows) < 2:
+            return {"drift_detected": False, "reason": "Insufficient windows for comparison"}
+        
+        short_term = window_results.get(windows[0], {})  # 7 days
+        long_term = window_results.get(windows[-1], {})  # 90 days
+        
+        short_avgs = short_term.get("feature_daily_averages", {})
+        long_avgs = long_term.get("feature_daily_averages", {})
+        
+        # Compare features
+        emerging = []
+        declining = []
+        stable = []
+        
+        all_features = set(short_avgs.keys()) | set(long_avgs.keys())
+        
+        for feature in all_features:
+            short_val = short_avgs.get(feature, 0)
+            long_val = long_avgs.get(feature, 0)
+            
+            if long_val > 0:
+                change_ratio = (short_val - long_val) / long_val
+            elif short_val > 0:
+                change_ratio = 1.0  # New feature
+            else:
+                continue
+            
+            feature_drift = {
+                "feature": feature,
+                "short_term_avg": round(short_val, 3),
+                "long_term_avg": round(long_val, 3),
+                "change_ratio": round(change_ratio, 3)
+            }
+            
+            if change_ratio > DRIFT_THRESHOLD:
+                emerging.append(feature_drift)
+            elif change_ratio < -DRIFT_THRESHOLD:
+                declining.append(feature_drift)
+            else:
+                stable.append(feature)
+        
+        # Detect suggestion preference drift
+        short_accept = short_term.get("suggestions", {}).get("acceptance_rate", 0)
+        long_accept = long_term.get("suggestions", {}).get("acceptance_rate", 0)
+        
+        suggestion_drift = None
+        if long_accept > 0:
+            accept_change = (short_accept - long_accept) / long_accept
+            if abs(accept_change) > DRIFT_THRESHOLD:
+                suggestion_drift = {
+                    "short_term_rate": round(short_accept, 3),
+                    "long_term_rate": round(long_accept, 3),
+                    "change_ratio": round(accept_change, 3),
+                    "direction": "increasing" if accept_change > 0 else "decreasing"
+                }
+        
+        overall_drift = len(emerging) > 0 or len(declining) > 0 or suggestion_drift is not None
+        
+        return {
+            "drift_detected": overall_drift,
+            "emerging_features": emerging,
+            "declining_features": declining,
+            "stable_features": stable,
+            "suggestion_preference_drift": suggestion_drift,
+            "comparison": {
+                "short_window": windows[0],
+                "long_window": windows[-1]
+            }
+        }
+
+    @staticmethod
+    def _generate_window_insights(
+        window_results: Dict[int, Dict],
+        drift_analysis: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """Generate insights from multi-window analysis."""
+        insights = []
+        
+        # Drift-based insights
+        if drift_analysis.get("drift_detected"):
+            emerging = drift_analysis.get("emerging_features", [])
+            declining = drift_analysis.get("declining_features", [])
+            
+            if emerging:
+                top_emerging = emerging[0]
+                insights.append({
+                    "type": "emerging_pattern",
+                    "severity": "info",
+                    "message": f"'{top_emerging['feature']}' usage is increasing ({top_emerging['change_ratio']:.0%} vs long-term)",
+                    "recommendation": f"Consider promoting '{top_emerging['feature']}' in the UI layout"
+                })
+            
+            if declining:
+                top_declining = declining[0]
+                insights.append({
+                    "type": "declining_pattern",
+                    "severity": "info",
+                    "message": f"'{top_declining['feature']}' usage is decreasing ({top_declining['change_ratio']:.0%} vs long-term)",
+                    "recommendation": f"Consider demoting '{top_declining['feature']}' or investigating why usage dropped"
+                })
+            
+            suggestion_drift = drift_analysis.get("suggestion_preference_drift")
+            if suggestion_drift:
+                direction = suggestion_drift["direction"]
+                insights.append({
+                    "type": "suggestion_drift",
+                    "severity": "warning" if direction == "decreasing" else "info",
+                    "message": f"AI suggestion acceptance is {direction} ({suggestion_drift['change_ratio']:.0%} change)",
+                    "recommendation": "Review suggestion relevance and adjust density" if direction == "decreasing" else "Maintain current suggestion strategy"
+                })
+        else:
+            insights.append({
+                "type": "stable_patterns",
+                "severity": "info",
+                "message": "User behavior is stable across time windows",
+                "recommendation": "Continue with current adaptation strategy"
+            })
+        
+        # Data availability insights
+        windows = sorted(window_results.keys())
+        if len(windows) >= 2:
+            short_data = window_results[windows[0]].get("data_points", 0)
+            long_data = window_results[windows[-1]].get("data_points", 0)
+            
+            if short_data < 10:
+                insights.append({
+                    "type": "low_data",
+                    "severity": "warning",
+                    "message": f"Only {short_data} data points in recent {windows[0]} days",
+                    "recommendation": "Analysis confidence is low - consider waiting for more data"
+                })
+        
+        return insights
+
+    @staticmethod
+    def _calculate_analysis_confidence(
+        window_results: Dict[int, Dict]
+    ) -> Dict[str, Any]:
+        """
+        Calculate confidence in the analysis based on data availability.
+        
+        Higher confidence when:
+        - More data points available
+        - Data consistent across windows
+        - No unusual patterns
+        """
+        total_data_points = 0
+        window_scores = []
+        
+        for window, result in window_results.items():
+            data_points = result.get("data_points", 0)
+            total_data_points += data_points
+            
+            # Score based on data sufficiency for this window
+            # Expect at least 5 actions per day for good confidence
+            expected_min = window * 5
+            window_score = min(data_points / expected_min, 1.0) if expected_min > 0 else 0
+            window_scores.append(window_score)
+        
+        # Overall confidence
+        avg_window_score = sum(window_scores) / len(window_scores) if window_scores else 0
+        
+        # Adjust for consistency
+        if len(window_scores) >= 2:
+            score_variance = sum((s - avg_window_score) ** 2 for s in window_scores) / len(window_scores)
+            consistency_penalty = min(score_variance, 0.2)  # Max 20% penalty
+            avg_window_score = max(0, avg_window_score - consistency_penalty)
+        
+        confidence_level = "high" if avg_window_score > 0.7 else "medium" if avg_window_score > 0.4 else "low"
+        
+        return {
+            "overall_score": round(avg_window_score, 3),
+            "level": confidence_level,
+            "total_data_points": total_data_points,
+            "window_scores": {
+                w: round(s, 3) for w, s in zip(sorted(window_results.keys()), window_scores)
+            }
+        }
+
+    @staticmethod
+    def analyze_with_context(
+        db: Session,
+        user_id: UUID,
+        context: Dict[str, Any],
+        windows: List[int] = None
+    ) -> Dict[str, Any]:
+        """
+        Context-aware multi-window analysis.
+        
+        Adjusts window sizes and weights based on context:
+        - Role: Different windows for nurses vs doctors
+        - Specialty: Specialty-specific patterns
+        - Time of day: Morning vs evening patterns
+        - Workload: High vs low activity periods
+        """
+        if windows is None:
+            windows = DEFAULT_WINDOWS
+        
+        # Adjust weights based on context
+        role = context.get("role", "clinician")
+        specialty = context.get("specialty")
+        
+        # Custom weights based on role
+        if role == "nurse":
+            # Nurses may have more consistent daily patterns
+            decay_weights = {7: 0.4, 30: 0.4, 90: 0.2}
+        elif role == "researcher":
+            # Researchers may need longer-term patterns
+            decay_weights = {7: 0.3, 30: 0.3, 90: 0.4}
+        else:
+            decay_weights = DECAY_WEIGHTS
+        
+        # Run analysis
+        analysis = MAPEKAnalyzeService.analyze_with_windows(
+            db, user_id, patient_id=None, windows=windows, decay_weights=decay_weights
+        )
+        
+        # Add context-specific insights
+        analysis["context"] = context
+        analysis["methodology"] = "context_aware_multi_window"
+        
+        return analysis
 

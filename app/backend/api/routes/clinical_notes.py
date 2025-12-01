@@ -9,6 +9,7 @@ from uuid import UUID
 from core.database import get_db
 from core.dependencies import get_current_user, require_clinician
 from services.clinical_note_service import ClinicalNoteService
+from services.anonymization_service import AnonymizationService
 from schemas.clinical_note import (
     ClinicalNoteCreate,
     ClinicalNoteUpdate,
@@ -37,9 +38,22 @@ async def get_patient_notes(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    """Get all clinical notes for a patient"""
+    """
+    Get all clinical notes for a patient.
+    
+    **Data Access:**
+    - **Clinicians**: See full notes with author information
+    - **Researchers/Admins**: See anonymized notes (author IDs removed, content may contain identifiers)
+    """
     notes = ClinicalNoteService.get_notes_by_patient(db, patient_id, limit, offset)
-    return [ClinicalNoteResponse.model_validate(note) for note in notes]
+    
+    # Apply anonymization based on user role
+    if AnonymizationService.should_anonymize(current_user.role):
+        note_dicts = [ClinicalNoteResponse.model_validate(note).model_dump() for note in notes]
+        anonymized_dicts = AnonymizationService.anonymize_clinical_note_list(note_dicts, current_user.role)
+        return [ClinicalNoteResponse(**d) for d in anonymized_dicts]
+    else:
+        return [ClinicalNoteResponse.model_validate(note) for note in notes]
 
 
 @router.get("/{note_id}", response_model=ClinicalNoteResponse)
@@ -48,14 +62,27 @@ async def get_note(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    """Get a clinical note by ID"""
+    """
+    Get a clinical note by ID.
+    
+    **Data Access:**
+    - **Clinicians**: See full note with author information
+    - **Researchers/Admins**: See anonymized note (author IDs removed, content may contain identifiers)
+    """
     note = ClinicalNoteService.get_note_by_id(db, note_id)
     if not note:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Clinical note not found",
         )
-    return ClinicalNoteResponse.model_validate(note)
+    
+    # Apply anonymization based on user role
+    if AnonymizationService.should_anonymize(current_user.role):
+        note_dict = ClinicalNoteResponse.model_validate(note).model_dump()
+        anonymized_dict = AnonymizationService.anonymize_clinical_note(note_dict, current_user.role)
+        return ClinicalNoteResponse(**anonymized_dict)
+    else:
+        return ClinicalNoteResponse.model_validate(note)
 
 
 @router.put("/{note_id}", response_model=ClinicalNoteResponse)

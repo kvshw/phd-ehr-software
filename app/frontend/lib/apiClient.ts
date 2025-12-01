@@ -12,7 +12,7 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true, // Important for sending cookies
-  timeout: 10000, // 10 second timeout to prevent hanging
+  timeout: 30000, // 30 second timeout (increased for slow database queries)
 });
 
 // Request interceptor to add auth token from cookies

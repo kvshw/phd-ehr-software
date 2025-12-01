@@ -172,7 +172,7 @@ export function AllergiesSection({ patientId }: AllergiesSectionProps) {
                 required
                 value={formData.allergen}
                 onChange={(e) => setFormData({ ...formData, allergen: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                 placeholder="e.g., Penicillin, Latex, Peanuts"
               />
             </div>
@@ -182,7 +182,7 @@ export function AllergiesSection({ patientId }: AllergiesSectionProps) {
                 <select
                   value={formData.allergen_type || ''}
                   onChange={(e) => setFormData({ ...formData, allergen_type: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                 >
                   <option value="">Select type</option>
                   <option value="medication">Medication</option>
@@ -196,7 +196,7 @@ export function AllergiesSection({ patientId }: AllergiesSectionProps) {
                 <select
                   value={formData.severity || ''}
                   onChange={(e) => setFormData({ ...formData, severity: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                 >
                   <option value="">Select severity</option>
                   <option value="mild">Mild</option>
@@ -212,7 +212,7 @@ export function AllergiesSection({ patientId }: AllergiesSectionProps) {
                 value={formData.reaction || ''}
                 onChange={(e) => setFormData({ ...formData, reaction: e.target.value })}
                 rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                 placeholder="e.g., Hives, Anaphylaxis, Rash"
               />
             </div>
@@ -222,7 +222,7 @@ export function AllergiesSection({ patientId }: AllergiesSectionProps) {
                 value={formData.notes || ''}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                 placeholder="Additional notes"
               />
             </div>

@@ -200,6 +200,15 @@ export default function LoginPage() {
               </p>
             </div>
           </div>
+
+          <div className="text-center pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link href="/register" className="text-indigo-600 font-semibold hover:text-indigo-700">
+                Create Account
+              </Link>
+            </p>
+          </div>
         </form>
       </div>
     </div>

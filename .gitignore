@@ -67,10 +67,40 @@ models/*.bin
 # MinIO/S3 local data
 minio-data/
 
-# Frontend
-.next/
+# Vercel
 .vercel
 
-# Backend
-*.pyc
-__pycache__/
+# ============================================
+# EXCLUDE FROM GITHUB (Documentation/Notes)
+# ============================================
+
+# All markdown files EXCEPT README.md
+*.md
+!README.md
+!app/backend/README.md
+!app/frontend/README.md
+!devops/README.md
+
+# PDF and HTML presentation files
+*.pdf
+*.html
+!app/frontend/**/*.html
+
+# Memory bank (personal notes)
+memory-bank/
+
+# Task management
+tasks/
+
+# Database info (contains credentials info)
+database/
+
+# UI mockup images
+UI Images/
+
+# Local scripts (SQL, Python setup scripts)
+scripts/
+
+# Cursor rules (IDE specific)
+.cursor/
+.cursorrules

@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { RoleBadge } from '@/components/auth/RoleBadge';
 import { useDemoMode } from '@/components/demo/DemoMode';
+import { monitorService } from '@/lib/monitorService';
 
 interface TopHeaderProps {
   currentPage?: string;
@@ -24,15 +25,16 @@ export function TopHeader({ currentPage = 'Overview' }: TopHeaderProps) {
   // Get demo mode controls from context
   const demoControls = useDemoMode();
 
+  // Navigation items with tracking
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: '📊' },
+    { id: 'overview', label: 'Overview', icon: '📊', href: '/dashboard' },
     { id: 'notes', label: 'Notes', icon: '📝' },
     { id: 'document', label: 'Document', icon: '📄' },
     { id: 'labs', label: 'Labs', icon: '🧪' },
     { id: 'schedule', label: 'Schedule', icon: '📅' },
     { id: 'doctor', label: 'Doctor', icon: '👨‍⚕️' },
     { id: 'medicine', label: 'Medicine', icon: '💊' },
-    { id: 'analytics', label: 'Analytics', icon: '📈' },
+    { id: 'analytics', label: 'Analytics', icon: '📈', href: '/research' },
   ];
 
   // Close dropdown when clicking outside
@@ -53,20 +55,27 @@ export function TopHeader({ currentPage = 'Overview' }: TopHeaderProps) {
   }, [showUserMenu]);
 
   const handleNavClick = (itemId: string) => {
+    console.log('Nav clicked:', itemId);
+    
+    // Track for MAPE-K (non-blocking)
+    monitorService.logDashboardAction({
+      actionType: 'navigation',
+      featureId: `nav_${itemId}`,
+      metadata: { specialty: user?.specialty },
+    }).catch(() => {});
+
     switch (itemId) {
       case 'overview':
         router.push('/dashboard');
         break;
       case 'notes':
-        // Navigate to notes section or page
         if (window.location.pathname.startsWith('/patients/')) {
           const patientId = window.location.pathname.split('/patients/')[1]?.split('/')[0];
           if (patientId) {
             router.push(`/patients/${patientId}?section=notes`);
-            window.location.reload(); // Force reload to trigger section change
+            setTimeout(() => window.location.reload(), 100);
           }
         } else {
-          // If not on patient page, go to dashboard first
           router.push('/dashboard');
         }
         break;
@@ -75,7 +84,7 @@ export function TopHeader({ currentPage = 'Overview' }: TopHeaderProps) {
           const patientId = window.location.pathname.split('/patients/')[1]?.split('/')[0];
           if (patientId) {
             router.push(`/patients/${patientId}?section=labs`);
-            window.location.reload();
+            setTimeout(() => window.location.reload(), 100);
           }
         } else {
           router.push('/dashboard');
@@ -86,7 +95,7 @@ export function TopHeader({ currentPage = 'Overview' }: TopHeaderProps) {
           const patientId = window.location.pathname.split('/patients/')[1]?.split('/')[0];
           if (patientId) {
             router.push(`/patients/${patientId}?section=medications`);
-            window.location.reload();
+            setTimeout(() => window.location.reload(), 100);
           }
         } else {
           router.push('/dashboard');
@@ -97,7 +106,7 @@ export function TopHeader({ currentPage = 'Overview' }: TopHeaderProps) {
           const patientId = window.location.pathname.split('/patients/')[1]?.split('/')[0];
           if (patientId) {
             router.push(`/patients/${patientId}?section=imaging`);
-            window.location.reload();
+            setTimeout(() => window.location.reload(), 100);
           }
         } else {
           router.push('/dashboard');
@@ -110,6 +119,7 @@ export function TopHeader({ currentPage = 'Overview' }: TopHeaderProps) {
         router.push('/research');
         break;
       default:
+        router.push('/dashboard');
         break;
     }
   };
@@ -142,17 +152,19 @@ export function TopHeader({ currentPage = 'Overview' }: TopHeaderProps) {
             </div>
 
             {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="flex items-center space-x-1">
               {navItems.map((item) => (
                 <button
                   key={item.id}
+                  type="button"
                   onClick={() => handleNavClick(item.id)}
-                  className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
                     currentPage.toLowerCase() === item.id.toLowerCase()
                       ? 'text-blue-600 bg-blue-50'
                       : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
                   }`}
                 >
+                  <span className="mr-1">{item.icon}</span>
                   {item.label}
                   {currentPage.toLowerCase() === item.id.toLowerCase() && (
                     <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full"></span>
@@ -211,7 +223,7 @@ export function TopHeader({ currentPage = 'Overview' }: TopHeaderProps) {
               >
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-semibold text-gray-900">
-                    Hi, {user?.email?.split('@')[0] || 'User'}
+                    Hi, {user?.first_name || user?.email?.split('@')[0] || 'User'}
                   </p>
                   {user?.role && (
                     <div className="mt-1 flex justify-end">
@@ -220,7 +232,7 @@ export function TopHeader({ currentPage = 'Overview' }: TopHeaderProps) {
                   )}
                 </div>
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-semibold shadow ring-2 ring-white">
-                  {user?.email?.charAt(0).toUpperCase() || 'U'}
+                  {(user?.first_name?.charAt(0) || user?.email?.charAt(0) || 'U').toUpperCase()}
                 </div>
                 <svg
                   className={`w-4 h-4 text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`}
@@ -236,7 +248,16 @@ export function TopHeader({ currentPage = 'Overview' }: TopHeaderProps) {
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                   <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-sm font-semibold text-gray-900">{user?.email}</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {user?.first_name && user?.last_name 
+                        ? `${user.first_name} ${user.last_name}`
+                        : user?.first_name 
+                        ? user.first_name
+                        : user?.email || 'User'}
+                    </p>
+                    {user?.email && (
+                      <p className="text-xs text-gray-500 mt-0.5">{user.email}</p>
+                    )}
                     {user?.role && (
                       <div className="mt-1 flex items-center gap-2">
                         <RoleBadge role={user.role} size="sm" />

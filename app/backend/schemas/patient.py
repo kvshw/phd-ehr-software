@@ -1,9 +1,9 @@
 """
 Patient schemas for request/response validation
 """
-from pydantic import BaseModel, Field
-from typing import Optional
-from datetime import datetime
+from pydantic import BaseModel, Field, field_validator
+from typing import Optional, Any
+from datetime import datetime, date
 from uuid import UUID
 
 
@@ -101,6 +101,18 @@ class PatientResponse(PatientBase):
     id: UUID
     created_at: datetime
     updated_at: datetime
+
+    @field_validator('date_of_birth', 'ehic_expiry_date', mode='before')
+    @classmethod
+    def convert_date_to_string(cls, v: Any) -> Optional[str]:
+        """Convert date objects to ISO format strings"""
+        if v is None:
+            return None
+        if isinstance(v, date):
+            return v.isoformat()
+        if isinstance(v, str):
+            return v
+        return str(v)
 
     class Config:
         from_attributes = True

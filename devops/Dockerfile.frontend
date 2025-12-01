@@ -1,5 +1,5 @@
 # Frontend Dockerfile for Next.js (Development)
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
@@ -9,8 +9,8 @@ RUN apk add --no-cache libc6-compat
 # Copy package files
 COPY app/frontend/package.json app/frontend/package-lock.json* ./
 
-# Install dependencies
-RUN npm ci
+# Install dependencies (use npm install to handle missing lock file entries)
+RUN npm install --legacy-peer-deps
 
 # Copy application code
 COPY app/frontend .

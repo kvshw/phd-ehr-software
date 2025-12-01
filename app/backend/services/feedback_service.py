@@ -67,6 +67,31 @@ class FeedbackService:
             suggestion_confidence = suggestion.confidence
             patient_id = patient_id or suggestion.patient_id
         
+        # Check if feedback already exists for this suggestion from this clinician
+        existing_feedback = db.query(SuggestionFeedback).filter(
+            and_(
+                SuggestionFeedback.suggestion_id == suggestion_id,
+                SuggestionFeedback.clinician_id == clinician_id
+            )
+        ).first()
+        
+        if existing_feedback:
+            # Update existing feedback instead of creating duplicate
+            logger.info(f"Updating existing feedback for suggestion {suggestion_id} from clinician {clinician_id}")
+            existing_feedback.action = action
+            if ratings:
+                existing_feedback.clinical_relevance = ratings.get("clinical_relevance")
+                existing_feedback.agreement_rating = ratings.get("agreement_rating")
+                existing_feedback.explanation_quality = ratings.get("explanation_quality")
+                existing_feedback.would_act_on = ratings.get("would_act_on")
+            if comments:
+                existing_feedback.clinician_comment = comments.get("comment")
+                existing_feedback.improvement_suggestion = comments.get("improvement")
+            existing_feedback.was_helpful = action == "accept"
+            db.commit()
+            db.refresh(existing_feedback)
+            return existing_feedback
+        
         # Get patient context if available
         patient_age = None
         patient_sex = None

@@ -1,12 +1,42 @@
 """
 MAPE-K Plan Component
 Generates JSON layout plans based on analysis results
+
+Supports two planning strategies:
+1. Rule-based (original): Simple heuristic rules
+2. Bandit-based (new): Thompson Sampling for intelligent exploration/exploitation
 """
 from typing import Dict, Any, List, Optional
 from uuid import UUID
+import os
+import random
 from sqlalchemy.orm import Session
 from services.adaptation_service import AdaptationService
 from schemas.adaptation import AdaptationPlan, AnalyzeResponse
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+# Configuration for A/B testing and planning strategy
+class PlanningConfig:
+    """Configuration for MAPE-K planning strategy"""
+    
+    # Enable bandit-based planning (set via env var or default)
+    ENABLE_BANDIT = os.getenv("MAPE_K_ENABLE_BANDIT", "true").lower() == "true"
+    
+    # A/B testing: percentage of users to use bandit planning (0.0 to 1.0)
+    BANDIT_AB_RATIO = float(os.getenv("MAPE_K_BANDIT_RATIO", "0.5"))
+    
+    # Force bandit for specific users (comma-separated UUIDs)
+    FORCE_BANDIT_USERS = set(
+        uid.strip() for uid in os.getenv("MAPE_K_FORCE_BANDIT_USERS", "").split(",") if uid.strip()
+    )
+    
+    # Force rule-based for specific users
+    FORCE_RULE_USERS = set(
+        uid.strip() for uid in os.getenv("MAPE_K_FORCE_RULE_USERS", "").split(",") if uid.strip()
+    )
 
 
 class MAPEKPlanService:
@@ -33,6 +63,98 @@ class MAPEKPlanService:
         "acceptance_rate_threshold": 0.7,  # If acceptance rate > 70%, maintain or increase density
         "risk_escalation_threshold": 1,  # If risk escalations > 1, prioritize monitoring sections
     }
+    
+    @staticmethod
+    def should_use_bandit(user_id: UUID) -> bool:
+        """
+        Determine whether to use bandit-based planning for this user.
+        Supports A/B testing and per-user overrides.
+        """
+        if not PlanningConfig.ENABLE_BANDIT:
+            return False
+        
+        user_str = str(user_id)
+        
+        # Check force overrides
+        if user_str in PlanningConfig.FORCE_BANDIT_USERS:
+            return True
+        if user_str in PlanningConfig.FORCE_RULE_USERS:
+            return False
+        
+        # A/B testing: use deterministic assignment based on user_id
+        # This ensures same user always gets same treatment
+        import hashlib
+        hash_val = int(hashlib.md5(user_str.encode()).hexdigest()[:8], 16)
+        assignment = (hash_val % 100) / 100.0
+        
+        return assignment < PlanningConfig.BANDIT_AB_RATIO
+    
+    @staticmethod
+    def generate_plan_with_bandit(
+        db: Session,
+        user_id: UUID,
+        patient_id: Optional[UUID],
+        specialty: Optional[str] = None,
+        analysis_data: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        Generate plan using Thompson Sampling bandit algorithm.
+        Falls back to rule-based if bandit fails.
+        """
+        try:
+            from services.mape_k_plan_bandit import BanditPlanService
+            
+            bandit_service = BanditPlanService(db)
+            
+            # Generate bandit-based plan
+            bandit_result = bandit_service.generate_plan(
+                user_id=user_id,
+                specialty=specialty,
+            )
+            
+            # Convert to standard AdaptationPlan format
+            plan = AdaptationPlan(
+                order=bandit_result["order"],
+                suggestion_density=bandit_result["plan"]["suggestion_density"],
+                flags={
+                    **bandit_result["plan"]["flags"],
+                    "algorithm": "thompson_sampling",
+                    "sampled_values": bandit_result["sampled_values"],
+                },
+                explanation=bandit_result["explanation"]
+            )
+            
+            # Store adaptation in database
+            from schemas.adaptation import AdaptationCreate
+            adaptation = AdaptationService.create_adaptation(
+                db,
+                AdaptationCreate(
+                    user_id=user_id,
+                    patient_id=patient_id,
+                    plan_json=plan
+                )
+            )
+            
+            logger.info(f"Bandit plan generated for user {user_id}: {bandit_result['actions']}")
+            
+            return {
+                "plan": plan,
+                "adaptation_id": str(adaptation.id),
+                "explanation": bandit_result["explanation"],
+                "algorithm": "thompson_sampling",
+                "bandit_details": {
+                    "sampled_values": bandit_result["sampled_values"],
+                    "actions": bandit_result["actions"],
+                    "constraints_applied": bandit_result["constraints_applied"],
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Bandit planning failed, falling back to rule-based: {e}")
+            # Fall back to rule-based planning
+            return MAPEKPlanService.generate_plan(
+                db, user_id, patient_id, analysis_data
+            )
 
     @staticmethod
     def generate_plan(
@@ -331,15 +453,36 @@ class MAPEKPlanService:
 
     @staticmethod
     def _get_specialty_default_features(specialty: Optional[str]) -> List[str]:
-        """Get default features for a specialty"""
+        """Get default features for a specialty (includes navigation items)"""
         defaults = {
-            "cardiology": ["ecg_review", "bp_trends", "cv_risk", "patient_search"],
-            "neurology": ["mri_review", "neuro_exam", "cognitive_tests", "patient_history"],
-            "psychiatry": ["mse", "phq9", "gad7", "medications"],
-            "pediatrics": ["growth_chart", "vaccines", "development", "nutrition"],
-            "emergency": ["triage", "vitals", "safety_alerts", "patient_search"],
-            "internal": ["history", "labs", "imaging", "consults"],
-            "general": ["checkup", "vitals", "labs", "referral"],
+            "cardiology": [
+                "ecg_review", "bp_trends", "cv_risk", "patient_search",
+                "dashboard_overview", "lab_results", "clinical_notes", "medications"
+            ],
+            "neurology": [
+                "mri_review", "neuro_exam", "cognitive_tests", "patient_history",
+                "dashboard_overview", "imaging_documents", "clinical_notes", "lab_results"
+            ],
+            "psychiatry": [
+                "mse", "phq9", "gad7", "medications",
+                "dashboard_overview", "clinical_notes", "medications", "appointments_schedule"
+            ],
+            "pediatrics": [
+                "growth_chart", "vaccines", "development", "nutrition",
+                "dashboard_overview", "clinical_notes", "lab_results", "appointments_schedule"
+            ],
+            "emergency": [
+                "triage", "vitals", "safety_alerts", "patient_search",
+                "dashboard_overview", "clinical_notes", "lab_results", "imaging_documents"
+            ],
+            "internal": [
+                "history", "labs", "imaging", "consults",
+                "dashboard_overview", "lab_results", "imaging_documents", "clinical_notes"
+            ],
+            "general": [
+                "checkup", "vitals", "labs", "referral",
+                "dashboard_overview", "clinical_notes", "lab_results", "medications"
+            ],
         }
         return defaults.get(specialty or "general", defaults["general"])
 

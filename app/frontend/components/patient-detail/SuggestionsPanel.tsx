@@ -99,8 +99,14 @@ export function SuggestionsPanel({ patientId }: SuggestionsPanelProps) {
 
       console.log(`✅ Feedback submitted: ${action} for suggestion ${suggestionId}, patient ${patientId}`);
 
-      // Remove suggestion from list after action
+      // Remove suggestion from list after action (it will be filtered out on next fetch)
       setSuggestions((prev) => prev.filter((s) => s.id !== suggestionId));
+      
+      // Refresh suggestions list to ensure consistency (suggestion should be filtered out by backend)
+      // Small delay to ensure backend has processed the feedback
+      setTimeout(() => {
+        fetchSuggestions();
+      }, 500);
     } catch (err: any) {
       console.error('❌ Error submitting feedback:', err);
       console.error('Error details:', {

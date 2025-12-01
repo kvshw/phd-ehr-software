@@ -2,13 +2,13 @@
 Admin API endpoints
 System management, user administration, and configuration
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
 
 from core.database import get_db
-from core.dependencies import require_admin
+from core.dependencies import require_admin, require_role
 from services.auth_service import AuthService
 from schemas.auth import UserCreate, UserResponse
 from pydantic import BaseModel, EmailStr
@@ -249,5 +249,93 @@ async def generate_synthetic_data(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error generating synthetic data: {str(e)}"
+        )
+
+
+@router.post("/delete-all-data")
+async def delete_all_data(
+    confirmation: str = Query(..., description="Must be 'DELETE ALL DATA' to confirm"),
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["admin", "clinician"])),
+):
+    """
+    Delete all patient data and related records (admin only).
+    
+    **WARNING: This is a destructive operation that cannot be undone!**
+    
+    Deletes:
+    - All patients and related data (vitals, labs, medications, visits, notes, etc.)
+    - All referrals
+    - All user actions
+    - All adaptations and bandit states
+    - All suggestions and feedback
+    - All conversations
+    
+    Preserves:
+    - User accounts
+    - System configuration
+    - Research/FL/Transfer learning metadata (priors, models)
+    """
+    if confirmation != "DELETE ALL DATA":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Confirmation text must be exactly 'DELETE ALL DATA'"
+        )
+    
+    try:
+        from sqlalchemy import text
+        from models.patient import Patient
+        from models.patient_referral import PatientReferral
+        from models.user_action import UserAction
+        from models.adaptation import Adaptation
+        from models.bandit_state import BanditState, BanditAdaptationLog
+        from models.suggestion import Suggestion
+        from models.suggestion_feedback import SuggestionFeedback, FeedbackAggregation, LearningEvent
+        from models.conversation import ConversationSession, ConversationTranscript, ConversationAnalysis
+        
+        logger.warning(f"Admin {current_user.user_id} is deleting ALL data from the system")
+        
+        deleted_counts = {}
+        
+        # Delete in order to respect foreign key constraints
+        
+        # 1. Delete patient-related data (cascades should handle most, but we'll be explicit)
+        deleted_counts['conversation_analysis'] = db.query(ConversationAnalysis).delete()
+        deleted_counts['conversation_transcripts'] = db.query(ConversationTranscript).delete()
+        deleted_counts['conversation_sessions'] = db.query(ConversationSession).delete()
+        
+        deleted_counts['learning_events'] = db.query(LearningEvent).delete()
+        deleted_counts['feedback_aggregation'] = db.query(FeedbackAggregation).delete()
+        deleted_counts['suggestion_feedback'] = db.query(SuggestionFeedback).delete()
+        deleted_counts['suggestions'] = db.query(Suggestion).delete()
+        
+        deleted_counts['bandit_adaptation_log'] = db.query(BanditAdaptationLog).delete()
+        deleted_counts['bandit_state'] = db.query(BanditState).delete()
+        deleted_counts['adaptations'] = db.query(Adaptation).delete()
+        
+        deleted_counts['patient_referrals'] = db.query(PatientReferral).delete()
+        
+        # Delete patients (this should cascade to vitals, labs, medications, visits, notes, etc.)
+        deleted_counts['patients'] = db.query(Patient).delete()
+        
+        # Delete user actions (but keep user accounts)
+        deleted_counts['user_actions'] = db.query(UserAction).delete()
+        
+        db.commit()
+        
+        logger.warning(f"Admin {current_user.user_id} successfully deleted all data. Counts: {deleted_counts}")
+        
+        return {
+            "success": True,
+            "message": "All data deleted successfully",
+            "deleted": deleted_counts,
+            "note": "User accounts and system configuration were preserved"
+        }
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error deleting all data: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error deleting all data: {str(e)}"
         )
 

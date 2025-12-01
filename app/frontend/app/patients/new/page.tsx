@@ -342,7 +342,7 @@ export default function NewPatientPage() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
+                  className={`w-full px-4 py-3 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 ${
                     errors.name ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'
                   }`}
                   placeholder="Enter patient name"
@@ -371,7 +371,7 @@ export default function NewPatientPage() {
                     onChange={handleChange}
                     min="1"
                     max="150"
-                    className={`w-full px-4 py-3 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
+                    className={`w-full px-4 py-3 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 ${
                       errors.age ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'
                     }`}
                     required
@@ -395,7 +395,7 @@ export default function NewPatientPage() {
                     name="sex"
                     value={formData.sex}
                     onChange={handleChange}
-                    className={`w-full px-4 py-3 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
+                    className={`w-full px-4 py-3 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 ${
                       errors.sex ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'
                     }`}
                     required
@@ -424,7 +424,7 @@ export default function NewPatientPage() {
                   value={formData.primary_diagnosis || ''}
                   onChange={handleChange}
                   rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none text-gray-900 bg-white"
                   placeholder="Enter primary diagnosis (e.g., Post-operative recovery, Pneumonia, etc.)"
                 />
                 <p className="mt-1 text-xs text-gray-500">
@@ -471,7 +471,7 @@ export default function NewPatientPage() {
                         name="henkilotunnus"
                         value={formData.henkilotunnus || ''}
                         onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
+                        className={`w-full px-4 py-3 border rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 ${
                           errors.henkilotunnus ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'
                         }`}
                         placeholder="YYMMDD-XXXX (e.g., 120345-1234)"
@@ -499,7 +499,7 @@ export default function NewPatientPage() {
                         name="kela_card_number"
                         value={formData.kela_card_number || ''}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 bg-white"
                         placeholder="Kela health insurance card number"
                       />
                     </div>
@@ -519,7 +519,7 @@ export default function NewPatientPage() {
                           name="municipality_code"
                           value={formData.municipality_code || ''}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 bg-white"
                           placeholder="e.g., 091 (Helsinki)"
                           maxLength={10}
                         />
@@ -537,7 +537,7 @@ export default function NewPatientPage() {
                           name="municipality_name"
                           value={formData.municipality_name || ''}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 bg-white"
                           placeholder="e.g., Helsinki"
                         />
                       </div>
@@ -601,7 +601,7 @@ export default function NewPatientPage() {
                           name="phone"
                           value={formData.phone || ''}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 bg-white"
                           placeholder="+358 50 123 4567"
                         />
                       </div>
@@ -618,7 +618,7 @@ export default function NewPatientPage() {
                           name="email"
                           value={formData.email || ''}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 bg-white"
                           placeholder="patient@example.com"
                         />
                       </div>
@@ -638,7 +638,7 @@ export default function NewPatientPage() {
                         name="address"
                         value={formData.address || ''}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 bg-white"
                         placeholder="Street address"
                       />
                     </div>
@@ -658,7 +658,7 @@ export default function NewPatientPage() {
                           name="postal_code"
                           value={formData.postal_code || ''}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 bg-white"
                           placeholder="00100"
                           maxLength={10}
                         />
@@ -676,7 +676,7 @@ export default function NewPatientPage() {
                           name="city"
                           value={formData.city || ''}
                           onChange={handleChange}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 bg-white"
                           placeholder="Helsinki"
                         />
                       </div>
@@ -699,7 +699,7 @@ export default function NewPatientPage() {
                             name="emergency_contact_name"
                             value={formData.emergency_contact_name || ''}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 bg-white"
                             placeholder="Full name"
                           />
                         </div>
@@ -717,7 +717,7 @@ export default function NewPatientPage() {
                               name="emergency_contact_phone"
                               value={formData.emergency_contact_phone || ''}
                               onChange={handleChange}
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 bg-white"
                               placeholder="+358 50 123 4567"
                             />
                           </div>
@@ -734,7 +734,7 @@ export default function NewPatientPage() {
                               name="emergency_contact_relation"
                               value={formData.emergency_contact_relation || ''}
                               onChange={handleChange}
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-gray-900 bg-white"
                               placeholder="e.g., Spouse, Parent, Sibling"
                             />
                           </div>

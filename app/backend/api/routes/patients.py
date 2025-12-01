@@ -16,7 +16,12 @@ from schemas.patient import (
     PatientListResponse,
     PatientSearchParams,
 )
+from schemas.patient_anonymized import (
+    AnonymizedPatientResponse,
+    AnonymizedPatientListResponse,
+)
 from services.patient_service import PatientService
+from services.anonymization_service import AnonymizationService
 from models.vital import Vital
 from models.imaging import Imaging
 from core.dependencies import (
@@ -43,6 +48,10 @@ async def list_patients(
     """
     List all patients with pagination and optional filtering.
     Available to all authenticated users (clinician, researcher, admin).
+    
+    **Data Access:**
+    - **Clinicians**: See full patient data (names, IDs, contact info)
+    - **Researchers/Admins**: See anonymized data (identifiers removed)
     """
     skip = (page - 1) * page_size
 
@@ -65,13 +74,29 @@ async def list_patients(
 
     total_pages = ceil(total / page_size) if total > 0 else 0
 
-    return PatientListResponse(
-        items=[PatientResponse.model_validate(p) for p in patients],
-        total=total,
-        page=page,
-        page_size=page_size,
-        total_pages=total_pages,
-    )
+    # Apply anonymization based on user role
+    if AnonymizationService.should_anonymize(current_user.role):
+        # Convert to dict, anonymize, then create response
+        patient_dicts = [PatientResponse.model_validate(p).model_dump() for p in patients]
+        anonymized_dicts = AnonymizationService.anonymize_patient_list(patient_dicts, current_user.role)
+        items = [AnonymizedPatientResponse(**d) for d in anonymized_dicts]
+        return AnonymizedPatientListResponse(
+            items=items,
+            total=total,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages,
+            anonymization_applied=True,
+        )
+    else:
+        # Clinicians see full data
+        return PatientListResponse(
+            items=[PatientResponse.model_validate(p) for p in patients],
+            total=total,
+            page=page,
+            page_size=page_size,
+            total_pages=total_pages,
+        )
 
 
 @router.get("/search", response_model=PatientListResponse)
@@ -83,21 +108,39 @@ async def search_patients(
     """
     Search patients with various criteria.
     Available to all authenticated users (clinician, researcher, admin).
+    
+    **Data Access:**
+    - **Clinicians**: See full patient data (names, IDs, contact info)
+    - **Researchers/Admins**: See anonymized data (identifiers removed)
     """
     patients, total = PatientService.search_patients(db, search_params)
 
     total_pages = ceil(total / search_params.page_size) if total > 0 else 0
 
-    return PatientListResponse(
-        items=[PatientResponse.model_validate(p) for p in patients],
-        total=total,
-        page=search_params.page,
-        page_size=search_params.page_size,
-        total_pages=total_pages,
-    )
+    # Apply anonymization based on user role
+    if AnonymizationService.should_anonymize(current_user.role):
+        patient_dicts = [PatientResponse.model_validate(p).model_dump() for p in patients]
+        anonymized_dicts = AnonymizationService.anonymize_patient_list(patient_dicts, current_user.role)
+        items = [AnonymizedPatientResponse(**d) for d in anonymized_dicts]
+        return AnonymizedPatientListResponse(
+            items=items,
+            total=total,
+            page=search_params.page,
+            page_size=search_params.page_size,
+            total_pages=total_pages,
+            anonymization_applied=True,
+        )
+    else:
+        return PatientListResponse(
+            items=[PatientResponse.model_validate(p) for p in patients],
+            total=total,
+            page=search_params.page,
+            page_size=search_params.page_size,
+            total_pages=total_pages,
+        )
 
 
-@router.get("/{patient_id}", response_model=PatientResponse)
+@router.get("/{patient_id}")
 async def get_patient(
     patient_id: UUID,
     db: Session = Depends(get_db),
@@ -106,6 +149,10 @@ async def get_patient(
     """
     Get detailed patient information by ID.
     Available to all authenticated users (clinician, researcher, admin).
+    
+    **Data Access:**
+    - **Clinicians**: See full patient data (names, IDs, contact info)
+    - **Researchers/Admins**: See anonymized data (identifiers removed)
     """
     patient = PatientService.get_patient_by_id(db, patient_id)
     if not patient:
@@ -113,7 +160,14 @@ async def get_patient(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Patient with ID {patient_id} not found",
         )
-    return PatientResponse.model_validate(patient)
+    
+    # Apply anonymization based on user role
+    if AnonymizationService.should_anonymize(current_user.role):
+        patient_dict = PatientResponse.model_validate(patient).model_dump()
+        anonymized_dict = AnonymizationService.anonymize_patient(patient_dict, current_user.role)
+        return AnonymizedPatientResponse(**anonymized_dict)
+    else:
+        return PatientResponse.model_validate(patient)
 
 
 @router.post("", response_model=PatientResponse, status_code=status.HTTP_201_CREATED)

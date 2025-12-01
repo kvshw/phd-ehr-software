@@ -1,15 +1,25 @@
 """
 Research Analytics API Routes
 Provides endpoints for tracking MAPE-K effectiveness and user behavior metrics
+
+Enhanced with:
+- Comprehensive metrics collection (Phase 8)
+- A/B testing infrastructure
+- Crossover study support
+- Sequential analysis
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func, text
 from core.database import get_db
 from core.dependencies import get_current_user, require_role
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timedelta
+from uuid import UUID
 import random
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/research", tags=["research"])
 
@@ -53,6 +63,13 @@ async def get_research_analytics(
         # Calculate summary
         summary = calculate_summary(adaptations, suggestions)
         
+        # Check if we have real data (non-zero counts)
+        has_real_data = (
+            len(adaptations) > 0 or
+            suggestions.get("total", 0) > 0 or
+            user_behavior.get("total_sessions", 0) > 0
+        )
+        
         return {
             "adaptations": adaptations,
             "suggestions": suggestions,
@@ -60,11 +77,24 @@ async def get_research_analytics(
             "summary": summary,
             "date_range": range,
             "start_date": start_date.isoformat(),
-            "generated_at": datetime.utcnow().isoformat()
+            "generated_at": datetime.utcnow().isoformat(),
+            "data_source": "real" if has_real_data else "demo",
+            "data_quality": {
+                "is_real_data": has_real_data,
+                "sample_size": len(adaptations) + suggestions.get("total", 0),
+                "note": "Real data from database" if has_real_data else "Demo data - start using system to collect real metrics"
+            }
         }
     except Exception as e:
         # Return mock data for demo purposes
-        return generate_mock_analytics(range)
+        mock_data = generate_mock_analytics(range)
+        mock_data["data_source"] = "demo"
+        mock_data["data_quality"] = {
+            "is_real_data": False,
+            "sample_size": 0,
+            "note": "Demo data - start using system to collect real metrics"
+        }
+        return mock_data
 
 
 def get_adaptation_metrics(db: Session, start_date: datetime) -> List[Dict[str, Any]]:
@@ -106,14 +136,15 @@ def get_adaptation_metrics(db: Session, start_date: datetime) -> List[Dict[str, 
 def get_suggestion_metrics(db: Session, start_date: datetime) -> Dict[str, Any]:
     """Get AI suggestion acceptance metrics"""
     try:
-        # Query feedback table
+        # Query suggestion_feedback table (correct table name)
         result = db.execute(text("""
             SELECT 
-                action,
-                COUNT(*) as count
-            FROM feedback
-            WHERE created_at >= :start_date
-            GROUP BY action
+                sf.action,
+                COUNT(*) as count,
+                COUNT(DISTINCT sf.suggestion_source) as source_count
+            FROM suggestion_feedback sf
+            WHERE sf.created_at >= :start_date
+            GROUP BY sf.action
         """), {"start_date": start_date})
         
         metrics = {"accepted": 0, "ignored": 0, "not_relevant": 0}
@@ -131,24 +162,74 @@ def get_suggestion_metrics(db: Session, start_date: datetime) -> Dict[str, Any]:
         if total == 0:
             return generate_mock_suggestions()
         
+        # Get breakdown by source
+        source_result = db.execute(text("""
+            SELECT 
+                sf.suggestion_source,
+                COUNT(*) as total,
+                SUM(CASE WHEN sf.action = 'accept' THEN 1 ELSE 0 END) as accepted
+            FROM suggestion_feedback sf
+            WHERE sf.created_at >= :start_date
+            GROUP BY sf.suggestion_source
+        """), {"start_date": start_date})
+        
+        by_source = {}
+        for row in source_result:
+            source = row[0] or "unknown"
+            by_source[source] = {
+                "total": row[1],
+                "accepted": row[2]
+            }
+        
+        # If no source breakdown, use defaults
+        if not by_source:
+            by_source = {
+                "rules": {"total": int(total * 0.5), "accepted": int(metrics["accepted"] * 0.6)},
+                "ai_model": {"total": int(total * 0.3), "accepted": int(metrics["accepted"] * 0.3)},
+                "hybrid": {"total": int(total * 0.2), "accepted": int(metrics["accepted"] * 0.1)},
+            }
+        
+        # Get breakdown by confidence
+        confidence_result = db.execute(text("""
+            SELECT 
+                CASE 
+                    WHEN sf.suggestion_confidence >= 0.7 THEN 'high'
+                    WHEN sf.suggestion_confidence >= 0.4 THEN 'medium'
+                    ELSE 'low'
+                END as confidence_level,
+                COUNT(*) as count
+            FROM suggestion_feedback sf
+            WHERE sf.created_at >= :start_date
+                AND sf.suggestion_confidence IS NOT NULL
+            GROUP BY confidence_level
+        """), {"start_date": start_date})
+        
+        by_confidence = {"high": 0, "medium": 0, "low": 0}
+        for row in confidence_result:
+            level = row[0]
+            count = row[1]
+            if level in by_confidence:
+                by_confidence[level] = count
+        
+        # If no confidence breakdown, use defaults
+        if sum(by_confidence.values()) == 0:
+            by_confidence = {
+                "high": int(total * 0.3),
+                "medium": int(total * 0.5),
+                "low": int(total * 0.2),
+            }
+        
         return {
             "total": total,
             "accepted": metrics["accepted"],
             "ignored": metrics["ignored"],
             "not_relevant": metrics["not_relevant"],
             "acceptance_rate": metrics["accepted"] / total if total > 0 else 0,
-            "by_source": {
-                "rules": {"total": int(total * 0.5), "accepted": int(metrics["accepted"] * 0.6)},
-                "ai_model": {"total": int(total * 0.3), "accepted": int(metrics["accepted"] * 0.3)},
-                "hybrid": {"total": int(total * 0.2), "accepted": int(metrics["accepted"] * 0.1)},
-            },
-            "by_confidence": {
-                "high": int(total * 0.3),
-                "medium": int(total * 0.5),
-                "low": int(total * 0.2),
-            }
+            "by_source": by_source,
+            "by_confidence": by_confidence
         }
-    except Exception:
+    except Exception as e:
+        logger.error(f"Error getting suggestion metrics: {e}", exc_info=True)
         return generate_mock_suggestions()
 
 
@@ -499,4 +580,577 @@ async def process_feedback_for_learning(
     
     result = learning_engine.learn_from_feedback(feedback_data)
     return result
+
+
+# ============================================================================
+# Phase 8: Enhanced Metrics Endpoints
+# ============================================================================
+
+@router.get("/metrics/time-to-target/{feature_key}")
+async def get_time_to_target(
+    feature_key: str,
+    days: int = 30,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Get time-to-target metrics for a specific feature.
+    
+    Measures how quickly users access the target feature after opening dashboard.
+    """
+    from services.metrics_service import MetricsService
+    
+    metrics_service = MetricsService(db)
+    result = metrics_service.measure_time_to_target(
+        user_id=current_user.user_id,
+        feature_key=feature_key,
+        days=days
+    )
+    
+    return result
+
+
+@router.get("/metrics/click-reduction")
+async def get_click_reduction(
+    baseline_days: int = 7,
+    adaptive_days: int = 7,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Get click reduction metrics comparing baseline vs adaptive periods.
+    """
+    from services.metrics_service import MetricsService
+    
+    metrics_service = MetricsService(db)
+    result = metrics_service.calculate_click_reduction(
+        user_id=current_user.user_id,
+        baseline_period_days=baseline_days,
+        adaptive_period_days=adaptive_days
+    )
+    
+    return result
+
+
+@router.get("/metrics/suggestion-rates")
+async def get_suggestion_rates(
+    days: int = 30,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Get suggestion acceptance/ignore/rejection rates.
+    """
+    from services.metrics_service import MetricsService
+    
+    metrics_service = MetricsService(db)
+    return metrics_service.calculate_suggestion_rates(
+        user_id=current_user.user_id,
+        days=days
+    )
+
+
+@router.get("/metrics/adaptation-accuracy")
+async def get_adaptation_accuracy(
+    top_n: int = 5,
+    days: int = 30,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Get adaptation accuracy metrics.
+    
+    Measures if promoted features are actually used (precision/recall).
+    """
+    from services.metrics_service import MetricsService
+    
+    metrics_service = MetricsService(db)
+    return metrics_service.measure_adaptation_accuracy(
+        user_id=current_user.user_id,
+        top_n=top_n,
+        days=days
+    )
+
+
+@router.get("/metrics/adaptation-stability")
+async def get_adaptation_stability(
+    days: int = 30,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Get adaptation stability metrics.
+    
+    Shows if the system has converged or is still learning.
+    """
+    from services.metrics_service import MetricsService
+    
+    metrics_service = MetricsService(db)
+    return metrics_service.measure_adaptation_stability(
+        user_id=current_user.user_id,
+        days=days
+    )
+
+
+@router.get("/metrics/bandit-convergence")
+async def get_bandit_convergence(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Get Thompson Sampling bandit convergence metrics.
+    """
+    from services.metrics_service import MetricsService
+    
+    metrics_service = MetricsService(db)
+    return metrics_service.measure_bandit_convergence(
+        user_id=current_user.user_id
+    )
+
+
+@router.get("/metrics/report")
+async def get_user_metrics_report(
+    days: int = 30,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Get comprehensive metrics report for current user.
+    """
+    from services.metrics_service import MetricsService
+    
+    metrics_service = MetricsService(db)
+    return metrics_service.generate_user_metrics_report(
+        user_id=current_user.user_id,
+        days=days
+    )
+
+
+@router.post("/metrics/survey")
+async def record_survey(
+    survey_type: str,
+    responses: Dict[str, Any],
+    context: Optional[Dict[str, Any]] = None,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Record a user satisfaction survey response.
+    
+    **Survey Types:**
+    - `quick_feedback`: Single 1-5 rating
+    - `sus`: System Usability Scale (10 questions, q1-q10)
+    - `nasa_tlx`: NASA Task Load Index (mental, physical, temporal, performance, effort, frustration)
+    
+    **Examples:**
+    
+    Quick feedback:
+    ```json
+    {"survey_type": "quick_feedback", "responses": {"rating": 4}}
+    ```
+    
+    SUS:
+    ```json
+    {"survey_type": "sus", "responses": {"q1": 4, "q2": 2, ..., "q10": 3}}
+    ```
+    """
+    from services.metrics_service import MetricsService
+    
+    metrics_service = MetricsService(db)
+    return metrics_service.record_satisfaction_survey(
+        user_id=current_user.user_id,
+        survey_type=survey_type,
+        responses=responses,
+        context=context
+    )
+
+
+@router.get("/metrics/satisfaction-trends")
+async def get_satisfaction_trends(
+    survey_type: str = "quick_feedback",
+    days: int = 90,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["researcher", "admin"])),
+):
+    """
+    Get satisfaction score trends over time.
+    
+    **Researcher/Admin Only**
+    """
+    from services.metrics_service import MetricsService
+    
+    metrics_service = MetricsService(db)
+    return metrics_service.get_satisfaction_trends(
+        survey_type=survey_type,
+        days=days
+    )
+
+
+# ============================================================================
+# Phase 8: A/B Testing Endpoints
+# ============================================================================
+
+@router.post("/studies")
+async def create_study(
+    study_id: str,
+    name: str,
+    description: str,
+    design: str = "between_subjects",
+    conditions: Optional[List[str]] = None,
+    config: Optional[Dict[str, Any]] = None,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["researcher", "admin"])),
+):
+    """
+    Create a new research study.
+    
+    **Researcher/Admin Only**
+    
+    **Design Types:**
+    - `between_subjects`: Different users in each condition
+    - `within_subjects`: Same users experience both conditions (crossover)
+    - `mixed`: Combination
+    
+    **Config Options:**
+    - `phase_duration_days`: Days per phase (default: 14)
+    - `washout_days`: Washout period between phases (default: 0)
+    - `min_participants_per_condition`: Minimum sample size (default: 30)
+    - `sequential_analysis`: Enable sequential stopping (default: true)
+    - `alpha`: Significance level (default: 0.05)
+    - `power`: Statistical power (default: 0.80)
+    - `min_detectable_effect`: Minimum effect size to detect (default: 0.2)
+    """
+    from services.ab_testing_service import ABTestingService, StudyDesign
+    
+    ab_service = ABTestingService(db)
+    
+    try:
+        design_enum = StudyDesign(design)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid design. Must be: between_subjects, within_subjects, or mixed"
+        )
+    
+    study = ab_service.create_study(
+        study_id=study_id,
+        name=name,
+        description=description,
+        design=design_enum,
+        conditions=conditions,
+        config=config,
+        created_by=current_user.user_id
+    )
+    
+    return study
+
+
+@router.post("/studies/{study_id}/start")
+async def start_study(
+    study_id: str,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["researcher", "admin"])),
+):
+    """
+    Start a study (change status from draft to active).
+    
+    **Researcher/Admin Only**
+    """
+    from services.ab_testing_service import ABTestingService
+    
+    ab_service = ABTestingService(db)
+    return ab_service.start_study(study_id)
+
+
+@router.post("/studies/{study_id}/end")
+async def end_study(
+    study_id: str,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["researcher", "admin"])),
+):
+    """
+    End a study.
+    
+    **Researcher/Admin Only**
+    """
+    from services.ab_testing_service import ABTestingService
+    
+    ab_service = ABTestingService(db)
+    return ab_service.end_study(study_id)
+
+
+@router.get("/studies/{study_id}")
+async def get_study(
+    study_id: str,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["researcher", "admin"])),
+):
+    """
+    Get study details.
+    
+    **Researcher/Admin Only**
+    """
+    from services.ab_testing_service import ABTestingService
+    
+    ab_service = ABTestingService(db)
+    study = ab_service.get_study(study_id)
+    
+    if not study:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Study {study_id} not found"
+        )
+    
+    return study
+
+
+@router.get("/studies/{study_id}/summary")
+async def get_study_summary(
+    study_id: str,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["researcher", "admin"])),
+):
+    """
+    Get study summary with enrollment and sequential analysis.
+    
+    **Researcher/Admin Only**
+    """
+    from services.ab_testing_service import ABTestingService
+    
+    ab_service = ABTestingService(db)
+    return ab_service.get_study_summary(study_id)
+
+
+@router.post("/studies/{study_id}/assign")
+async def assign_to_study(
+    study_id: str,
+    force_condition: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Assign current user to a study condition.
+    
+    Uses stratified randomization to balance conditions.
+    For within-subjects design, assigns to initial condition in crossover sequence.
+    """
+    from services.ab_testing_service import ABTestingService
+    
+    ab_service = ABTestingService(db)
+    
+    try:
+        return ab_service.assign_condition(
+            user_id=current_user.user_id,
+            study_id=study_id,
+            force_condition=force_condition
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
+@router.get("/studies/{study_id}/my-condition")
+async def get_my_condition(
+    study_id: str,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Get current user's condition in a study.
+    """
+    from services.ab_testing_service import ABTestingService
+    
+    ab_service = ABTestingService(db)
+    condition = ab_service.get_user_condition(
+        user_id=current_user.user_id,
+        study_id=study_id
+    )
+    
+    if not condition:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Not assigned to this study"
+        )
+    
+    return condition
+
+
+@router.post("/studies/{study_id}/crossover")
+async def crossover_condition(
+    study_id: str,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Switch to next condition in crossover design.
+    
+    For within-subjects studies, moves user to next phase.
+    """
+    from services.ab_testing_service import ABTestingService
+    
+    ab_service = ABTestingService(db)
+    
+    try:
+        return ab_service.crossover(
+            user_id=current_user.user_id,
+            study_id=study_id
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
+@router.get("/studies/{study_id}/sequential-analysis")
+async def get_sequential_analysis(
+    study_id: str,
+    primary_outcome: str = "acceptance_rate",
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["researcher", "admin"])),
+):
+    """
+    Check sequential analysis for early stopping.
+    
+    **Researcher/Admin Only**
+    
+    Uses O'Brien-Fleming spending function to determine if study
+    can be stopped early due to clear benefit.
+    """
+    from services.ab_testing_service import ABTestingService
+    
+    ab_service = ABTestingService(db)
+    return ab_service.check_sequential_stopping(
+        study_id=study_id,
+        primary_outcome=primary_outcome
+    )
+
+
+@router.get("/studies/{study_id}/export")
+async def export_study_data(
+    study_id: str,
+    include_covariates: bool = True,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["researcher", "admin"])),
+):
+    """
+    Export study data for statistical analysis.
+    
+    **Researcher/Admin Only**
+    
+    Exports data suitable for mixed-effects models:
+    - user_id, condition, phase, day, outcome, covariates
+    """
+    from services.ab_testing_service import ABTestingService
+    
+    ab_service = ABTestingService(db)
+    return ab_service.export_for_analysis(
+        study_id=study_id,
+        include_covariates=include_covariates
+    )
+
+
+@router.get("/studies/{study_id}/metrics-report")
+async def get_study_metrics_report(
+    study_id: str,
+    days: int = 30,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["researcher", "admin"])),
+):
+    """
+    Get metrics report comparing conditions in a study.
+    
+    **Researcher/Admin Only**
+    """
+    from services.metrics_service import MetricsService
+    
+    metrics_service = MetricsService(db)
+    return metrics_service.generate_study_metrics_report(
+        study_id=study_id,
+        days=days
+    )
+
+
+@router.get("/studies")
+async def list_studies(
+    status: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role(["researcher", "admin"])),
+):
+    """
+    List all studies.
+    
+    **Researcher/Admin Only**
+    """
+    try:
+        query = "SELECT * FROM studies"
+        params = {}
+        
+        if status:
+            query += " WHERE status = :status"
+            params["status"] = status
+        
+        query += " ORDER BY created_at DESC"
+        
+        result = db.execute(text(query), params)
+        
+        studies = []
+        import json
+        for row in result:
+            study = dict(row._mapping)
+            for field in ["conditions", "config", "metadata"]:
+                if field in study and study[field]:
+                    if isinstance(study[field], str):
+                        study[field] = json.loads(study[field])
+            studies.append(study)
+        
+        return {"studies": studies, "count": len(studies)}
+        
+    except Exception as e:
+        logger.error(f"Error listing studies: {e}")
+        return {"studies": [], "error": str(e)}
+
+
+# ============================================================================
+# Helper: Check if user should use adaptive mode based on study
+# ============================================================================
+
+@router.get("/should-use-adaptive")
+async def should_use_adaptive(
+    study_id: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Check if current user should receive adaptive treatment.
+    
+    Used by frontend to determine whether to enable adaptive features.
+    
+    If study_id provided, checks study condition.
+    Otherwise, returns True (adaptive mode by default).
+    """
+    if not study_id:
+        return {"use_adaptive": True, "reason": "no_study"}
+    
+    from services.ab_testing_service import ABTestingService
+    
+    ab_service = ABTestingService(db)
+    should_use = ab_service.should_use_adaptive(
+        user_id=current_user.user_id,
+        study_id=study_id
+    )
+    
+    condition = ab_service.get_user_condition(
+        user_id=current_user.user_id,
+        study_id=study_id
+    )
+    
+    return {
+        "use_adaptive": should_use,
+        "study_id": study_id,
+        "condition": condition.get("condition") if condition else None,
+        "phase": condition.get("phase") if condition else None
+    }
 

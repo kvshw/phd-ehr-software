@@ -1,154 +1,171 @@
-# Self-Adaptive AI-Assisted EHR Research Platform
+# Self-Adaptive AI-Assisted EHR Platform
 
-A research platform for studying AI-assisted Electronic Health Record (EHR) systems with adaptive interfaces, explainable AI, and comprehensive logging for research purposes.
+A research platform implementing MAPE-K architecture for self-adaptive Electronic Health Record interfaces with AI-assisted clinical workflows.
 
-## 🎯 Project Overview
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
+![License](https://img.shields.io/badge/License-Research-orange)
 
-This platform serves as a research testbed for studying:
-- Cognitive load reduction in clinical workflows
-- Trust & interpretability of AI-assisted medical systems
-- Bias, fairness, and risk management in medical AI
-- Self-adaptive system behaviors in healthcare contexts
+## 🎯 Overview
 
-## ⚠️ Important Disclaimers
+This platform demonstrates a novel approach to EHR personalization using:
 
-- **Research Platform Only**: This is NOT a production medical device
-- **Synthetic Data Only**: All data is synthetic or anonymized - no PHI
-- **Experimental AI**: All AI outputs are labeled as "Experimental"
-- **No Clinical Actions**: System does not perform autonomous clinical actions
+- **MAPE-K Architecture**: Monitor-Analyze-Plan-Execute-Knowledge loop for self-adaptation
+- **Thompson Sampling**: Multi-armed bandit algorithm for UI personalization
+- **AI-Assisted Triage**: Human-in-the-loop clinical decision support
+- **Role-Based Interfaces**: Adaptive dashboards for Doctors, Nurses, and Admins
+- **Privacy-Preserving**: Federated learning and data anonymization
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐
-│  Frontend       │  Next.js/React/TypeScript
-│  (Clinician UI) │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│  Backend API    │  FastAPI (Python)
-│  (Auth, CRUD)   │
-└────────┬────────┘
-         │
-    ┌────┴────┬──────────────┬─────────────┐
-    ▼         ▼              ▼             ▼
-┌────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
-│Database│ │Adaptation│ │Vital     │ │Image     │
-│Postgres│ │Engine    │ │Model     │ │Model     │
-│        │ │(MAPE-K)  │ │Service   │ │Service   │
-└────────┘ └──────────┘ └──────────┘ └──────────┘
+┌─────────────────────────────────────────────────────────┐
+│                   Frontend (Next.js 14)                  │
+│   Adaptive Dashboard │ Role-Based UI │ Research Analytics│
+└───────────────────────────┬─────────────────────────────┘
+                            │
+┌───────────────────────────┴─────────────────────────────┐
+│                   Backend (FastAPI)                      │
+│   MAPE-K Services │ AI Models │ Privacy │ Research       │
+└───────────────────────────┬─────────────────────────────┘
+                            │
+┌───────────────────────────┴─────────────────────────────┐
+│                Database (PostgreSQL/Supabase)            │
+│   Clinical Data │ Bandit State │ User Actions │ Research │
+└─────────────────────────────────────────────────────────┘
 ```
 
-## 🚀 Quick Start
+## 🚀 Live Demo
+
+- **Frontend**: [https://your-app.vercel.app](https://your-app.vercel.app)
+- **API Docs**: [https://your-backend.com/docs](https://your-backend.com/docs)
+
+### Demo Accounts
+
+| Role | Email | Password |
+|------|-------|----------|
+| Doctor | doctor@demo.com | demo123 |
+| Nurse | nurse@demo.com | demo123 |
+| Admin | admin@demo.com | demo123 |
+
+## ✨ Key Features
+
+### Self-Adaptive Dashboard
+- Automatically learns user preferences
+- Adapts feature visibility and sizing
+- Specialty-based initial configurations
+
+### AI-Assisted Triage
+- Analyzes patient symptoms and history
+- Suggests specialty and priority
+- Human override capability
+
+### Role-Based Workflows
+- **Doctor**: Adaptive clinical dashboard, incoming referrals
+- **Nurse**: Triage queue, patient routing, AI suggestions
+- **Admin**: Anonymized analytics, system monitoring
+
+### Research Infrastructure
+- Regret analysis for bandit performance
+- Fairness metrics across user groups
+- A/B testing framework
+
+## 🛠️ Tech Stack
+
+### Frontend
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- Zustand (State Management)
+
+### Backend
+- FastAPI (Python 3.11)
+- SQLAlchemy ORM
+- Pydantic Validation
+- JWT Authentication
+
+### Database
+- PostgreSQL (via Supabase)
+
+## 📦 Local Development
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 20+
 - Python 3.11+
-- Supabase account (project already created)
-- Docker & Docker Compose (for local services)
+- PostgreSQL or Supabase account
 
-### Setup
+### Frontend Setup
 
-1. **Clone the repository**
-```bash
-git clone <repository-url>
-cd "Medical EHR Software"
-```
-
-2. **Configure environment variables**
-```bash
-cp .env.example .env
-# Edit .env and add your Supabase Service Role Key
-# Get it from: https://supabase.com/dashboard/project/gzlfyxwsffubglatvcau/settings/api
-```
-
-3. **Start local services with Docker** (MinIO, model services)
-```bash
-docker-compose up -d
-```
-
-4. **Start backend**
-```bash
-cd app/backend
-uvicorn main:app --reload
-```
-
-5. **Start frontend**
 ```bash
 cd app/frontend
 npm install
+cp .env.example .env.local
+# Edit .env.local with your API URL
 npm run dev
 ```
 
-## 📁 Project Structure
+### Backend Setup
 
-```
-/app
-  /frontend          # Next.js frontend application
-  /backend           # FastAPI backend application
-  /model-services    # AI model microservices
-  /database          # Database schemas and migrations
-  /devops            # Docker and deployment configs
-/scripts             # Utility scripts
-/memory-bank         # Project documentation
-/tasks               # Task management files
-```
-
-## 🔐 Authentication
-
-Default roles:
-- **clinician**: Access to patient dashboard
-- **researcher**: Access to analytics dashboard
-- **admin**: System controls and configuration
-
-## 📊 Features
-
-### For Clinicians
-- Prioritized patient list
-- Patient detail view with vitals, labs, imaging
-- AI-generated suggestions with explanations
-- Adaptive UI that responds to context
-
-### For Researchers
-- Analytics dashboard
-- Comprehensive logging
-- Model performance metrics
-- Fairness indicators
-
-### For Admins
-- User management
-- System configuration
-- Synthetic data generation
-- Model versioning
-
-## 🧪 Development
-
-### Running Tests
 ```bash
-# Backend tests
 cd app/backend
-pytest
-
-# Frontend tests
-cd app/frontend
-npm test
+python -m venv venv
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+pip install -r requirements.txt
+cp .env.example .env
+# Edit .env with your database URL
+uvicorn main:app --reload
 ```
 
-### Code Style
-- Backend: Black, isort, flake8
-- Frontend: ESLint, Prettier
+### Docker Setup
+
+```bash
+cd devops
+docker-compose up -d
+```
+
+## 🌐 Deployment
+
+### Frontend (Vercel)
+
+1. Connect GitHub repo to Vercel
+2. Set root directory: `app/frontend`
+3. Add environment variable:
+   - `NEXT_PUBLIC_API_URL`: Your backend URL
+
+### Backend (Railway/Render/Fly.io)
+
+1. Deploy from `app/backend` directory
+2. Set environment variables:
+   - `DATABASE_URL`: PostgreSQL connection string
+   - `SECRET_KEY`: JWT secret
+   - `CORS_ORIGINS`: Frontend URL
+
+## 📊 API Documentation
+
+When running locally, visit:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+## 🔬 Research
+
+This platform supports PhD research in self-adaptive systems for healthcare. Key research areas:
+
+1. **UI Personalization**: Thompson Sampling bandit optimization
+2. **Human-AI Collaboration**: Trust and override behavior
+3. **Privacy-Preserving ML**: Federated learning patterns
 
 ## 📝 License
 
-MIT License or Apache 2.0 (TBD)
+This is a research project. Please contact the authors for usage permissions.
 
-## 🤝 Contributing
+## 👥 Authors
 
-This is a research project. Please refer to the PRD and implementation plan for contribution guidelines.
+- [Your Name] - PhD Candidate
+- [Supervisor Name] - Supervisor
 
-## 📚 Documentation
+## 🙏 Acknowledgments
 
-- [Product Requirements Document](scripts/prd.txt)
-- [Implementation Plan](IMPLEMENTATION_PLAN.md)
-- [Memory Bank](memory-bank/)
+- [University/Institution]
+- Supabase for database hosting
+- Vercel for frontend hosting

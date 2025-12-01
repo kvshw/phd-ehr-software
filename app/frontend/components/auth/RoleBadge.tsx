@@ -24,7 +24,7 @@ const roleConfig: Record<UserRole, {
   description: string;
 }> = {
   clinician: {
-    label: 'Clinician',
+    label: 'Doctor',
     icon: '👨‍⚕️',
     color: {
       bg: 'bg-blue-100',
@@ -32,6 +32,26 @@ const roleConfig: Record<UserRole, {
       border: 'border-blue-200',
     },
     description: 'Patient care and AI suggestions',
+  },
+  doctor: {
+    label: 'Doctor',
+    icon: '👨‍⚕️',
+    color: {
+      bg: 'bg-blue-100',
+      text: 'text-blue-800',
+      border: 'border-blue-200',
+    },
+    description: 'Patient care and AI suggestions',
+  },
+  nurse: {
+    label: 'Nurse',
+    icon: '👩‍⚕️',
+    color: {
+      bg: 'bg-teal-100',
+      text: 'text-teal-800',
+      border: 'border-teal-200',
+    },
+    description: 'Patient triage and care coordination',
   },
   researcher: {
     label: 'Researcher',

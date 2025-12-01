@@ -44,6 +44,9 @@ export interface Patient {
   insurance_id?: string | null;
   created_at: string;
   updated_at: string;
+  // Anonymization metadata (present when data is anonymized)
+  is_anonymized?: boolean;
+  anonymization_note?: string;
 }
 
 export interface PatientListResponse {

@@ -8,7 +8,7 @@ from core.config import settings
 from api.routes import (
     auth, patients, vitals, labs, imaging, ai, monitor, mape_k, audit, admin,
     clinical_notes, problems, medications, allergies, conversations, feedback, visits,
-    research
+    research, assurance, governance, triage, referrals, research_analytics
 )
 
 app = FastAPI(
@@ -17,12 +17,20 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# CORS middleware - Allow all origins in development
+# CORS middleware
 import os
-cors_origins = settings.CORS_ORIGINS
-if os.getenv("ENVIRONMENT", "development") == "development":
-    # In development, allow all origins to avoid CORS issues
-    cors_origins = ["*"]
+is_development = os.getenv("ENVIRONMENT", "development") == "development"
+
+# In development, use localhost origins; in production, use configured origins
+if is_development:
+    cors_origins = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+    ]
+else:
+    cors_origins = settings.cors_origins_list
 
 app.add_middleware(
     CORSMiddleware,
@@ -52,6 +60,11 @@ app.include_router(conversations.router, prefix=settings.API_V1_PREFIX)
 app.include_router(feedback.router, prefix=settings.API_V1_PREFIX)
 app.include_router(visits.router, prefix=settings.API_V1_PREFIX)
 app.include_router(research.router, prefix=settings.API_V1_PREFIX)
+app.include_router(assurance.router, prefix=settings.API_V1_PREFIX)
+app.include_router(governance.router, prefix=settings.API_V1_PREFIX)
+app.include_router(triage.router, prefix=settings.API_V1_PREFIX)
+app.include_router(referrals.router, prefix=settings.API_V1_PREFIX)
+app.include_router(research_analytics.router, prefix=settings.API_V1_PREFIX)
 
 @app.get("/")
 async def root():

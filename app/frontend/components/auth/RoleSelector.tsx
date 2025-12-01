@@ -4,7 +4,7 @@
  */
 'use client';
 
-export type UserRole = 'clinician' | 'researcher' | 'admin';
+export type UserRole = 'clinician' | 'researcher' | 'admin' | 'nurse' | 'doctor';
 
 interface RoleOption {
   id: UserRole;
@@ -29,7 +29,7 @@ interface RoleSelectorProps {
 const roles: RoleOption[] = [
   {
     id: 'clinician',
-    label: 'Clinician',
+    label: 'Doctor',
     icon: '👨‍⚕️',
     description: 'Access patient records, vitals, and AI suggestions',
     color: {
@@ -38,6 +38,19 @@ const roles: RoleOption[] = [
       selectedBg: 'bg-blue-100',
       selectedBorder: 'border-blue-400',
       text: 'text-blue-700',
+    },
+  },
+  {
+    id: 'nurse',
+    label: 'Nurse',
+    icon: '👩‍⚕️',
+    description: 'Patient triage, routing, and care coordination',
+    color: {
+      bg: 'bg-teal-50',
+      border: 'border-teal-200',
+      selectedBg: 'bg-teal-100',
+      selectedBorder: 'border-teal-400',
+      text: 'text-teal-700',
     },
   },
   {
@@ -74,7 +87,7 @@ export function RoleSelector({ selectedRole, onRoleSelect, disabled = false }: R
       <label className="block text-sm font-medium text-gray-700 mb-3">
         Select Your Role
       </label>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {roles.map((role) => {
           const isSelected = selectedRole === role.id;
           return (

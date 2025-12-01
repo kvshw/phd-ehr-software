@@ -140,7 +140,7 @@ export function ClinicalNotesSection({ patientId }: ClinicalNotesSectionProps) {
                 <select
                   value={formData.note_type}
                   onChange={(e) => setFormData({ ...formData, note_type: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                 >
                   <option value="progress">Progress Note</option>
                   <option value="admission">Admission Note</option>
@@ -154,7 +154,7 @@ export function ClinicalNotesSection({ patientId }: ClinicalNotesSectionProps) {
                   type="datetime-local"
                   value={formData.encounter_date ? new Date(formData.encounter_date).toISOString().slice(0, 16) : ''}
                   onChange={(e) => setFormData({ ...formData, encounter_date: new Date(e.target.value).toISOString() })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                 />
               </div>
             </div>
@@ -167,7 +167,7 @@ export function ClinicalNotesSection({ patientId }: ClinicalNotesSectionProps) {
                   value={formData.chief_complaint || ''}
                   onChange={(e) => setFormData({ ...formData, chief_complaint: e.target.value })}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder="Patient's main complaint"
                 />
               </div>
@@ -177,7 +177,7 @@ export function ClinicalNotesSection({ patientId }: ClinicalNotesSectionProps) {
                   value={formData.history_of_present_illness || ''}
                   onChange={(e) => setFormData({ ...formData, history_of_present_illness: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder="Detailed history of the current problem"
                 />
               </div>
@@ -187,7 +187,7 @@ export function ClinicalNotesSection({ patientId }: ClinicalNotesSectionProps) {
                   value={formData.review_of_systems || ''}
                   onChange={(e) => setFormData({ ...formData, review_of_systems: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder="Systematic review of body systems"
                 />
               </div>
@@ -197,7 +197,7 @@ export function ClinicalNotesSection({ patientId }: ClinicalNotesSectionProps) {
                   value={formData.physical_exam || ''}
                   onChange={(e) => setFormData({ ...formData, physical_exam: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder="Physical examination findings"
                 />
               </div>
@@ -207,7 +207,7 @@ export function ClinicalNotesSection({ patientId }: ClinicalNotesSectionProps) {
                   value={formData.assessment || ''}
                   onChange={(e) => setFormData({ ...formData, assessment: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder="Clinical assessment and diagnosis"
                 />
               </div>
@@ -217,7 +217,7 @@ export function ClinicalNotesSection({ patientId }: ClinicalNotesSectionProps) {
                   value={formData.plan || ''}
                   onChange={(e) => setFormData({ ...formData, plan: e.target.value })}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder="Treatment plan and follow-up"
                 />
               </div>
@@ -227,7 +227,7 @@ export function ClinicalNotesSection({ patientId }: ClinicalNotesSectionProps) {
                   value={formData.note_text || ''}
                   onChange={(e) => setFormData({ ...formData, note_text: e.target.value })}
                   rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder="Additional free-form notes"
                 />
               </div>

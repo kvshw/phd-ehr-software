@@ -10,7 +10,8 @@ from datetime import datetime
 
 from core.database import get_db
 from core.dependencies import get_current_user, require_role
-from services.ai_service import ai_service_client
+from services.ai_service import ai_service_client, AIServiceClient
+import httpx
 from services.suggestion_service import SuggestionService
 from services.vital_service import VitalService
 from services.lab_service import LabService
@@ -341,11 +342,128 @@ async def get_patient_suggestions(
 ):
     """
     Get all AI-generated suggestions for a patient.
+    Excludes suggestions that the current user has already provided feedback on.
     """
-    suggestions, total = SuggestionService.get_suggestions_by_patient_id(db, patient_id)
+    suggestions, total = SuggestionService.get_suggestions_by_patient_id(
+        db, 
+        patient_id, 
+        user_id=current_user.user_id  # Filter out suggestions with existing feedback
+    )
     return SuggestionListResponse(
         items=[SuggestionResponse.model_validate(s) for s in suggestions],
         total=total,
         patient_id=patient_id
     )
+
+
+@router.get("/models/health")
+async def check_model_health(
+    current_user=Depends(get_current_user),
+):
+    """
+    Check health status of all 3 AI model services.
+    
+    Returns:
+    - Status of each model (healthy/unhealthy)
+    - Model versions
+    - Data availability indicators
+    - Fine-tuning recommendations
+    """
+    from core.config import settings
+    
+    models_status = {}
+    
+    # Check Vital Risk Model
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(f"{settings.VITAL_RISK_SERVICE_URL}/health")
+            if response.status_code == 200:
+                data = response.json()
+                models_status["vital_risk"] = {
+                    "status": "healthy",
+                    "version": data.get("version", "unknown"),
+                    "needs_fine_tuning": False,  # Rule-based, doesn't need fine-tuning
+                    "data_requirements": "No training data needed (rule-based model)"
+                }
+            else:
+                models_status["vital_risk"] = {
+                    "status": "unhealthy",
+                    "error": f"HTTP {response.status_code}"
+                }
+    except Exception as e:
+        models_status["vital_risk"] = {
+            "status": "unhealthy",
+            "error": str(e),
+            "needs_fine_tuning": False
+        }
+    
+    # Check Image Analysis Model
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(f"{settings.IMAGE_ANALYSIS_SERVICE_URL}/health")
+            if response.status_code == 200:
+                data = response.json()
+                models_status["image_analysis"] = {
+                    "status": "healthy",
+                    "version": data.get("version", "unknown"),
+                    "needs_fine_tuning": True,  # CNN model can benefit from fine-tuning
+                    "data_requirements": "Requires labeled medical images (X-rays, MRIs, CTs) for fine-tuning",
+                    "recommendation": "Model is working but could be improved with domain-specific training data"
+                }
+            else:
+                models_status["image_analysis"] = {
+                    "status": "unhealthy",
+                    "error": f"HTTP {response.status_code}"
+                }
+    except Exception as e:
+        models_status["image_analysis"] = {
+            "status": "unhealthy",
+            "error": str(e),
+            "needs_fine_tuning": True
+        }
+    
+    # Check Diagnosis Helper Model
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(f"{settings.DIAGNOSIS_HELPER_SERVICE_URL}/health")
+            if response.status_code == 200:
+                data = response.json()
+                models_status["diagnosis_helper"] = {
+                    "status": "healthy",
+                    "version": data.get("version", "unknown"),
+                    "needs_fine_tuning": True,  # Hybrid model (rules + LLM) can benefit from fine-tuning
+                    "data_requirements": "Requires clinical notes, diagnosis outcomes, and feedback for fine-tuning",
+                    "recommendation": "Model is working but could be improved with more clinical data and feedback"
+                }
+            else:
+                models_status["diagnosis_helper"] = {
+                    "status": "unhealthy",
+                    "error": f"HTTP {response.status_code}"
+                }
+    except Exception as e:
+        models_status["diagnosis_helper"] = {
+            "status": "unhealthy",
+            "error": str(e),
+            "needs_fine_tuning": True
+        }
+    
+    # Overall status
+    all_healthy = all(
+        model.get("status") == "healthy" 
+        for model in models_status.values()
+    )
+    
+    return {
+        "overall_status": "healthy" if all_healthy else "degraded",
+        "models": models_status,
+        "summary": {
+            "total_models": 3,
+            "healthy_models": sum(1 for m in models_status.values() if m.get("status") == "healthy"),
+            "unhealthy_models": sum(1 for m in models_status.values() if m.get("status") == "unhealthy"),
+            "models_needing_fine_tuning": [
+                name for name, model in models_status.items() 
+                if model.get("needs_fine_tuning", False) and model.get("status") == "healthy"
+            ]
+        }
+    }
 

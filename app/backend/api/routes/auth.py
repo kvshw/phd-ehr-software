@@ -3,6 +3,8 @@ Authentication routes
 """
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
+from typing import Optional
 from core.database import get_db
 from schemas.auth import (
     LoginRequest,
@@ -75,6 +77,86 @@ async def register(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
+        )
+
+
+class RegistrationRequest(BaseModel):
+    """Schema for self-registration request"""
+    email: str
+    password: str
+    role: str  # 'clinician' (doctor) or 'nurse'
+    specialty: Optional[str] = None
+    department: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    title: Optional[str] = None
+    license_number: Optional[str] = None
+    heti_number: Optional[str] = None
+    primary_workplace: Optional[str] = None
+
+
+@router.post("/register-request", status_code=status.HTTP_201_CREATED)
+async def register_request(
+    request: RegistrationRequest,
+    db: Session = Depends(get_db),
+):
+    """
+    Submit a registration request (public endpoint).
+    
+    For this research platform, we create the user immediately but log it for audit.
+    In a production system, this would require admin approval.
+    """
+    from models.user import User
+    from core.security import get_password_hash
+    
+    try:
+        # Check if user already exists
+        existing_user = AuthService.get_user_by_email(db, request.email)
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A user with this email already exists",
+            )
+        
+        # Validate role
+        valid_roles = ["clinician", "nurse"]
+        if request.role not in valid_roles:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid role for self-registration. Must be one of: {', '.join(valid_roles)}",
+            )
+        
+        # Create user
+        hashed_password = get_password_hash(request.password)
+        db_user = User(
+            email=request.email,
+            password_hash=hashed_password,
+            role=request.role,
+            specialty=request.specialty,
+            department=request.department,
+            first_name=request.first_name,
+            last_name=request.last_name,
+            title=request.title or ("Dr." if request.role == "clinician" else "RN"),
+            license_number=request.license_number,
+            heti_number=request.heti_number,
+            primary_workplace=request.primary_workplace,
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        
+        return {
+            "success": True,
+            "message": "Registration successful. You can now log in.",
+            "user_id": str(db_user.id),
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Registration failed: {str(e)}",
         )
 
 

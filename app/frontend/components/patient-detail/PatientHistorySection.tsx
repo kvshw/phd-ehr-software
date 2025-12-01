@@ -113,7 +113,7 @@ export function PatientHistorySection({ patient }: PatientHistorySectionProps) {
                     setFormData({ ...formData, [field.key]: e.target.value })
                   }
                   rows={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                   placeholder={field.placeholder}
                 />
                 <div className="flex items-center justify-end gap-3">

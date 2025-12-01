@@ -25,7 +25,34 @@ export interface LogRiskChangeParams {
   riskScore?: number;
 }
 
+export interface LogDashboardActionParams {
+  actionType: 'quick_action_click' | 'feature_access' | 'navigation' | 'patient_card_click' | 'search_query' | 'filter_applied';
+  featureId: string; // e.g., 'ecg_review', 'bp_trends', 'patient_list', etc.
+  metadata?: Record<string, any>;
+}
+
 export const monitorService = {
+  /**
+   * Log dashboard-specific user actions for MAPE-K adaptation
+   * Tracks which features users actually use to enable self-adaptation
+   */
+  logDashboardAction: async (params: LogDashboardActionParams): Promise<void> => {
+    try {
+      await apiClient.post('/monitor/dashboard-action', null, {
+        params: {
+          action_type: params.actionType,
+          feature_id: params.featureId,
+        },
+        data: {
+          metadata: params.metadata || {},
+        },
+      });
+    } catch (err) {
+      // Don't throw - monitoring should not break user experience
+      console.error('Failed to log dashboard action:', err);
+    }
+  },
+
   /**
    * Log user navigation between sections
    */

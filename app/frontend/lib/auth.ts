@@ -17,7 +17,7 @@ export interface LoginResponse {
 export interface User {
   id: string;
   email: string;
-  role: 'clinician' | 'researcher' | 'admin';
+  role: 'clinician' | 'researcher' | 'admin' | 'nurse' | 'doctor';
   specialty?: string;
   first_name?: string;
   last_name?: string;
@@ -121,11 +121,14 @@ export async function logout(): Promise<void> {
 export function getRedirectPath(role: string): string {
   switch (role) {
     case 'clinician':
+    case 'doctor':
       return '/dashboard';
     case 'researcher':
       return '/researcher/dashboard';
     case 'admin':
       return '/admin/controls';
+    case 'nurse':
+      return '/nurse/dashboard';
     default:
       return '/dashboard';
   }
