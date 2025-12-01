@@ -38,16 +38,16 @@ This platform demonstrates a novel approach to EHR personalization using:
 
 ## Live Demo
 
-- **Frontend**: [https://your-app.vercel.app](https://your-app.vercel.app)
-- **API Docs**: [https://your-backend.com/docs](https://your-backend.com/docs)
+- **Frontend**: [Coming Soon](https://your-app.vercel.app)
+- **API Docs**: [Coming Soon](https://your-backend.com/docs)
 
-### Demo Accounts
+<!-- ### Demo Accounts
 
 | Role | Email | Password |
 |------|-------|----------|
-| Doctor | doctor@demo.com | demo123 |
+| Doctor | clinician@demo.com | demo123 |
 | Nurse | nurse@demo.com | demo123 |
-| Admin | admin@demo.com | demo123 |
+| Admin | admin@demo.com | demo123 | -->
 
 ## Key Features
 
