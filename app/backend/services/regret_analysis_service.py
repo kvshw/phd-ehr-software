@@ -377,7 +377,7 @@ class RegretAnalysisService:
                     bs.alpha / (bs.alpha + bs.beta) as estimated_reward
                 FROM bandit_state bs
                 WHERE bs.user_id = :user_id
-                AND bs.last_updated >= :lookback_date
+                AND bs.updated_at >= :lookback_date
             """), {
                 "user_id": str(user_id),
                 "lookback_date": datetime.utcnow() - timedelta(days=lookback_days),

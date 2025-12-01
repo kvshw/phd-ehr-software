@@ -527,6 +527,7 @@ def record_feature_interaction(
 ) -> None:
     """
     Record a user interaction with a feature for bandit learning.
+    Also logs regret for research analysis.
     
     Args:
         db: Database session
@@ -550,4 +551,27 @@ def record_feature_interaction(
         success=success,
         specialty=specialty,
     )
+    
+    # Log regret for research analysis
+    try:
+        from services.regret_analysis_service import RegretAnalysisService
+        regret_service = RegretAnalysisService(db)
+        
+        # Get estimated true rewards from bandit state
+        estimated_rewards = regret_service.estimate_true_rewards_from_history(user_id)
+        
+        # If we have enough data, log the regret observation
+        if estimated_rewards:
+            regret_service.log_regret_observation(
+                user_id=user_id,
+                chosen_arm=feature_key,
+                reward=1.0 if success else 0.0,
+                estimated_rewards=estimated_rewards,
+                context={
+                    "interaction_type": interaction_type,
+                    "specialty": specialty,
+                }
+            )
+    except Exception as e:
+        logger.warning(f"Could not log regret observation: {e}")
 
