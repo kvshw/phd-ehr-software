@@ -71,15 +71,23 @@ minio-data/
 .vercel
 
 # ============================================
-# EXCLUDE FROM GITHUB (Documentation/Notes)
+# CURSOR / AI ASSISTANT FILES - EXCLUDE ALL
+# ============================================
+.cursor/
+.cursorrules
+*.mdc
+
+# ============================================
+# DOCUMENTATION - EXCLUDE FROM GITHUB
 # ============================================
 
-# All markdown files EXCEPT README.md
+# All markdown files EXCEPT essential ones
 *.md
 !README.md
 !app/backend/README.md
 !app/frontend/README.md
 !devops/README.md
+!app/model-services/README.md
 
 # PDF and HTML presentation files
 *.pdf
@@ -101,6 +109,5 @@ UI Images/
 # Local scripts (SQL, Python setup scripts)
 scripts/
 
-# Cursor rules (IDE specific)
-.cursor/
-.cursorrules
+# Package lock (can be regenerated)
+package-lock.json
