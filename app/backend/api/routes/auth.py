@@ -1,7 +1,7 @@
 """
 Authentication routes
 """
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
@@ -23,6 +23,7 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 @router.post("/login", response_model=Token)
 async def login(
     login_data: LoginRequest,
+    request: Request,
     response: Response,
     db: Session = Depends(get_db),
 ):
@@ -37,24 +38,33 @@ async def login(
     
     tokens = AuthService.create_tokens(user)
     
-    # Optionally set cookies (frontend can also handle this via API route)
-    # Uncomment if you want backend to set cookies directly:
-    # response.set_cookie(
-    #     key="access_token",
-    #     value=tokens["access_token"],
-    #     httponly=True,
-    #     secure=settings.NODE_ENV == "production",
-    #     samesite="lax",
-    #     max_age=30 * 60,  # 30 minutes
-    # )
-    # response.set_cookie(
-    #     key="refresh_token",
-    #     value=tokens["refresh_token"],
-    #     httponly=True,
-    #     secure=settings.NODE_ENV == "production",
-    #     samesite="lax",
-    #     max_age=7 * 24 * 60 * 60,  # 7 days
-    # )
+    # Set cookies directly from backend (works across subdomains with proper domain)
+    # Determine domain for cookies (shared parent domain for subdomains)
+    origin = request.headers.get("origin", "")
+    cookie_domain = None
+    if "rahtiapp.fi" in origin:
+        cookie_domain = ".2.rahtiapp.fi"  # Shared domain for all .2.rahtiapp.fi subdomains
+    
+    response.set_cookie(
+        key="access_token",
+        value=tokens["access_token"],
+        httponly=True,
+        secure=True,  # Always secure in production (HTTPS)
+        samesite="lax",
+        max_age=8 * 60 * 60,  # 8 hours (480 minutes)
+        path="/",
+        domain=cookie_domain,
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=tokens["refresh_token"],
+        httponly=True,
+        secure=True,  # Always secure in production (HTTPS)
+        samesite="lax",
+        max_age=30 * 24 * 60 * 60,  # 30 days
+        path="/",
+        domain=cookie_domain,
+    )
     
     return tokens
 
@@ -163,6 +173,8 @@ async def register_request(
 @router.post("/refresh", response_model=Token)
 async def refresh_token(
     refresh_data: RefreshTokenRequest,
+    request: Request,
+    response: Response,
     db: Session = Depends(get_db),
 ):
     """Refresh access token using refresh token"""
@@ -172,6 +184,35 @@ async def refresh_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
         )
+    
+    # Set cookies directly from backend (works across subdomains with proper domain)
+    origin = request.headers.get("origin", "")
+    cookie_domain = None
+    if "rahtiapp.fi" in origin:
+        cookie_domain = ".2.rahtiapp.fi"  # Shared domain for all .2.rahtiapp.fi subdomains
+    
+    response.set_cookie(
+        key="access_token",
+        value=tokens["access_token"],
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=8 * 60 * 60,  # 8 hours
+        path="/",
+        domain=cookie_domain,
+    )
+    if tokens.get("refresh_token"):
+        response.set_cookie(
+            key="refresh_token",
+            value=tokens["refresh_token"],
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=30 * 24 * 60 * 60,  # 30 days
+            path="/",
+            domain=cookie_domain,
+        )
+    
     return tokens
 
 
