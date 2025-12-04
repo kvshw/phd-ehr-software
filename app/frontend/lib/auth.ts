@@ -109,17 +109,22 @@ export async function refreshToken(refreshToken: string): Promise<LoginResponse>
 export async function logout(): Promise<void> {
   try {
     // Call backend logout endpoint to clear cookies
-    await apiClient.post('/auth/logout', {}, {
-      withCredentials: true,
+    // Use fetch directly to ensure credentials are sent
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    await fetch(`${apiUrl}/api/v1/auth/logout`, {
+      method: 'POST',
+      credentials: 'include', // Important: send cookies
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
   } catch (error: any) {
-    // Even if the request fails, try to clear local state
-    console.warn('Logout request failed, but clearing local state:', error);
+    // Even if the request fails, continue with logout
+    console.warn('Logout request failed, but continuing with logout:', error);
   }
   
-  // Clear any local storage or state if needed
+  // Always redirect to login page, even if API call failed
   if (typeof window !== 'undefined') {
-    // Redirect to login page
     window.location.href = '/login';
   }
 }

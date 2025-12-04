@@ -293,11 +293,11 @@ async def update_current_user_profile(
 async def logout(
     request: Request,
     response: Response,
-    current_user = Depends(get_current_user),
 ):
     """
     Logout endpoint - clears authentication cookies.
-    Requires valid authentication to logout (prevents CSRF).
+    Does not require authentication to allow logout even with expired tokens.
+    Safe because we're only clearing cookies, not accessing protected resources.
     """
     # Determine domain for cookies (same as login)
     origin = request.headers.get("origin", "")
@@ -306,6 +306,7 @@ async def logout(
         cookie_domain = ".2.rahtiapp.fi"
     
     # Clear cookies by setting them to expire immediately
+    # Clear both with and without domain to ensure they're removed
     response.set_cookie(
         key="access_token",
         value="",
@@ -325,6 +326,26 @@ async def logout(
         max_age=0,  # Expire immediately
         path="/",
         domain=cookie_domain,
+    )
+    
+    # Also try to clear without domain (in case cookies were set differently)
+    response.set_cookie(
+        key="access_token",
+        value="",
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=0,
+        path="/",
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value="",
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=0,
+        path="/",
     )
     
     return {"success": True, "message": "Logged out successfully"}
