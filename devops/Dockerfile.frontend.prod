@@ -16,7 +16,7 @@ RUN npm ci --legacy-peer-deps
 COPY app/frontend .
 
 # Build arguments for environment variables
-ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://ehr-backend-ehr-platform.2.rahtiapp.fi}
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NODE_ENV=production
 

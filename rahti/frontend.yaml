@@ -9,7 +9,7 @@ spec:
   source:
     type: Git
     git:
-      uri: "https://github.com/YOUR_USERNAME/YOUR_REPO.git"
+      uri: "https://github.com/kvshw/phd-ehr-software.git"
       ref: "main"
     contextDir: "/"
   strategy:
@@ -18,7 +18,7 @@ spec:
       dockerfilePath: devops/Dockerfile.frontend.prod
       env:
       - name: NEXT_PUBLIC_API_URL
-        value: "https://ehr-backend-ehr-platform.rahtiapp.fi"
+        value: "https://ehr-backend-ehr-platform.2.rahtiapp.fi"
   output:
     to:
       kind: ImageStreamTag
@@ -55,7 +55,7 @@ spec:
           protocol: TCP
         env:
         - name: NEXT_PUBLIC_API_URL
-          value: "https://ehr-backend-ehr-platform.rahtiapp.fi"
+          value: "https://ehr-backend-ehr-platform.2.rahtiapp.fi"
         - name: NODE_ENV
           value: "production"
         resources:
