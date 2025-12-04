@@ -16,22 +16,35 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ success: true });
 
+    // Determine domain for cookies (shared parent domain for subdomains)
+    const hostname = request.headers.get('host') || '';
+    let cookieDomain: string | undefined = undefined;
+    
+    // If on Rahti (rahtiapp.fi), set domain to share cookies across subdomains
+    if (hostname.includes('rahtiapp.fi')) {
+      cookieDomain = '.2.rahtiapp.fi'; // Shared domain for all .2.rahtiapp.fi subdomains
+    }
+    // For production with custom domains, you might use: cookieDomain = '.yourdomain.com'
+
     // Set access token cookie (8 hours for development/demo)
-    response.cookies.set('access_token', access_token, {
+    const cookieOptions: any = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'lax' as const,
       maxAge: 8 * 60 * 60, // 8 hours (480 minutes)
       path: '/',
-    });
+    };
+    
+    if (cookieDomain) {
+      cookieOptions.domain = cookieDomain;
+    }
+
+    response.cookies.set('access_token', access_token, cookieOptions);
 
     // Set refresh token cookie (30 days)
     response.cookies.set('refresh_token', refresh_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      ...cookieOptions,
       maxAge: 30 * 24 * 60 * 60, // 30 days
-      path: '/',
     });
 
     return response;

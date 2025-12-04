@@ -41,23 +41,37 @@ export async function POST(request: NextRequest) {
     // Update tokens in cookies
     const nextResponse = NextResponse.json({ success: true });
 
-    // Set access token cookie (8 hours)
-    nextResponse.cookies.set('access_token', tokens.access_token, {
+    // Determine domain for cookies (shared parent domain for subdomains)
+    const hostname = request.headers.get('host') || '';
+    let cookieDomain: string | undefined = undefined;
+    
+    // If on Rahti (rahtiapp.fi), set domain to share cookies across subdomains
+    if (hostname.includes('rahtiapp.fi')) {
+      cookieDomain = '.2.rahtiapp.fi'; // Shared domain for all .2.rahtiapp.fi subdomains
+    }
+
+    const cookieOptions: any = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 8 * 60 * 60, // 8 hours (480 minutes)
+      sameSite: 'lax' as const,
       path: '/',
+    };
+    
+    if (cookieDomain) {
+      cookieOptions.domain = cookieDomain;
+    }
+
+    // Set access token cookie (8 hours)
+    nextResponse.cookies.set('access_token', tokens.access_token, {
+      ...cookieOptions,
+      maxAge: 8 * 60 * 60, // 8 hours (480 minutes)
     });
 
     // Update refresh token if provided (some implementations rotate refresh tokens)
     if (tokens.refresh_token) {
       nextResponse.cookies.set('refresh_token', tokens.refresh_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        ...cookieOptions,
         maxAge: 30 * 24 * 60 * 60, // 30 days
-        path: '/',
       });
     }
 
