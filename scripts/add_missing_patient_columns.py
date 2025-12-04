@@ -18,7 +18,7 @@ load_dotenv(Path(__file__).parent.parent / ".env")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    print("❌ Error: DATABASE_URL not found in environment variables")
+    print("[ERROR] Error: DATABASE_URL not found in environment variables")
     print("   Please set DATABASE_URL in your .env file")
     sys.exit(1)
 
@@ -41,18 +41,18 @@ def add_missing_columns():
         with engine.connect() as conn:
             conn.execute(text(sql))
             conn.commit()
-        print("✅ Successfully added missing columns to patients table")
+        print("[SUCCESS] Successfully added missing columns to patients table")
         return True
     except Exception as e:
-        print(f"❌ Error adding columns: {e}")
+        print(f"[ERROR] Error adding columns: {e}")
         return False
 
 if __name__ == "__main__":
-    print("🔧 Adding missing patient columns...")
+    print("[TOOL] Adding missing patient columns...")
     if add_missing_columns():
-        print("✅ Migration complete!")
+        print("[SUCCESS] Migration complete!")
         sys.exit(0)
     else:
-        print("❌ Migration failed!")
+        print("[ERROR] Migration failed!")
         sys.exit(1)
 

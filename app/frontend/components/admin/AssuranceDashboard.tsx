@@ -209,25 +209,25 @@ export function AssuranceDashboard() {
         <SummaryCard
           title="Active Tests"
           value={data?.summary.active_tests || 0}
-          icon="🧪"
+          icon=""
           color="blue"
         />
         <SummaryCard
           title="Successful Deploys"
           value={data?.summary.successful_deployments || 0}
-          icon="✅"
+          icon=""
           color="green"
         />
         <SummaryCard
           title="Rollbacks"
           value={data?.summary.rollbacks || 0}
-          icon="↩️"
+          icon=""
           color="red"
         />
         <SummaryCard
           title="Success Rate"
           value={`${Math.round((data?.summary.success_rate || 0) * 100)}%`}
-          icon="📈"
+          icon=""
           color="purple"
         />
       </div>
@@ -236,7 +236,7 @@ export function AssuranceDashboard() {
       {((data?.bias_alerts?.length || 0) > 0 || (data?.drift_alerts?.length || 0) > 0) && (
         <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-4">
           <div className="flex items-center gap-2 text-yellow-800">
-            <span>⚠️</span>
+            <span className="font-bold">!</span>
             <span className="font-medium">
               {(data?.bias_alerts?.length || 0) + (data?.drift_alerts?.length || 0)} alert(s) require attention
             </span>
@@ -252,7 +252,7 @@ export function AssuranceDashboard() {
             onClick={() => setActiveTab("tests")}
             badge={data?.active_tests?.length}
           >
-            🧪 Tests & Rollouts
+            Tests & Rollouts
           </TabButton>
           <TabButton
             active={activeTab === "bias"}
@@ -268,7 +268,7 @@ export function AssuranceDashboard() {
             badge={data?.drift_alerts?.length}
             badgeColor="red"
           >
-            📊 Drift Monitoring
+            Drift Monitoring
           </TabButton>
         </div>
       </div>
@@ -278,7 +278,7 @@ export function AssuranceDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Active Tests */}
           <div className="bg-white rounded-lg border p-6">
-            <h3 className="text-lg font-semibold mb-4">🧪 Active Shadow/A/B Tests</h3>
+            <h3 className="text-lg font-semibold mb-4">Active Shadow/A/B Tests</h3>
             {data?.active_tests?.length === 0 ? (
               <p className="text-gray-500 text-center py-8">No active tests</p>
             ) : (
@@ -292,7 +292,7 @@ export function AssuranceDashboard() {
 
           {/* Recent Rollouts */}
           <div className="bg-white rounded-lg border p-6">
-            <h3 className="text-lg font-semibold mb-4">🚀 Recent Rollouts</h3>
+            <h3 className="text-lg font-semibold mb-4">Recent Rollouts</h3>
             {data?.recent_rollouts?.length === 0 ? (
               <p className="text-gray-500 text-center py-8">No recent rollouts</p>
             ) : (
@@ -311,7 +311,7 @@ export function AssuranceDashboard() {
           <h3 className="text-lg font-semibold mb-4">👥 Bias Detection</h3>
           {data?.bias_alerts?.length === 0 ? (
             <div className="text-center py-12">
-              <span className="text-4xl">✅</span>
+              <span className="text-lg font-bold text-green-600">OK</span>
               <p className="text-lg font-medium mt-3">No Bias Detected</p>
               <p className="text-gray-500">Adaptations benefit all user groups equally</p>
             </div>
@@ -356,10 +356,10 @@ export function AssuranceDashboard() {
 
       {activeTab === "drift" && (
         <div className="bg-white rounded-lg border p-6">
-          <h3 className="text-lg font-semibold mb-4">📊 Drift Monitoring</h3>
+          <h3 className="text-lg font-semibold mb-4">Drift Monitoring</h3>
           {data?.drift_alerts?.length === 0 ? (
             <div className="text-center py-12">
-              <span className="text-4xl">✅</span>
+              <span className="text-lg font-bold text-green-600">OK</span>
               <p className="text-lg font-medium mt-3">No Drift Detected</p>
               <p className="text-gray-500">All metrics within expected ranges</p>
             </div>
@@ -542,7 +542,7 @@ function RolloutCard({ rollout }: { rollout: RolloutInfo }) {
       )}
       {rollout.regression_detected && (
         <div className="mt-2 flex items-center gap-1 text-red-600 text-sm">
-          ⚠️ Regression detected
+          Regression detected
         </div>
       )}
     </div>
@@ -553,7 +553,7 @@ function DriftSeverity({ score }: { score: number }) {
   if (score > 3) {
     return (
       <span className="px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-800 border border-red-200">
-        ⚠️ Critical
+        Critical
       </span>
     );
   }

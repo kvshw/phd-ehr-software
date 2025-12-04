@@ -1,6 +1,7 @@
 /**
  * AI Suggestions Panel Component
  * Displays suggestion cards with explanations, relevance scores, and action buttons
+ * Now with XAI (Explainable AI) integration for transparent decision-making
  */
 'use client';
 
@@ -8,6 +9,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { suggestionService, Suggestion } from '@/lib/suggestionService';
 import { monitorService } from '@/lib/monitorService';
 import { usePatientDetailStore } from '@/store/patientDetailStore';
+import { XAIExplanation, XAIIndicator } from './XAIExplanation';
 
 interface SuggestionsPanelProps {
   patientId: string;
@@ -22,6 +24,7 @@ export function SuggestionsPanel({ patientId }: SuggestionsPanelProps) {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [generatingAdaptation, setGeneratingAdaptation] = useState(false);
+  const [expandedXAI, setExpandedXAI] = useState<string | null>(null);
   const { suggestionDensity } = usePatientDetailStore();
 
   useEffect(() => {
@@ -97,7 +100,7 @@ export function SuggestionsPanel({ patientId }: SuggestionsPanelProps) {
         patient_id: patientId, // Explicitly include patient_id
       });
 
-      console.log(`✅ Feedback submitted: ${action} for suggestion ${suggestionId}, patient ${patientId}`);
+      console.log(`Feedback submitted: ${action} for suggestion ${suggestionId}, patient ${patientId}`);
 
       // Remove suggestion from list after action (it will be filtered out on next fetch)
       setSuggestions((prev) => prev.filter((s) => s.id !== suggestionId));
@@ -108,7 +111,7 @@ export function SuggestionsPanel({ patientId }: SuggestionsPanelProps) {
         fetchSuggestions();
       }, 500);
     } catch (err: any) {
-      console.error('❌ Error submitting feedback:', err);
+      console.error('Error submitting feedback:', err);
       console.error('Error details:', {
         suggestionId,
         action,
@@ -241,14 +244,14 @@ export function SuggestionsPanel({ patientId }: SuggestionsPanelProps) {
                 
                 if (response.ok) {
                   const data = await response.json();
-                  alert(`✅ Adaptation plan generated!\n\nExplanation: ${data.explanation}\n\nReloading page to apply changes...`);
+                  alert(`Adaptation plan generated!\n\nExplanation: ${data.explanation}\n\nReloading page to apply changes...`);
                   setTimeout(() => window.location.reload(), 1000);
                 } else {
                   const error = await response.json();
-                  alert(`❌ Error: ${error.detail || 'Failed to generate plan. Make sure you have some navigation activity first.'}`);
+                  alert(`Error: ${error.detail || 'Failed to generate plan. Make sure you have some navigation activity first.'}`);
                 }
               } catch (err) {
-                alert(`❌ Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+                alert(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
               } finally {
                 setGeneratingAdaptation(false);
               }
@@ -343,7 +346,7 @@ export function SuggestionsPanel({ patientId }: SuggestionsPanelProps) {
                   {((suggestion as any).mechanism || (suggestion as any).citations?.length > 0 || (suggestion as any).guidelines?.length > 0) && (
                     <details className="mt-3 pt-3 border-t border-gray-200">
                       <summary className="text-xs font-semibold text-indigo-600 cursor-pointer hover:text-indigo-800">
-                        📚 View Medical Evidence & Citations
+                        View Medical Evidence & Citations
                       </summary>
                       <div className="mt-3 space-y-3">
                         {/* Mechanism */}
@@ -357,7 +360,7 @@ export function SuggestionsPanel({ patientId }: SuggestionsPanelProps) {
                         {/* Clinical Pearl */}
                         {(suggestion as any).clinical_pearl && (
                           <div className="bg-amber-50 border border-amber-200 rounded p-2">
-                            <p className="text-xs font-semibold text-amber-800">💡 Clinical Pearl:</p>
+                            <p className="text-xs font-semibold text-amber-800">Clinical Pearl:</p>
                             <p className="text-xs text-amber-700">{(suggestion as any).clinical_pearl}</p>
                           </div>
                         )}
@@ -414,7 +417,7 @@ export function SuggestionsPanel({ patientId }: SuggestionsPanelProps) {
                         {/* Limitations */}
                         {(suggestion as any).limitations?.length > 0 && (
                           <div className="bg-red-50 border border-red-200 rounded p-2">
-                            <p className="text-xs font-semibold text-red-800">⚠️ Important Limitations:</p>
+                            <p className="text-xs font-semibold text-red-800">Important Limitations:</p>
                             <ul className="text-xs text-red-700 mt-1 space-y-0.5">
                               {(suggestion as any).limitations.map((l: string, i: number) => (
                                 <li key={i}>• {l}</li>
@@ -449,6 +452,27 @@ export function SuggestionsPanel({ patientId }: SuggestionsPanelProps) {
                   </div>
                 </div>
               </div>
+
+              {/* XAI Explanation Toggle */}
+              <div className="flex items-center justify-between py-2 border-t border-gray-200">
+                <XAIIndicator
+                  suggestionId={suggestion.id}
+                  onClick={() => setExpandedXAI(expandedXAI === suggestion.id ? null : suggestion.id)}
+                />
+                <span className="text-xs text-gray-500">
+                  Understand AI reasoning before deciding
+                </span>
+              </div>
+
+              {/* XAI Explanation Panel (expandable) */}
+              {expandedXAI === suggestion.id && (
+                <XAIExplanation
+                  suggestionId={suggestion.id}
+                  suggestionText={suggestion.text}
+                  confidence={suggestion.confidence || 0}
+                  onClose={() => setExpandedXAI(null)}
+                />
+              )}
 
               {/* Action Buttons */}
               <div className="flex items-center gap-3 pt-4 border-t border-gray-200">

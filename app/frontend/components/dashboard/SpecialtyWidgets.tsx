@@ -16,8 +16,8 @@ export function CardiologyWidgets() {
       <div className="bg-white rounded-2xl shadow border border-rose-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-rose-100 flex items-center justify-center">
-              <span className="text-xl">📈</span>
+            <div className="h-10 w-10 rounded-lg bg-rose-100 flex items-center justify-center text-rose-600 font-bold text-sm">
+              ECG
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">ECG Review</h3>
@@ -75,8 +75,8 @@ export function NeurologyWidgets() {
       <div className="bg-white rounded-2xl shadow border border-purple-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
-              <span className="text-xl">🧠</span>
+            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-sm">
+              NEX
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Neurological Exam</h3>
@@ -161,8 +161,8 @@ export function EmergencyWidgets() {
       <div className="bg-white rounded-2xl shadow border border-red-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center">
-              <span className="text-xl">🚨</span>
+            <div className="h-10 w-10 rounded-lg bg-red-100 flex items-center justify-center text-red-600 font-bold text-sm">
+              TRI
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Active Triage</h3>

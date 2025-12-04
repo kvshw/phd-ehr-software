@@ -116,7 +116,7 @@ export default function RegretAnalysisChart() {
   if (error) {
     return (
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">📊 Cumulative Regret Analysis</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Cumulative Regret Analysis</h3>
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <p className="text-yellow-800 font-medium">No regret data available yet</p>
           <p className="text-yellow-600 text-sm mt-2">
@@ -140,7 +140,7 @@ export default function RegretAnalysisChart() {
   if (!data || !data.regret_curve?.curve?.length) {
     return (
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">📊 Cumulative Regret Analysis</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Cumulative Regret Analysis</h3>
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
           <p className="text-blue-800">No regret observations recorded yet</p>
           <p className="text-blue-600 text-sm mt-2">
@@ -158,7 +158,7 @@ export default function RegretAnalysisChart() {
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">📊 Cumulative Regret Over Time</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Cumulative Regret Over Time</h3>
         <select
           value={days}
           onChange={(e) => setDays(Number(e.target.value))}
@@ -321,13 +321,13 @@ export default function RegretAnalysisChart() {
         <div className="flex items-center gap-2">
           {data.convergence_analysis.converged ? (
             <>
-              <span className="text-lg">✅</span>
+              <span className="text-sm font-bold text-green-600">YES</span>
               <span className="font-medium">Algorithm Converged</span>
               <span className="text-sm">at round {data.convergence_analysis.convergence_round}</span>
             </>
           ) : (
             <>
-              <span className="text-lg">🔄</span>
+              <span className="text-sm font-bold text-yellow-600">IN PROGRESS</span>
               <span className="font-medium">Still Learning</span>
               <span className="text-sm">- {data.convergence_analysis.interpretation}</span>
             </>

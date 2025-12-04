@@ -77,20 +77,20 @@ def generate_feedback(
     # Get available users (clinicians)
     clinicians = db.query(User).filter(User.role.in_(["clinician", "admin"])).all()
     if not clinicians:
-        print("❌ No clinicians found in database. Please create at least one clinician user.")
+        print("[ERROR] No clinicians found in database. Please create at least one clinician user.")
         return
     
     # Get available patients
     patients = db.query(Patient).all()
     if not patients:
-        print("❌ No patients found in database. Please create at least one patient.")
+        print("[ERROR] No patients found in database. Please create at least one patient.")
         return
     
     # Get available suggestions (or create some if none exist)
     suggestions = db.query(Suggestion).limit(100).all()
     
     if not suggestions:
-        print("⚠️  No suggestions found. Creating sample suggestions first...")
+        print("[WARNING]  No suggestions found. Creating sample suggestions first...")
         # Create some sample suggestions
         for i in range(10):
             patient = random.choice(patients)
@@ -106,9 +106,9 @@ def generate_feedback(
             db.add(suggestion)
         db.commit()
         suggestions = db.query(Suggestion).all()
-        print(f"✅ Created {len(suggestions)} sample suggestions")
+        print(f"[SUCCESS] Created {len(suggestions)} sample suggestions")
     
-    print(f"\n📊 Generating {count} feedback items over the last {days_back} days...")
+    print(f"\n[DATA] Generating {count} feedback items over the last {days_back} days...")
     print(f"   Using {len(clinicians)} clinicians and {len(patients)} patients")
     print(f"   Using {len(suggestions)} suggestions\n")
     
@@ -218,13 +218,13 @@ def generate_feedback(
     
     db.commit()
     
-    print(f"\n✅ Successfully created {created} feedback items!")
-    print(f"\n📈 Expected distribution:")
+    print(f"\n[SUCCESS] Successfully created {created} feedback items!")
+    print(f"\n[METRICS] Expected distribution:")
     for action, weight in ACTIONS.items():
         expected = int(count * weight)
         print(f"   {action}: ~{expected} items ({weight*100:.0f}%)")
     
-    print(f"\n🎯 Next steps:")
+    print(f"\n[ACTION] Next steps:")
     print(f"   1. Go to http://localhost:3000/feedback/analytics")
     print(f"   2. You should now see data in the dashboard!")
     print(f"   3. Try different time periods (7, 14, 30, 90 days)")
@@ -274,7 +274,7 @@ if __name__ == "__main__":
             patient_id=patient_uuid,
         )
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"[ERROR] Error: {e}")
         import traceback
         traceback.print_exc()
         db.rollback()

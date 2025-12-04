@@ -30,16 +30,16 @@ interface OverviewData {
   period_days: number;
 }
 
-const SPECIALTY_INFO: Record<string, { name: string; icon: string; color: string }> = {
-  cardiology: { name: 'Cardiology', icon: '❤️', color: 'bg-red-100 text-red-800' },
-  neurology: { name: 'Neurology', icon: '🧠', color: 'bg-purple-100 text-purple-800' },
-  orthopedics: { name: 'Orthopedics', icon: '🦴', color: 'bg-orange-100 text-orange-800' },
-  pediatrics: { name: 'Pediatrics', icon: '👶', color: 'bg-pink-100 text-pink-800' },
-  psychiatry: { name: 'Psychiatry', icon: '🧘', color: 'bg-indigo-100 text-indigo-800' },
-  emergency: { name: 'Emergency', icon: '🚑', color: 'bg-red-100 text-red-800' },
-  internal: { name: 'Internal Medicine', icon: '🩺', color: 'bg-blue-100 text-blue-800' },
-  surgery: { name: 'Surgery', icon: '⚕️', color: 'bg-green-100 text-green-800' },
-  general: { name: 'General', icon: '👨‍⚕️', color: 'bg-gray-100 text-gray-800' },
+const SPECIALTY_INFO: Record<string, { name: string; color: string }> = {
+  cardiology: { name: 'Cardiology', color: 'bg-red-100 text-red-800' },
+  neurology: { name: 'Neurology', color: 'bg-purple-100 text-purple-800' },
+  orthopedics: { name: 'Orthopedics', color: 'bg-orange-100 text-orange-800' },
+  pediatrics: { name: 'Pediatrics', color: 'bg-pink-100 text-pink-800' },
+  psychiatry: { name: 'Psychiatry', color: 'bg-indigo-100 text-indigo-800' },
+  emergency: { name: 'Emergency', color: 'bg-red-100 text-red-800' },
+  internal: { name: 'Internal Medicine', color: 'bg-blue-100 text-blue-800' },
+  surgery: { name: 'Surgery', color: 'bg-green-100 text-green-800' },
+  general: { name: 'General', color: 'bg-gray-100 text-gray-800' },
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -115,7 +115,7 @@ export function AnonymizedReferralOverview() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold flex items-center gap-2">
-              🔒 Anonymized Referral Analytics
+              Anonymized Referral Analytics
             </h2>
             <p className="text-indigo-200 text-sm mt-1">
               Patient identities are hashed for privacy compliance
@@ -161,7 +161,7 @@ export function AnonymizedReferralOverview() {
             activeTab === 'overview' ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
-          📊 Statistics
+          Statistics
         </button>
         <button
           onClick={() => setActiveTab('details')}
@@ -169,7 +169,7 @@ export function AnonymizedReferralOverview() {
             activeTab === 'details' ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
-          📋 Anonymized Records
+          Anonymized Records
         </button>
       </div>
 
@@ -198,7 +198,7 @@ export function AnonymizedReferralOverview() {
               {Object.entries(statistics.by_specialty).slice(0, 5).map(([spec, count]) => (
                 <div key={spec} className="flex items-center justify-between">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${SPECIALTY_INFO[spec]?.color || 'bg-gray-100'}`}>
-                    {SPECIALTY_INFO[spec]?.icon} {SPECIALTY_INFO[spec]?.name || spec}
+                    {SPECIALTY_INFO[spec]?.name || spec}
                   </span>
                   <span className="font-semibold text-gray-900">{count}</span>
                 </div>
@@ -232,7 +232,9 @@ export function AnonymizedReferralOverview() {
       {activeTab === 'details' && (
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="bg-gray-50 px-6 py-3 border-b flex items-center gap-2">
-            <span className="text-lg">🔒</span>
+            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
             <span className="text-sm text-gray-600">
               Patient IDs are hashed. No personal information is displayed.
             </span>
@@ -258,7 +260,7 @@ export function AnonymizedReferralOverview() {
                   </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${SPECIALTY_INFO[ref.specialty]?.color || 'bg-gray-100'}`}>
-                      {SPECIALTY_INFO[ref.specialty]?.icon} {SPECIALTY_INFO[ref.specialty]?.name || ref.specialty}
+                      {SPECIALTY_INFO[ref.specialty]?.name || ref.specialty}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -278,9 +280,9 @@ export function AnonymizedReferralOverview() {
                   </td>
                   <td className="px-4 py-3">
                     {ref.nurse_override ? (
-                      <span className="text-amber-600 text-xs">⚠️ Yes</span>
+                      <span className="text-amber-600 text-xs font-medium">Yes</span>
                     ) : (
-                      <span className="text-green-600 text-xs">✓ No</span>
+                      <span className="text-green-600 text-xs">No</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">

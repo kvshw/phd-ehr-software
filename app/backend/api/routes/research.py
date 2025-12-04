@@ -100,36 +100,34 @@ async def get_research_analytics(
 def get_adaptation_metrics(db: Session, start_date: datetime) -> List[Dict[str, Any]]:
     """Get adaptation effectiveness metrics from database"""
     try:
-        # Query adaptations table
+        # Query adaptations table (plan_json contains the adaptation details)
         result = db.execute(text("""
             SELECT 
                 id::text,
-                adaptation_type,
-                created_at as timestamp,
-                COALESCE(effectiveness_score, 0.7) as effectiveness_score,
-                COALESCE(user_reverted, false) as user_reverted,
-                COALESCE(time_saved_seconds, 10) as time_saved_seconds,
-                true as task_completion_improved
+                plan_json,
+                timestamp
             FROM adaptations
-            WHERE created_at >= :start_date
-            ORDER BY created_at DESC
-            LIMIT 100
+            WHERE timestamp >= :start_date
+            ORDER BY timestamp DESC
+            LIMIT 500
         """), {"start_date": start_date})
         
         adaptations = []
         for row in result:
+            plan = row[1] if row[1] else {}
             adaptations.append({
                 "id": row[0],
-                "adaptation_type": row[1] or "layout_reorder",
+                "adaptation_type": plan.get("adaptation_type", "layout_reorder"),
                 "timestamp": row[2].isoformat() if row[2] else datetime.utcnow().isoformat(),
-                "effectiveness_score": float(row[3]),
-                "user_reverted": bool(row[4]),
-                "time_saved_seconds": int(row[5]),
-                "task_completion_improved": bool(row[6])
+                "effectiveness_score": float(plan.get("effectiveness_score", 0.7)),
+                "user_reverted": bool(plan.get("user_reverted", False)),
+                "time_saved_seconds": int(plan.get("time_saved_seconds", 10)),
+                "task_completion_improved": not plan.get("user_reverted", False)
             })
         
         return adaptations if adaptations else generate_mock_adaptations()
-    except Exception:
+    except Exception as e:
+        logger.error(f"Error getting adaptation metrics: {e}", exc_info=True)
         return generate_mock_adaptations()
 
 
@@ -234,39 +232,105 @@ def get_suggestion_metrics(db: Session, start_date: datetime) -> Dict[str, Any]:
 
 
 def get_user_behavior_metrics(db: Session, start_date: datetime) -> Dict[str, Any]:
-    """Get user behavior analytics"""
+    """Get user behavior analytics from actual database"""
     try:
-        # Query navigation events
-        result = db.execute(text("""
+        # Query session counts and durations
+        session_result = db.execute(text("""
             SELECT 
-                COUNT(DISTINCT session_id) as total_sessions,
-                AVG(EXTRACT(EPOCH FROM (MAX(timestamp) - MIN(timestamp)))/60) as avg_duration
+                COUNT(DISTINCT session_id) as total_sessions
             FROM navigation_events
             WHERE timestamp >= :start_date
-            GROUP BY session_id
         """), {"start_date": start_date})
         
-        row = result.fetchone()
-        if row:
+        session_row = session_result.fetchone()
+        total_sessions = int(session_row[0]) if session_row and session_row[0] else 0
+        
+        # Get average session duration
+        duration_result = db.execute(text("""
+            SELECT AVG(session_duration) as avg_duration
+            FROM (
+                SELECT session_id, 
+                       EXTRACT(EPOCH FROM (MAX(timestamp) - MIN(timestamp)))/60 as session_duration
+                FROM navigation_events
+                WHERE timestamp >= :start_date
+                GROUP BY session_id
+                HAVING COUNT(*) > 1
+            ) subq
+        """), {"start_date": start_date})
+        
+        duration_row = duration_result.fetchone()
+        avg_duration = float(duration_row[0]) if duration_row and duration_row[0] else 0
+        
+        # Get most used features (pages/sections)
+        feature_result = db.execute(text("""
+            SELECT 
+                COALESCE(section, page, 'Unknown') as feature,
+                COUNT(*) as count
+            FROM navigation_events
+            WHERE timestamp >= :start_date
+            GROUP BY COALESCE(section, page, 'Unknown')
+            ORDER BY count DESC
+            LIMIT 5
+        """), {"start_date": start_date})
+        
+        most_used_features = []
+        for row in feature_result:
+            most_used_features.append({
+                "feature": row[0] or "Unknown",
+                "count": int(row[1])
+            })
+        
+        # Get navigation patterns
+        pattern_result = db.execute(text("""
+            SELECT from_page, to_page, COUNT(*) as count
+            FROM (
+                SELECT 
+                    page as to_page,
+                    LAG(page) OVER (PARTITION BY session_id ORDER BY timestamp) as from_page
+                FROM navigation_events
+                WHERE timestamp >= :start_date
+            ) transitions
+            WHERE from_page IS NOT NULL AND from_page != to_page
+            GROUP BY from_page, to_page
+            ORDER BY count DESC
+            LIMIT 5
+        """), {"start_date": start_date})
+        
+        navigation_patterns = []
+        for row in pattern_result:
+            navigation_patterns.append({
+                "from": row[0] or "Unknown",
+                "to": row[1] or "Unknown",
+                "count": int(row[2])
+            })
+        
+        # Get peak usage hours
+        hours_result = db.execute(text("""
+            SELECT EXTRACT(HOUR FROM timestamp)::int as hour, COUNT(*) as count
+            FROM navigation_events
+            WHERE timestamp >= :start_date
+            GROUP BY hour
+            ORDER BY count DESC
+            LIMIT 6
+        """), {"start_date": start_date})
+        
+        peak_hours = [int(row[0]) for row in hours_result]
+        
+        # Check if we have real data
+        has_data = total_sessions > 0 or len(most_used_features) > 0
+        
+        if has_data:
             return {
-                "total_sessions": int(row[0]) if row[0] else 48,
-                "avg_session_duration_minutes": float(row[1]) if row[1] else 23.5,
-                "most_used_features": [
-                    {"feature": "Patient Overview", "count": 234},
-                    {"feature": "AI Suggestions", "count": 156},
-                    {"feature": "Vitals Chart", "count": 142},
-                    {"feature": "Lab Results", "count": 98},
-                    {"feature": "Clinical Notes", "count": 87},
-                ],
-                "navigation_patterns": [
-                    {"from": "Dashboard", "to": "Patient Detail", "count": 145},
-                    {"from": "Patient Detail", "to": "AI Suggestions", "count": 89},
-                    {"from": "AI Suggestions", "to": "Clinical Notes", "count": 45},
-                ],
-                "peak_usage_hours": [9, 10, 11, 14, 15, 16]
+                "total_sessions": total_sessions,
+                "avg_session_duration_minutes": round(avg_duration, 1),
+                "most_used_features": most_used_features if most_used_features else [{"feature": "No data yet", "count": 0}],
+                "navigation_patterns": navigation_patterns if navigation_patterns else [{"from": "N/A", "to": "N/A", "count": 0}],
+                "peak_usage_hours": peak_hours if peak_hours else []
             }
+        
         return generate_mock_behavior()
-    except Exception:
+    except Exception as e:
+        logger.error(f"Error getting user behavior metrics: {e}", exc_info=True)
         return generate_mock_behavior()
 
 
@@ -299,84 +363,91 @@ def calculate_summary(adaptations: List[Dict], suggestions: Dict) -> Dict[str, A
 
 
 def generate_mock_analytics(range: str) -> Dict[str, Any]:
-    """Generate mock analytics data for demo"""
+    """Generate CONSISTENT mock analytics data for demo purposes.
+    Values are fixed to avoid confusion when refreshing the page."""
+    adaptations = generate_mock_adaptations()
+    suggestions = generate_mock_suggestions()
     return {
-        "adaptations": generate_mock_adaptations(),
-        "suggestions": generate_mock_suggestions(),
+        "adaptations": adaptations,
+        "suggestions": suggestions,
         "user_behavior": generate_mock_behavior(),
         "summary": {
-            "total_adaptations": 127,
-            "adaptation_success_rate": 0.78,
-            "avg_time_saved_per_adaptation": 9.3,
-            "suggestion_acceptance_rate": 0.57,
-            "most_effective_adaptation_type": "layout_reorder"
+            "total_adaptations": len(adaptations),  # 5 demo adaptations
+            "adaptation_success_rate": 0.80,  # 4/5 not reverted
+            "avg_time_saved_per_adaptation": 10.0,  # avg of demo values
+            "suggestion_acceptance_rate": suggestions["acceptance_rate"],
+            "most_effective_adaptation_type": "theme_preference"  # highest score in demo
         },
         "date_range": range,
         "start_date": (datetime.utcnow() - timedelta(days=30)).isoformat(),
         "generated_at": datetime.utcnow().isoformat(),
-        "is_mock_data": True
+        "is_mock_data": True,
+        "data_source": "demo",
+        "data_quality": {
+            "is_real_data": False,
+            "sample_size": 0,
+            "note": "Demo data - start using system to collect real metrics. Values shown are illustrative only."
+        }
     }
 
 
 def generate_mock_adaptations() -> List[Dict[str, Any]]:
-    """Generate mock adaptation data"""
+    """Generate CONSISTENT mock adaptation data for demo purposes.
+    Uses fixed seed to ensure values don't change between refreshes."""
     types = ["layout_reorder", "suggestion_density", "theme_preference", "section_visibility", "shortcut_addition"]
-    return [
-        {
-            "id": str(i),
-            "adaptation_type": random.choice(types),
-            "timestamp": (datetime.utcnow() - timedelta(hours=i*2)).isoformat(),
-            "effectiveness_score": round(random.uniform(0.6, 0.95), 2),
-            "user_reverted": random.random() < 0.15,
-            "time_saved_seconds": random.randint(5, 20),
-            "task_completion_improved": random.random() > 0.3
-        }
-        for i in range(1, 51)
+    # Use fixed demo data for consistency
+    demo_adaptations = [
+        {"id": "demo-1", "adaptation_type": "layout_reorder", "effectiveness_score": 0.85, "user_reverted": False, "time_saved_seconds": 12, "task_completion_improved": True},
+        {"id": "demo-2", "adaptation_type": "suggestion_density", "effectiveness_score": 0.72, "user_reverted": False, "time_saved_seconds": 8, "task_completion_improved": True},
+        {"id": "demo-3", "adaptation_type": "theme_preference", "effectiveness_score": 0.91, "user_reverted": False, "time_saved_seconds": 5, "task_completion_improved": False},
+        {"id": "demo-4", "adaptation_type": "section_visibility", "effectiveness_score": 0.78, "user_reverted": False, "time_saved_seconds": 10, "task_completion_improved": True},
+        {"id": "demo-5", "adaptation_type": "shortcut_addition", "effectiveness_score": 0.83, "user_reverted": True, "time_saved_seconds": 15, "task_completion_improved": True},
     ]
+    # Add timestamps
+    for i, adaptation in enumerate(demo_adaptations):
+        adaptation["timestamp"] = (datetime.utcnow() - timedelta(hours=i*24)).isoformat()
+    return demo_adaptations
 
 
 def generate_mock_suggestions() -> Dict[str, Any]:
-    """Generate mock suggestion metrics"""
-    total = random.randint(100, 200)
-    accepted = int(total * random.uniform(0.5, 0.65))
-    ignored = int(total * random.uniform(0.2, 0.35))
-    not_relevant = total - accepted - ignored
-    
+    """Generate CONSISTENT mock suggestion metrics for demo purposes."""
+    # Fixed values for demo consistency
     return {
-        "total": total,
-        "accepted": accepted,
-        "ignored": ignored,
-        "not_relevant": not_relevant,
-        "acceptance_rate": accepted / total,
+        "total": 156,
+        "accepted": 89,
+        "ignored": 45,
+        "not_relevant": 22,
+        "acceptance_rate": 0.57,  # 89/156
         "by_source": {
-            "rules": {"total": int(total * 0.5), "accepted": int(accepted * 0.6)},
-            "ai_model": {"total": int(total * 0.3), "accepted": int(accepted * 0.3)},
-            "hybrid": {"total": int(total * 0.2), "accepted": int(accepted * 0.1)},
+            "rules": {"total": 78, "accepted": 52},
+            "ai_model": {"total": 48, "accepted": 25},
+            "hybrid": {"total": 30, "accepted": 12},
         },
         "by_confidence": {
-            "high": int(total * 0.3),
-            "medium": int(total * 0.5),
-            "low": int(total * 0.2),
+            "high": 45,
+            "medium": 72,
+            "low": 39,
         }
     }
 
 
 def generate_mock_behavior() -> Dict[str, Any]:
-    """Generate mock user behavior data"""
+    """Generate CONSISTENT mock user behavior data for demo purposes."""
+    # Fixed values for demo consistency
     return {
-        "total_sessions": random.randint(30, 60),
-        "avg_session_duration_minutes": round(random.uniform(15, 35), 1),
+        "total_sessions": 48,
+        "avg_session_duration_minutes": 23.5,
         "most_used_features": [
-            {"feature": "Patient Overview", "count": random.randint(200, 300)},
-            {"feature": "AI Suggestions", "count": random.randint(130, 180)},
-            {"feature": "Vitals Chart", "count": random.randint(100, 160)},
-            {"feature": "Lab Results", "count": random.randint(80, 120)},
-            {"feature": "Clinical Notes", "count": random.randint(60, 100)},
+            {"feature": "Patient Overview", "count": 234},
+            {"feature": "AI Suggestions", "count": 156},
+            {"feature": "Vitals Chart", "count": 142},
+            {"feature": "Lab Results", "count": 98},
+            {"feature": "Clinical Notes", "count": 87},
         ],
         "navigation_patterns": [
-            {"from": "Dashboard", "to": "Patient Detail", "count": random.randint(120, 180)},
-            {"from": "Patient Detail", "to": "AI Suggestions", "count": random.randint(70, 110)},
-            {"from": "AI Suggestions", "to": "Clinical Notes", "count": random.randint(30, 60)},
+            {"from": "Dashboard", "to": "Patient Detail", "count": 145},
+            {"from": "Patient Detail", "to": "AI Suggestions", "count": 89},
+            {"from": "AI Suggestions", "to": "Clinical Notes", "count": 45},
         ],
         "peak_usage_hours": [9, 10, 11, 14, 15, 16]
     }

@@ -8,74 +8,74 @@
 import React from 'react';
 import { monitorService } from '@/lib/monitorService';
 
-// Quick actions by specialty
+// Quick actions by specialty - using abbreviations instead of emojis
 const SPECIALTY_ACTIONS: Record<string, Array<{
   id: string;
   label: string;
-  icon: string;
+  abbrev: string;
   href: string;
   description: string;
   color: string;
 }>> = {
   cardiology: [
-    { id: 'ecg', label: 'ECG Review', icon: '📈', href: '#', description: 'Review recent ECGs', color: 'rose' },
-    { id: 'bp', label: 'BP Trends', icon: '🩸', href: '#', description: 'Blood pressure monitoring', color: 'red' },
-    { id: 'echo', label: 'Echo Results', icon: '🫀', href: '#', description: 'Echocardiogram reports', color: 'pink' },
-    { id: 'risk', label: 'CV Risk Calc', icon: '⚠️', href: '#', description: 'Calculate cardiovascular risk', color: 'amber' },
+    { id: 'ecg', label: 'ECG Review', abbrev: 'ECG', href: '#', description: 'Review recent ECGs', color: 'rose' },
+    { id: 'bp', label: 'BP Trends', abbrev: 'BP', href: '#', description: 'Blood pressure monitoring', color: 'red' },
+    { id: 'echo', label: 'Echo Results', abbrev: 'ECHO', href: '#', description: 'Echocardiogram reports', color: 'pink' },
+    { id: 'risk', label: 'CV Risk Calc', abbrev: 'CVR', href: '#', description: 'Calculate cardiovascular risk', color: 'amber' },
   ],
   neurology: [
-    { id: 'neuro', label: 'Neuro Exam', icon: '🧠', href: '#', description: 'Neurological examination', color: 'purple' },
-    { id: 'mri', label: 'MRI Review', icon: '📷', href: '#', description: 'Brain imaging results', color: 'violet' },
-    { id: 'cognitive', label: 'Cognitive Test', icon: '📝', href: '#', description: 'MMSE / MoCA scoring', color: 'indigo' },
-    { id: 'headache', label: 'Headache Diary', icon: '🤕', href: '#', description: 'Track headache patterns', color: 'fuchsia' },
+    { id: 'neuro', label: 'Neuro Exam', abbrev: 'NEX', href: '#', description: 'Neurological examination', color: 'purple' },
+    { id: 'mri', label: 'MRI Review', abbrev: 'MRI', href: '#', description: 'Brain imaging results', color: 'violet' },
+    { id: 'cognitive', label: 'Cognitive Test', abbrev: 'COG', href: '#', description: 'MMSE / MoCA scoring', color: 'indigo' },
+    { id: 'headache', label: 'Headache Diary', abbrev: 'HA', href: '#', description: 'Track headache patterns', color: 'fuchsia' },
   ],
   psychiatry: [
-    { id: 'mse', label: 'Mental Status', icon: '🧘', href: '#', description: 'Mental status examination', color: 'teal' },
-    { id: 'phq9', label: 'PHQ-9 Score', icon: '📋', href: '#', description: 'Depression screening', color: 'emerald' },
-    { id: 'gad7', label: 'GAD-7 Score', icon: '😰', href: '#', description: 'Anxiety screening', color: 'cyan' },
-    { id: 'meds', label: 'Psych Meds', icon: '💊', href: '#', description: 'Medication management', color: 'green' },
+    { id: 'mse', label: 'Mental Status', abbrev: 'MSE', href: '#', description: 'Mental status examination', color: 'teal' },
+    { id: 'phq9', label: 'PHQ-9 Score', abbrev: 'PHQ', href: '#', description: 'Depression screening', color: 'emerald' },
+    { id: 'gad7', label: 'GAD-7 Score', abbrev: 'GAD', href: '#', description: 'Anxiety screening', color: 'cyan' },
+    { id: 'meds', label: 'Psych Meds', abbrev: 'RX', href: '#', description: 'Medication management', color: 'green' },
   ],
   pediatrics: [
-    { id: 'growth', label: 'Growth Chart', icon: '📊', href: '#', description: 'Height/weight percentiles', color: 'sky' },
-    { id: 'vaccines', label: 'Vaccines', icon: '💉', href: '#', description: 'Immunization schedule', color: 'blue' },
-    { id: 'develop', label: 'Development', icon: '👶', href: '#', description: 'Developmental milestones', color: 'cyan' },
-    { id: 'feeding', label: 'Nutrition', icon: '🍼', href: '#', description: 'Feeding and nutrition', color: 'lime' },
+    { id: 'growth', label: 'Growth Chart', abbrev: 'GRW', href: '#', description: 'Height/weight percentiles', color: 'sky' },
+    { id: 'vaccines', label: 'Vaccines', abbrev: 'VAX', href: '#', description: 'Immunization schedule', color: 'blue' },
+    { id: 'develop', label: 'Development', abbrev: 'DEV', href: '#', description: 'Developmental milestones', color: 'cyan' },
+    { id: 'feeding', label: 'Nutrition', abbrev: 'NUT', href: '#', description: 'Feeding and nutrition', color: 'lime' },
   ],
   geriatrics: [
-    { id: 'falls', label: 'Fall Risk', icon: '⚠️', href: '#', description: 'Fall risk assessment', color: 'amber' },
-    { id: 'polypharm', label: 'Medications', icon: '💊', href: '#', description: 'Polypharmacy review', color: 'orange' },
-    { id: 'adl', label: 'ADL Status', icon: '🏠', href: '#', description: 'Activities of daily living', color: 'yellow' },
-    { id: 'cognitive', label: 'Cognition', icon: '🧠', href: '#', description: 'Cognitive screening', color: 'lime' },
+    { id: 'falls', label: 'Fall Risk', abbrev: 'FRA', href: '#', description: 'Fall risk assessment', color: 'amber' },
+    { id: 'polypharm', label: 'Medications', abbrev: 'PPR', href: '#', description: 'Polypharmacy review', color: 'orange' },
+    { id: 'adl', label: 'ADL Status', abbrev: 'ADL', href: '#', description: 'Activities of daily living', color: 'yellow' },
+    { id: 'cognitive', label: 'Cognition', abbrev: 'COG', href: '#', description: 'Cognitive screening', color: 'lime' },
   ],
   oncology: [
-    { id: 'staging', label: 'Staging', icon: '📋', href: '#', description: 'Tumor staging review', color: 'fuchsia' },
-    { id: 'chemo', label: 'Chemo Cycles', icon: '💉', href: '#', description: 'Treatment schedule', color: 'pink' },
-    { id: 'labs', label: 'Tumor Markers', icon: '🧪', href: '#', description: 'Lab results tracking', color: 'purple' },
-    { id: 'pain', label: 'Pain Mgmt', icon: '😣', href: '#', description: 'Pain assessment', color: 'rose' },
+    { id: 'staging', label: 'Staging', abbrev: 'STG', href: '#', description: 'Tumor staging review', color: 'fuchsia' },
+    { id: 'chemo', label: 'Chemo Cycles', abbrev: 'CHM', href: '#', description: 'Treatment schedule', color: 'pink' },
+    { id: 'labs', label: 'Tumor Markers', abbrev: 'TMK', href: '#', description: 'Lab results tracking', color: 'purple' },
+    { id: 'pain', label: 'Pain Mgmt', abbrev: 'PAN', href: '#', description: 'Pain assessment', color: 'rose' },
   ],
   emergency: [
-    { id: 'triage', label: 'Triage', icon: '🚨', href: '#', description: 'Patient triage', color: 'red' },
-    { id: 'trauma', label: 'Trauma', icon: '🩹', href: '#', description: 'Trauma assessment', color: 'orange' },
-    { id: 'resus', label: 'Resus Calc', icon: '💓', href: '#', description: 'Resuscitation tools', color: 'rose' },
-    { id: 'poison', label: 'Toxicology', icon: '☠️', href: '#', description: 'Poison control info', color: 'amber' },
+    { id: 'triage', label: 'Triage', abbrev: 'TRI', href: '#', description: 'Patient triage', color: 'red' },
+    { id: 'trauma', label: 'Trauma', abbrev: 'TRM', href: '#', description: 'Trauma assessment', color: 'orange' },
+    { id: 'resus', label: 'Resus Calc', abbrev: 'RES', href: '#', description: 'Resuscitation tools', color: 'rose' },
+    { id: 'poison', label: 'Toxicology', abbrev: 'TOX', href: '#', description: 'Poison control info', color: 'amber' },
   ],
   nursing: [
-    { id: 'vitals', label: 'Vital Signs', icon: '📊', href: '#', description: 'Record vital signs', color: 'pink' },
-    { id: 'meds', label: 'Med Admin', icon: '💊', href: '#', description: 'Medication administration', color: 'rose' },
-    { id: 'wounds', label: 'Wound Care', icon: '🩹', href: '#', description: 'Wound documentation', color: 'red' },
-    { id: 'education', label: 'Education', icon: '📚', href: '#', description: 'Patient education', color: 'blue' },
+    { id: 'vitals', label: 'Vital Signs', abbrev: 'VS', href: '#', description: 'Record vital signs', color: 'pink' },
+    { id: 'meds', label: 'Med Admin', abbrev: 'MAR', href: '#', description: 'Medication administration', color: 'rose' },
+    { id: 'wounds', label: 'Wound Care', abbrev: 'WND', href: '#', description: 'Wound documentation', color: 'red' },
+    { id: 'education', label: 'Education', abbrev: 'EDU', href: '#', description: 'Patient education', color: 'blue' },
   ],
   internal: [
-    { id: 'history', label: 'Full History', icon: '📋', href: '#', description: 'Comprehensive history', color: 'red' },
-    { id: 'labs', label: 'Lab Review', icon: '🧪', href: '#', description: 'Laboratory results', color: 'orange' },
-    { id: 'imaging', label: 'Imaging', icon: '📷', href: '#', description: 'Diagnostic imaging', color: 'amber' },
-    { id: 'consult', label: 'Consults', icon: '👨‍⚕️', href: '#', description: 'Specialist referrals', color: 'yellow' },
+    { id: 'history', label: 'Full History', abbrev: 'H&P', href: '#', description: 'Comprehensive history', color: 'red' },
+    { id: 'labs', label: 'Lab Review', abbrev: 'LAB', href: '#', description: 'Laboratory results', color: 'orange' },
+    { id: 'imaging', label: 'Imaging', abbrev: 'IMG', href: '#', description: 'Diagnostic imaging', color: 'amber' },
+    { id: 'consult', label: 'Consults', abbrev: 'CON', href: '#', description: 'Specialist referrals', color: 'yellow' },
   ],
   general: [
-    { id: 'checkup', label: 'Annual Checkup', icon: '✅', href: '#', description: 'Preventive care', color: 'blue' },
-    { id: 'vitals', label: 'Vitals', icon: '📊', href: '#', description: 'Check vital signs', color: 'green' },
-    { id: 'labs', label: 'Order Labs', icon: '🧪', href: '#', description: 'Laboratory orders', color: 'purple' },
-    { id: 'referral', label: 'Refer', icon: '📤', href: '#', description: 'Specialist referral', color: 'indigo' },
+    { id: 'checkup', label: 'Annual Checkup', abbrev: 'AWV', href: '#', description: 'Preventive care', color: 'blue' },
+    { id: 'vitals', label: 'Vitals', abbrev: 'VS', href: '#', description: 'Check vital signs', color: 'green' },
+    { id: 'labs', label: 'Order Labs', abbrev: 'LAB', href: '#', description: 'Laboratory orders', color: 'purple' },
+    { id: 'referral', label: 'Refer', abbrev: 'REF', href: '#', description: 'Specialist referral', color: 'indigo' },
   ],
 };
 
@@ -122,8 +122,8 @@ export function SpecialtyQuickActions({ specialty }: SpecialtyQuickActionsProps)
             }}
             className={`p-4 rounded-xl border-2 border-gray-100 bg-gradient-to-br from-gray-50 to-white hover:border-${action.color}-300 hover:shadow-md transition-all text-left group cursor-pointer`}
           >
-            <div className={`text-2xl mb-2 group-hover:scale-110 transition-transform`}>
-              {action.icon}
+            <div className={`text-sm font-bold mb-2 group-hover:scale-110 transition-transform text-${action.color}-600 bg-${action.color}-100 w-10 h-10 rounded-lg flex items-center justify-center`}>
+              {action.abbrev}
             </div>
             <div className="font-medium text-gray-900 text-sm mb-0.5">
               {action.label}

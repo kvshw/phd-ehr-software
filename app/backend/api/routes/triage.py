@@ -135,17 +135,17 @@ async def get_specialties(
     Get list of available medical specialties for triage routing.
     """
     specialties = [
-        {"id": "cardiology", "name": "Cardiology", "icon": "❤️", "description": "Heart and cardiovascular conditions"},
-        {"id": "neurology", "name": "Neurology", "icon": "🧠", "description": "Brain, spine, and nervous system"},
-        {"id": "orthopedics", "name": "Orthopedics", "icon": "🦴", "description": "Bones, joints, and musculoskeletal"},
-        {"id": "pediatrics", "name": "Pediatrics", "icon": "👶", "description": "Children and adolescent care"},
-        {"id": "psychiatry", "name": "Psychiatry", "icon": "🧘", "description": "Mental health and behavioral"},
-        {"id": "emergency", "name": "Emergency Medicine", "icon": "🚑", "description": "Acute and urgent care"},
-        {"id": "internal", "name": "Internal Medicine", "icon": "🩺", "description": "Adult general medicine"},
-        {"id": "surgery", "name": "Surgery", "icon": "⚕️", "description": "Surgical procedures"},
-        {"id": "dermatology", "name": "Dermatology", "icon": "🔬", "description": "Skin conditions"},
-        {"id": "oncology", "name": "Oncology", "icon": "🎗️", "description": "Cancer treatment"},
-        {"id": "general", "name": "General Practice", "icon": "👨‍⚕️", "description": "Primary care"},
+        {"id": "cardiology", "name": "Cardiology", "abbrev": "CARD", "description": "Heart and cardiovascular conditions"},
+        {"id": "neurology", "name": "Neurology", "abbrev": "NEURO", "description": "Brain, spine, and nervous system"},
+        {"id": "orthopedics", "name": "Orthopedics", "abbrev": "ORTH", "description": "Bones, joints, and musculoskeletal"},
+        {"id": "pediatrics", "name": "Pediatrics", "abbrev": "PEDS", "description": "Children and adolescent care"},
+        {"id": "psychiatry", "name": "Psychiatry", "abbrev": "PSYCH", "description": "Mental health and behavioral"},
+        {"id": "emergency", "name": "Emergency Medicine", "abbrev": "EM", "description": "Acute and urgent care"},
+        {"id": "internal", "name": "Internal Medicine", "abbrev": "IM", "description": "Adult general medicine"},
+        {"id": "surgery", "name": "Surgery", "abbrev": "SURG", "description": "Surgical procedures"},
+        {"id": "dermatology", "name": "Dermatology", "abbrev": "DERM", "description": "Skin conditions"},
+        {"id": "oncology", "name": "Oncology", "abbrev": "ONC", "description": "Cancer treatment"},
+        {"id": "general", "name": "General Practice", "abbrev": "GP", "description": "Primary care"},
     ]
     
     return {"specialties": specialties}

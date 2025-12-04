@@ -209,7 +209,7 @@ def generate_diverse_patients(num_patients: int = 30, db: Session = None):
         
         # Skip if name already exists
         if name in existing_names:
-            print(f"⚠ Skipping '{name}' - already exists")
+            print(f"[SKIP] Skipping '{name}' - already exists")
             skipped += 1
             continue
         
@@ -246,9 +246,9 @@ def generate_diverse_patients(num_patients: int = 30, db: Session = None):
             print(f"✗ Failed to create patient {i+1}: {str(e)}")
 
     db.commit()
-    print(f"\n✅ Successfully created {created} new patients")
+    print(f"\n[SUCCESS] Successfully created {created} new patients")
     if skipped > 0:
-        print(f"⚠ Skipped {skipped} patients (duplicates)")
+        print(f"[SKIP] Skipped {skipped} patients (duplicates)")
     return created
 
 
@@ -287,7 +287,7 @@ def main():
         # Show final count
         total = db.execute(select(func.count(Patient.id))).scalar_one()
         print(f"\n" + "=" * 60)
-        print(f"✅ Setup complete! Total patients in database: {total}")
+        print(f"[SUCCESS] Setup complete! Total patients in database: {total}")
         print("=" * 60)
         
     finally:

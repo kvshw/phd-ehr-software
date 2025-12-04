@@ -117,7 +117,7 @@ def create_sarah_chen(db: Session):
     from models.user import User
     clinician = db.query(User).filter(User.role.in_(["clinician", "admin"])).first()
     if not clinician:
-        print("  ⚠️  Warning: No clinician user found. Creating note with placeholder ID.")
+        print("  [WARNING]  Warning: No clinician user found. Creating note with placeholder ID.")
         clinician_id = uuid4()
     else:
         clinician_id = clinician.id
@@ -287,11 +287,11 @@ def create_sarah_chen(db: Session):
     except Exception as e:
         # Rollback the failed conversation transaction, but patient data is already committed
         db.rollback()
-        print(f"  ⚠️  Warning: Could not create conversation data: {str(e)[:100]}")
+        print(f"  [WARNING]  Warning: Could not create conversation data: {str(e)[:100]}")
         print(f"     Run 'scripts/create_conversation_tables.sql' in Supabase SQL Editor to enable conversation features")
         print(f"     Patient and other core data were created successfully")
-    print(f"\n✅ Successfully created patient 'Sarah Chen' with ID: {patient.id}")
-    print(f"\n📋 Patient Summary:")
+    print(f"\n[SUCCESS] Successfully created patient 'Sarah Chen' with ID: {patient.id}")
+    print(f"\n[STANDARD] Patient Summary:")
     print(f"   - Name: {patient.name}")
     print(f"   - Age: {patient.age}")
     print(f"   - Diagnosis: {patient.primary_diagnosis}")
@@ -309,11 +309,11 @@ if __name__ == "__main__":
     db = SessionLocal()
     try:
         patient_id = create_sarah_chen(db)
-        print(f"\n🎯 Test patient ready for user story testing!")
+        print(f"\n[ACTION] Test patient ready for user story testing!")
         print(f"   Use patient ID: {patient_id}")
     except Exception as e:
         db.rollback()
-        print(f"❌ Error creating patient: {e}")
+        print(f"[ERROR] Error creating patient: {e}")
         import traceback
         traceback.print_exc()
     finally:

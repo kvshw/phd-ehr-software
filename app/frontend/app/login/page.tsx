@@ -178,14 +178,7 @@ export default function LoginPage() {
                   Signing in...
                 </>
               ) : (
-                <>
-                  {selectedRole && (
-                    <span className="mr-2">
-                      {selectedRole === 'clinician' ? '👨‍⚕️' : selectedRole === 'researcher' ? '📊' : '⚙️'}
-                    </span>
-                  )}
-                  Sign in{selectedRole ? ` as ${selectedRole === 'clinician' ? 'Clinician' : selectedRole === 'researcher' ? 'Researcher' : 'Admin'}` : ''}
-                </>
+                `Sign in${selectedRole ? ` as ${selectedRole === 'clinician' ? 'Clinician' : selectedRole === 'researcher' ? 'Researcher' : 'Admin'}` : ''}`
               )}
             </button>
           </div>

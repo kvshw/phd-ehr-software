@@ -8,7 +8,7 @@ from core.config import settings
 from api.routes import (
     auth, patients, vitals, labs, imaging, ai, monitor, mape_k, audit, admin,
     clinical_notes, problems, medications, allergies, conversations, feedback, visits,
-    research, assurance, governance, triage, referrals, research_analytics
+    research, assurance, governance, triage, referrals, research_analytics, xai
 )
 
 app = FastAPI(
@@ -65,6 +65,7 @@ app.include_router(governance.router, prefix=settings.API_V1_PREFIX)
 app.include_router(triage.router, prefix=settings.API_V1_PREFIX)
 app.include_router(referrals.router, prefix=settings.API_V1_PREFIX)
 app.include_router(research_analytics.router, prefix=settings.API_V1_PREFIX)
+app.include_router(xai.router, prefix=settings.API_V1_PREFIX)
 
 @app.get("/")
 async def root():

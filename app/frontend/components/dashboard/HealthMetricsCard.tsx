@@ -6,10 +6,10 @@
 
 import { ReactNode } from 'react';
 
-interface HealthMetricsCardProps {
+export interface HealthMetricsCardProps {
   title: string;
   subtitle?: string;
-  value: string | number;
+  value?: string | number;
   unit?: string;
   icon?: ReactNode;
   children?: ReactNode;
@@ -44,10 +44,12 @@ export function HealthMetricsCard({
       </div>
 
       <div className={`bg-gradient-to-br ${gradient} rounded-xl p-4 mb-4`}>
-        <div className="flex items-baseline gap-2 mb-2">
-          <span className="text-3xl font-bold text-gray-900">{value}</span>
-          {unit && <span className="text-lg text-gray-600">{unit}</span>}
-        </div>
+        {value !== undefined && (
+          <div className="flex items-baseline gap-2 mb-2">
+            <span className="text-3xl font-bold text-gray-900">{value}</span>
+            {unit && <span className="text-lg text-gray-600">{unit}</span>}
+          </div>
+        )}
         {children}
       </div>
 

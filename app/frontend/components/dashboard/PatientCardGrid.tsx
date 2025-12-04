@@ -218,7 +218,7 @@ export function PatientCardGrid() {
                         </p>
                       </div>
                     </div>
-                    <RiskBadge riskLevel={metadata.riskLevel} />
+                    <RiskBadge level={metadata.riskLevel} />
                   </div>
 
                   {/* Patient Info */}
@@ -242,7 +242,7 @@ export function PatientCardGrid() {
                   {/* Flags */}
                   <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
                     <PatientFlags
-                      hasVitals={metadata.hasVitalRisk}
+                      hasVitalRisk={metadata.hasVitalRisk}
                       hasImages={metadata.hasImages}
                     />
                     <div className="ml-auto">

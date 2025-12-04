@@ -45,19 +45,19 @@ def generate_learning_feedback(
     # Get available users and patients
     clinicians = db.query(User).filter(User.role.in_(["clinician", "admin"])).all()
     if not clinicians:
-        print("❌ No clinicians found.")
+        print("[ERROR] No clinicians found.")
         return
     
     patients = db.query(Patient).all()
     if not patients:
-        print("❌ No patients found.")
+        print("[ERROR] No patients found.")
         return
     
     # Get suggestions for the specified source
     suggestions = db.query(Suggestion).filter(Suggestion.source == source).limit(20).all()
     
     if not suggestions:
-        print(f"⚠️  No suggestions found for source '{source}'. Creating sample suggestions...")
+        print(f"[WARNING]  No suggestions found for source '{source}'. Creating sample suggestions...")
         for i in range(10):
             patient = random.choice(patients)
             suggestion = Suggestion(
@@ -73,7 +73,7 @@ def generate_learning_feedback(
         db.commit()
         suggestions = db.query(Suggestion).filter(Suggestion.source == source).all()
     
-    print(f"\n📊 Generating {count} feedback items for '{source}' source...")
+    print(f"\n[DATA] Generating {count} feedback items for '{source}' source...")
     print(f"   Scenario: {scenario.upper()} acceptance rate")
     print(f"   Target: {'>80% accept' if scenario == 'high' else '<20% accept'}\n")
     
@@ -155,9 +155,9 @@ def generate_learning_feedback(
     
     db.commit()
     
-    print(f"✅ Created {created} feedback items")
-    print(f"\n🎯 Expected acceptance rate: {'~80%' if scenario == 'high' else '~15%'}")
-    print(f"\n📈 Next steps:")
+    print(f"[SUCCESS] Created {created} feedback items")
+    print(f"\n[ACTION] Expected acceptance rate: {'~80%' if scenario == 'high' else '~15%'}")
+    print(f"\n[METRICS] Next steps:")
     print(f"   1. Wait a few seconds for learning to trigger")
     print(f"   2. Go to http://localhost:3000/feedback/analytics")
     print(f"   3. Check 'Learning Events History' section")
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     if args.count < 10:
-        print("⚠️  Warning: Need at least 10 feedback items to trigger learning")
+        print("[WARNING]  Warning: Need at least 10 feedback items to trigger learning")
         print("   Increasing count to 10...")
         args.count = 10
     
@@ -205,7 +205,7 @@ if __name__ == "__main__":
             source=args.source,
         )
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"[ERROR] Error: {e}")
         import traceback
         traceback.print_exc()
         db.rollback()

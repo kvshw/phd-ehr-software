@@ -25,7 +25,7 @@ const roleConfig: Record<UserRole, {
 }> = {
   clinician: {
     label: 'Doctor',
-    icon: '👨‍⚕️',
+    icon: 'DR',
     color: {
       bg: 'bg-blue-100',
       text: 'text-blue-800',
@@ -35,7 +35,7 @@ const roleConfig: Record<UserRole, {
   },
   doctor: {
     label: 'Doctor',
-    icon: '👨‍⚕️',
+    icon: 'DR',
     color: {
       bg: 'bg-blue-100',
       text: 'text-blue-800',
@@ -45,7 +45,7 @@ const roleConfig: Record<UserRole, {
   },
   nurse: {
     label: 'Nurse',
-    icon: '👩‍⚕️',
+    icon: 'RN',
     color: {
       bg: 'bg-teal-100',
       text: 'text-teal-800',
@@ -55,7 +55,7 @@ const roleConfig: Record<UserRole, {
   },
   researcher: {
     label: 'Researcher',
-    icon: '📊',
+    icon: 'RS',
     color: {
       bg: 'bg-purple-100',
       text: 'text-purple-800',
@@ -65,7 +65,7 @@ const roleConfig: Record<UserRole, {
   },
   admin: {
     label: 'Administrator',
-    icon: '⚙️',
+    icon: 'AD',
     color: {
       bg: 'bg-indigo-100',
       text: 'text-indigo-800',
@@ -86,7 +86,7 @@ export function RoleBadge({ role, size = 'md', showDescription = false, classNam
 
   return (
     <div className={`inline-flex items-center gap-2 rounded-full border ${config.color.bg} ${config.color.text} ${config.color.border} ${sizeClasses[size]} ${className}`}>
-      <span className="text-base leading-none">{config.icon}</span>
+      <span className="text-xs font-bold leading-none">{config.icon}</span>
       <span className="font-medium">{config.label}</span>
       {showDescription && size === 'lg' && (
         <span className="text-xs opacity-75 ml-1">- {config.description}</span>

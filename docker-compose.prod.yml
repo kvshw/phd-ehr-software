@@ -1,0 +1,124 @@
+# Production Docker Compose for EHR Platform
+# Usage: docker compose -f docker-compose.prod.yml up -d --build
+
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: devops/Dockerfile.backend.prod
+    container_name: ehr-backend-prod
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env.prod
+    environment:
+      - ENVIRONMENT=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - ehr-network
+
+  # Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: devops/Dockerfile.frontend.prod
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    container_name: ehr-frontend-prod
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.prod
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - ehr-network
+
+  # Diagnosis Helper AI Service
+  diagnosis-helper-service:
+    build:
+      context: .
+      dockerfile: devops/Dockerfile.model
+    container_name: ehr-diagnosis-helper-prod
+    restart: always
+    ports:
+      - "8003:8003"
+    env_file:
+      - .env.prod
+    command: python main.py
+    working_dir: /app/model-services/diagnosis-helper
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ehr-network
+
+  # Vital Risk Service
+  vital-risk-service:
+    build:
+      context: .
+      dockerfile: devops/Dockerfile.model
+    container_name: ehr-vital-risk-prod
+    restart: always
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env.prod
+    command: python main.py
+    working_dir: /app/model-services/vital-risk
+    networks:
+      - ehr-network
+
+  # Image Analysis Service
+  image-analysis-service:
+    build:
+      context: .
+      dockerfile: devops/Dockerfile.model
+    container_name: ehr-image-analysis-prod
+    restart: always
+    ports:
+      - "8002:8002"
+    env_file:
+      - .env.prod
+    command: python main.py
+    working_dir: /app/model-services/image-analysis
+    networks:
+      - ehr-network
+
+  # Nginx Reverse Proxy (optional - for custom domain)
+  nginx:
+    image: nginx:alpine
+    container_name: ehr-nginx-prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./devops/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - ehr-network
+    profiles:
+      - with-nginx  # Only starts when: docker compose --profile with-nginx up
+
+networks:
+  ehr-network:
+    driver: bridge
+

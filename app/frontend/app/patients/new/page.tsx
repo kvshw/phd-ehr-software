@@ -65,26 +65,26 @@ export default function NewPatientPage() {
 
       // Check authentication
       if (!isAuthenticated) {
-        console.log('❌ Not authenticated, redirecting to login');
+        console.log('Not authenticated, redirecting to login');
         router.push('/login');
         return;
       }
 
       // Check user role - must have user object
       if (!user) {
-        console.log('❌ No user object after loading, redirecting to login');
+        console.log('No user object after loading, redirecting to login');
         router.push('/login');
         return;
       }
 
       // Check if user has permission (clinician or admin)
       if (user.role !== 'clinician' && user.role !== 'admin') {
-        console.log(`❌ User role "${user.role}" is not allowed. Redirecting to dashboard.`);
+        console.log(`User role "${user.role}" is not allowed. Redirecting to dashboard.`);
         router.push('/dashboard');
         return;
       }
 
-      console.log('✅ User authenticated and authorized:', user.role);
+      console.log('User authenticated and authorized:', user.role);
     }, 100); // Small delay to let state settle
 
     return () => clearTimeout(timeoutId);
@@ -104,17 +104,17 @@ export default function NewPatientPage() {
   }
 
   if (!isAuthenticated || !user) {
-    console.log('❌ Not authenticated or no user:', { isAuthenticated, hasUser: !!user });
+    console.log('Not authenticated or no user:', { isAuthenticated, hasUser: !!user });
     return null;
   }
 
   // Check if user has permission (clinician or admin)
   if (user.role !== 'clinician' && user.role !== 'admin') {
-    console.log(`❌ User role "${user.role}" is not allowed. Showing nothing.`);
+    console.log(`User role "${user.role}" is not allowed. Showing nothing.`);
     return null;
   }
 
-  console.log('✅ Component ready to render form. User:', { role: user.role, email: user.email });
+  console.log('Component ready to render form. User:', { role: user.role, email: user.email });
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof PatientCreate, string>> = {};
@@ -149,12 +149,12 @@ export default function NewPatientPage() {
     console.log('🔵 Form errors:', errors);
 
     if (!isValid) {
-      console.log('❌ Form validation failed');
+      console.log('Form validation failed');
       setError('Please fix the errors in the form before submitting.');
       return;
     }
 
-    console.log('✅ Form validation passed');
+    console.log('Form validation passed');
 
     setSubmitting(true);
 

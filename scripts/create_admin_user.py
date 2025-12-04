@@ -52,7 +52,7 @@ def create_admin_user(email: str, password: str):
         db.commit()
         db.refresh(admin_user)
         
-        print(f"✅ Admin user created successfully!")
+        print(f"[SUCCESS] Admin user created successfully!")
         print(f"   Email: {email}")
         print(f"   Role: admin")
         print(f"   ID: {admin_user.id}")

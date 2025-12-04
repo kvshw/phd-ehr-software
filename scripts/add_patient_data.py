@@ -152,7 +152,7 @@ def add_vitals_to_patient(db: Session, patient: Patient, num_vitals: int = 5):
             VitalService.create_vital(db, vital_data)
             vitals_created += 1
         except Exception as e:
-            print(f"    ⚠ Failed to create vital: {str(e)}")
+            print(f"    [WARNING] Failed to create vital: {str(e)}")
     
     return vitals_created
 
@@ -192,7 +192,7 @@ def add_labs_to_patient(db: Session, patient: Patient, num_labs: int = 8):
             LabService.create_lab(db, lab_data)
             labs_created += 1
         except Exception as e:
-            print(f"    ⚠ Failed to create lab: {str(e)}")
+            print(f"    [WARNING] Failed to create lab: {str(e)}")
     
     return labs_created
 
@@ -234,7 +234,7 @@ def add_data_to_all_patients(
             ).scalar_one()
             
             if existing_vitals > 0 or existing_labs > 0:
-                print(f"  ⚠ Skipping (already has {existing_vitals} vitals, {existing_labs} labs)")
+                print(f"  [WARNING] Skipping (already has {existing_vitals} vitals, {existing_labs} labs)")
                 continue
         
         # Add vitals
@@ -250,7 +250,7 @@ def add_data_to_all_patients(
     db.commit()
     
     print("\n" + "=" * 60)
-    print(f"✅ Complete!")
+    print(f"[SUCCESS] Complete!")
     print(f"   Total vitals added: {total_vitals}")
     print(f"   Total labs added: {total_labs}")
     print("=" * 60)

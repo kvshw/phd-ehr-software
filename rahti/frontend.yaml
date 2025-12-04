@@ -1,0 +1,113 @@
+# EHR Frontend Deployment for CSC Rahti
+# Apply with: oc apply -f rahti/frontend.yaml
+
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: ehr-frontend
+spec:
+  source:
+    type: Git
+    git:
+      uri: "https://github.com/YOUR_USERNAME/YOUR_REPO.git"
+      ref: "main"
+    contextDir: "/"
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: devops/Dockerfile.frontend.prod
+      env:
+      - name: NEXT_PUBLIC_API_URL
+        value: "https://ehr-backend-ehr-platform.rahtiapp.fi"
+  output:
+    to:
+      kind: ImageStreamTag
+      name: ehr-frontend:latest
+  triggers:
+    - type: ConfigChange
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: ehr-frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ehr-frontend
+  labels:
+    app: ehr-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ehr-frontend
+  template:
+    metadata:
+      labels:
+        app: ehr-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: image-registry.openshift-image-registry.svc:5000/ehr-platform/ehr-frontend:latest
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        env:
+        - name: NEXT_PUBLIC_API_URL
+          value: "https://ehr-backend-ehr-platform.rahtiapp.fi"
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "300m"
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ehr-frontend
+  labels:
+    app: ehr-frontend
+spec:
+  selector:
+    app: ehr-frontend
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: ehr-frontend
+  labels:
+    app: ehr-frontend
+spec:
+  to:
+    kind: Service
+    name: ehr-frontend
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+

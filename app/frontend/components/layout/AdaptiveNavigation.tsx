@@ -27,7 +27,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   {
     id: 'overview',
     label: 'Overview',
-    icon: '📊',
+    icon: '',
     featureId: 'dashboard_overview',
     href: '/dashboard',
     defaultVisible: true,
@@ -36,7 +36,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   {
     id: 'notes',
     label: 'Notes',
-    icon: '📝',
+    icon: '',
     featureId: 'clinical_notes',
     defaultVisible: true,
     defaultPriority: 9,
@@ -52,7 +52,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   {
     id: 'labs',
     label: 'Labs',
-    icon: '🧪',
+    icon: '',
     featureId: 'lab_results',
     defaultVisible: true,
     defaultPriority: 8,
@@ -68,7 +68,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   {
     id: 'doctor',
     label: 'Doctor',
-    icon: '👨‍⚕️',
+    icon: '',
     featureId: 'doctor_consultation',
     defaultVisible: true,
     defaultPriority: 6,
@@ -76,7 +76,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   {
     id: 'medicine',
     label: 'Medicine',
-    icon: '💊',
+    icon: '',
     featureId: 'medications',
     defaultVisible: true,
     defaultPriority: 8,
@@ -84,7 +84,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   {
     id: 'analytics',
     label: 'Analytics',
-    icon: '📈',
+    icon: '',
     featureId: 'research_analytics',
     href: '/research',
     defaultVisible: false,
@@ -219,7 +219,7 @@ export function AdaptiveNavigation({ currentPage = 'Overview', onNavClick }: Ada
       }
 
       // Handle patient page navigation
-      if (pathname.startsWith('/patients/')) {
+      if (pathname?.startsWith('/patients/')) {
         const patientId = pathname.split('/patients/')[1]?.split('/')[0];
         if (patientId) {
           const sectionMap: Record<string, string> = {

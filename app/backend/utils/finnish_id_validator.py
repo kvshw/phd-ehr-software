@@ -190,11 +190,11 @@ if __name__ == "__main__":
         is_valid, error = FinnishIDValidator.validate(test_id)
         if is_valid:
             info = FinnishIDValidator.extract_info(test_id)
-            print(f"✅ {test_id}: Valid")
+            print(f"[VALID] {test_id}: Valid")
             if info:
                 print(f"   Birth Date: {info['birth_date']}")
                 print(f"   Gender: {info['gender']}")
                 print(f"   Age: {info['age']}")
         else:
-            print(f"❌ {test_id}: {error}")
+            print(f"[INVALID] {test_id}: {error}")
 

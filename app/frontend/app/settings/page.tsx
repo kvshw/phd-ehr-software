@@ -12,26 +12,26 @@ import { apiClient } from '@/lib/apiClient';
 
 // Medical specialties available in Finland
 const MEDICAL_SPECIALTIES = [
-  { id: 'general', name: 'General Practice', namefi: 'Yleislääketiede', icon: '🏥' },
-  { id: 'internal', name: 'Internal Medicine', namefi: 'Sisätaudit', icon: '🫀' },
-  { id: 'cardiology', name: 'Cardiology', namefi: 'Kardiologia', icon: '❤️' },
-  { id: 'neurology', name: 'Neurology', namefi: 'Neurologia', icon: '🧠' },
-  { id: 'psychiatry', name: 'Psychiatry', namefi: 'Psykiatria', icon: '🧘' },
-  { id: 'pediatrics', name: 'Pediatrics', namefi: 'Lastentaudit', icon: '👶' },
-  { id: 'geriatrics', name: 'Geriatrics', namefi: 'Geriatria', icon: '👴' },
-  { id: 'surgery', name: 'Surgery', namefi: 'Kirurgia', icon: '🔪' },
-  { id: 'orthopedics', name: 'Orthopedics', namefi: 'Ortopedia', icon: '🦴' },
-  { id: 'oncology', name: 'Oncology', namefi: 'Onkologia', icon: '🎗️' },
-  { id: 'pulmonology', name: 'Pulmonology', namefi: 'Keuhkosairaudet', icon: '🫁' },
-  { id: 'gastroenterology', name: 'Gastroenterology', namefi: 'Gastroenterologia', icon: '🍽️' },
-  { id: 'endocrinology', name: 'Endocrinology', namefi: 'Endokrinologia', icon: '⚗️' },
-  { id: 'nephrology', name: 'Nephrology', namefi: 'Nefrologia', icon: '💧' },
-  { id: 'dermatology', name: 'Dermatology', namefi: 'Ihotaudit', icon: '🧴' },
-  { id: 'ophthalmology', name: 'Ophthalmology', namefi: 'Silmätaudit', icon: '👁️' },
-  { id: 'radiology', name: 'Radiology', namefi: 'Radiologia', icon: '📷' },
-  { id: 'anesthesiology', name: 'Anesthesiology', namefi: 'Anestesiologia', icon: '💉' },
-  { id: 'emergency', name: 'Emergency Medicine', namefi: 'Ensihoito', icon: '🚑' },
-  { id: 'nursing', name: 'Nursing', namefi: 'Hoitotyö', icon: '👩‍⚕️' },
+  { id: 'general', name: 'General Practice', namefi: 'Yleislääketiede' },
+  { id: 'internal', name: 'Internal Medicine', namefi: 'Sisätaudit' },
+  { id: 'cardiology', name: 'Cardiology', namefi: 'Kardiologia' },
+  { id: 'neurology', name: 'Neurology', namefi: 'Neurologia' },
+  { id: 'psychiatry', name: 'Psychiatry', namefi: 'Psykiatria' },
+  { id: 'pediatrics', name: 'Pediatrics', namefi: 'Lastentaudit' },
+  { id: 'geriatrics', name: 'Geriatrics', namefi: 'Geriatria' },
+  { id: 'surgery', name: 'Surgery', namefi: 'Kirurgia' },
+  { id: 'orthopedics', name: 'Orthopedics', namefi: 'Ortopedia' },
+  { id: 'oncology', name: 'Oncology', namefi: 'Onkologia' },
+  { id: 'pulmonology', name: 'Pulmonology', namefi: 'Keuhkosairaudet' },
+  { id: 'gastroenterology', name: 'Gastroenterology', namefi: 'Gastroenterologia' },
+  { id: 'endocrinology', name: 'Endocrinology', namefi: 'Endokrinologia' },
+  { id: 'nephrology', name: 'Nephrology', namefi: 'Nefrologia' },
+  { id: 'dermatology', name: 'Dermatology', namefi: 'Ihotaudit' },
+  { id: 'ophthalmology', name: 'Ophthalmology', namefi: 'Silmätaudit' },
+  { id: 'radiology', name: 'Radiology', namefi: 'Radiologia' },
+  { id: 'anesthesiology', name: 'Anesthesiology', namefi: 'Anestesiologia' },
+  { id: 'emergency', name: 'Emergency Medicine', namefi: 'Ensihoito' },
+  { id: 'nursing', name: 'Nursing', namefi: 'Hoitotyö' },
 ];
 
 export default function SettingsPage() {
@@ -80,10 +80,8 @@ export default function SettingsPage() {
 
     try {
       // Only include specialty for clinicians
-      const submitData = { ...formData };
-      if (user?.role !== 'clinician') {
-        delete submitData.specialty;
-      }
+      const { specialty, ...restData } = formData;
+      const submitData = user?.role === 'clinician' ? formData : restData;
       
       await apiClient.put('/auth/me', submitData);
       
@@ -149,10 +147,7 @@ export default function SettingsPage() {
               ? 'bg-green-50 border border-green-200 text-green-800'
               : 'bg-red-50 border border-red-200 text-red-800'
           }`}>
-            <div className="flex items-center gap-2">
-              <span>{message.type === 'success' ? '✅' : '❌'}</span>
-              <span>{message.text}</span>
-            </div>
+            <span>{message.text}</span>
           </div>
         )}
 
@@ -160,9 +155,7 @@ export default function SettingsPage() {
           {/* Specialty Selection - Only for Clinicians */}
           {user?.role === 'clinician' && (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <span>🩺</span> Medical Specialty
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Medical Specialty</h2>
               <p className="text-sm text-gray-600 mb-6">
                 Select your primary specialty. This will customize your dashboard, prioritize relevant AI suggestions, and adapt the UI to your workflow.
               </p>
@@ -179,7 +172,6 @@ export default function SettingsPage() {
                         : 'border-gray-200 bg-white hover:border-gray-300'
                     }`}
                   >
-                    <div className="text-2xl mb-2">{specialty.icon}</div>
                     <div className="font-medium text-gray-900 text-sm">{specialty.name}</div>
                     <div className="text-xs text-gray-500">{specialty.namefi}</div>
                   </button>
@@ -201,40 +193,28 @@ export default function SettingsPage() {
           {/* Admin Info Banner */}
           {user?.role === 'admin' && (
             <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">⚙️</span>
-                <div>
-                  <h3 className="text-lg font-semibold text-blue-900 mb-2">Administrator Account</h3>
-                  <p className="text-sm text-blue-700">
-                    As an administrator, you have access to system controls, user management, and assurance monitoring. 
-                    Specialty selection is not applicable to admin accounts.
-                  </p>
-                </div>
-              </div>
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">Administrator Account</h3>
+              <p className="text-sm text-blue-700">
+                As an administrator, you have access to system controls, user management, and assurance monitoring. 
+                Specialty selection is not applicable to admin accounts.
+              </p>
             </div>
           )}
 
           {/* Researcher Info Banner */}
           {user?.role === 'researcher' && (
             <div className="bg-purple-50 border border-purple-200 rounded-2xl p-6">
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">🔬</span>
-                <div>
-                  <h3 className="text-lg font-semibold text-purple-900 mb-2">Researcher Account</h3>
-                  <p className="text-sm text-purple-700">
-                    As a researcher, you have access to research metrics, A/B testing, and analytics dashboards. 
-                    Specialty selection is not applicable to researcher accounts.
-                  </p>
-                </div>
-              </div>
+              <h3 className="text-lg font-semibold text-purple-900 mb-2">Researcher Account</h3>
+              <p className="text-sm text-purple-700">
+                As a researcher, you have access to research metrics, A/B testing, and analytics dashboards. 
+                Specialty selection is not applicable to researcher accounts.
+              </p>
             </div>
           )}
 
           {/* Personal Information */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span>👤</span> Personal Information
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Personal Information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -297,9 +277,7 @@ export default function SettingsPage() {
 
           {/* Account Info (Read-only) */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span>🔐</span> Account Information
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -325,9 +303,7 @@ export default function SettingsPage() {
 
           {/* MAPE-K Adaptation Info */}
           <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl border border-indigo-200 p-6">
-            <h2 className="text-lg font-semibold text-indigo-900 mb-2 flex items-center gap-2">
-              <span>🔄</span> How Your Specialty Affects the UI
-            </h2>
+            <h2 className="text-lg font-semibold text-indigo-900 mb-2">How Your Specialty Affects the UI</h2>
             <ul className="text-sm text-indigo-800 space-y-2">
               <li>• <strong>Dashboard Layout:</strong> Sections reordered based on specialty-typical workflow</li>
               <li>• <strong>AI Suggestions:</strong> Prioritized based on specialty relevance</li>
@@ -357,10 +333,7 @@ export default function SettingsPage() {
                   Saving...
                 </>
               ) : (
-                <>
-                  <span>💾</span>
-                  Save Changes
-                </>
+                'Save Changes'
               )}
             </button>
           </div>
@@ -370,17 +343,12 @@ export default function SettingsPage() {
         {(user?.role === 'admin' || user?.role === 'clinician') && (
           <div className="mt-12 border-t border-gray-200 pt-8">
             <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
-              <div className="flex items-start gap-3 mb-4">
-                <span className="text-2xl">⚠️</span>
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-red-900 mb-2">Danger Zone</h2>
-                  <p className="text-sm text-red-700 mb-4">
-                    This action will permanently delete <strong>ALL</strong> patient data, visits, notes, medications, vitals, labs, and related records.
-                    This cannot be undone. User accounts will be preserved.
-                  </p>
-                  <DeleteAllDataButton />
-                </div>
-              </div>
+              <h2 className="text-xl font-semibold text-red-900 mb-2">Danger Zone</h2>
+              <p className="text-sm text-red-700 mb-4">
+                This action will permanently delete <strong>ALL</strong> patient data, visits, notes, medications, vitals, labs, and related records.
+                This cannot be undone. User accounts will be preserved.
+              </p>
+              <DeleteAllDataButton />
             </div>
           </div>
         )}
@@ -436,9 +404,8 @@ function DeleteAllDataButton() {
       <button
         type="button"
         onClick={() => setShowConfirm(true)}
-        className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2"
+        className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
       >
-        <span>🗑️</span>
         Delete All Data
       </button>
     );
@@ -466,10 +433,7 @@ function DeleteAllDataButton() {
             ? 'bg-green-50 border border-green-200 text-green-800'
             : 'bg-red-50 border border-red-200 text-red-800'
         }`}>
-          <div className="flex items-center gap-2">
-            <span>{deleteMessage.type === 'success' ? '✅' : '❌'}</span>
-            <span className="text-sm">{deleteMessage.text}</span>
-          </div>
+          <span className="text-sm">{deleteMessage.text}</span>
         </div>
       )}
 
@@ -498,10 +462,7 @@ function DeleteAllDataButton() {
               Deleting...
             </>
           ) : (
-            <>
-              <span>🗑️</span>
-              Confirm Delete All Data
-            </>
+            'Confirm Delete All Data'
           )}
         </button>
       </div>

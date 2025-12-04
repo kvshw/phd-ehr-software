@@ -27,12 +27,12 @@ export function startTokenRefresh() {
       });
 
       if (response.ok) {
-        console.log('✅ Token refreshed proactively');
+        console.log('Token refreshed proactively');
       } else {
-        console.warn('⚠️ Token refresh failed, user may need to login');
+        console.warn('[WARNING] Token refresh failed, user may need to login');
       }
     } catch (error) {
-      console.error('❌ Error refreshing token:', error);
+      console.error('[ERROR] Error refreshing token:', error);
     }
   }, REFRESH_INTERVAL);
 }

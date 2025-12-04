@@ -132,7 +132,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                      <span className="text-2xl">🩺</span>
+                      <span className="text-lg font-bold text-indigo-600">EHR</span>
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-amber-900">Set Your Medical Specialty</h3>

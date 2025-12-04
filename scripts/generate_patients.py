@@ -109,7 +109,7 @@ def generate_patients(num_patients: int = 20, db: Session = None):
             print(f"✗ Failed to create patient {i+1}: {str(e)}")
 
     db.commit()
-    print(f"\n✅ Successfully created {created} out of {num_patients} patients")
+    print(f"\n[SUCCESS] Successfully created {created} out of {num_patients} patients")
     return created
 
 

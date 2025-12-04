@@ -135,7 +135,7 @@ export function MetricsDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">📊 Research Metrics Dashboard</h1>
+          <h1 className="text-2xl font-bold">Research Metrics Dashboard</h1>
           <p className="text-gray-500">
             Comprehensive metrics for adaptation effectiveness evaluation
           </p>
@@ -155,19 +155,19 @@ export function MetricsDashboard() {
             active={activeTab === "efficiency"}
             onClick={() => setActiveTab("efficiency")}
           >
-            ⚡ Efficiency
+            Efficiency
           </TabButton>
           <TabButton
             active={activeTab === "effectiveness"}
             onClick={() => setActiveTab("effectiveness")}
           >
-            🎯 Effectiveness
+            Effectiveness
           </TabButton>
           <TabButton
             active={activeTab === "studies"}
             onClick={() => setActiveTab("studies")}
           >
-            🧪 Studies
+            Studies
           </TabButton>
         </div>
       </div>
@@ -177,7 +177,7 @@ export function MetricsDashboard() {
         <div className="space-y-6">
           {/* Click Reduction */}
           <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold mb-4">📉 Click Reduction</h2>
+            <h2 className="text-lg font-semibold mb-4">Click Reduction</h2>
             {clickReduction ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <MetricCard
@@ -204,7 +204,7 @@ export function MetricsDashboard() {
           
           {/* Time to Target */}
           <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold mb-4">⏱️ Time to Target (seconds)</h2>
+            <h2 className="text-lg font-semibold mb-4">Time to Target (seconds)</h2>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {Object.entries(timeToTarget).map(([feature, data]) => (
                 <div key={feature} className="bg-gray-50 rounded-lg p-4 text-center">
@@ -229,7 +229,7 @@ export function MetricsDashboard() {
         <div className="space-y-6">
           {/* Suggestion Rates */}
           <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold mb-4">💡 Suggestion Response Rates</h2>
+            <h2 className="text-lg font-semibold mb-4">Suggestion Response Rates</h2>
             {suggestionRates ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -273,9 +273,9 @@ export function MetricsDashboard() {
                   />
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">
-                  <span>🟢 Accepted</span>
-                  <span>🟡 Ignored</span>
-                  <span>🔴 Rejected</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500"></span> Accepted</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500"></span> Ignored</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500"></span> Rejected</span>
                 </div>
               </div>
             ) : (
@@ -285,7 +285,7 @@ export function MetricsDashboard() {
           
           {/* Adaptation Accuracy */}
           <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold mb-4">🎯 Adaptation Accuracy (Top-{adaptationAccuracy?.top_n || 5} Features)</h2>
+            <h2 className="text-lg font-semibold mb-4">Adaptation Accuracy (Top-{adaptationAccuracy?.top_n || 5} Features)</h2>
             {adaptationAccuracy ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <MetricCard
@@ -317,7 +317,7 @@ export function MetricsDashboard() {
       {activeTab === "studies" && (
         <div className="space-y-6">
           <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold mb-4">🧪 Research Studies</h2>
+            <h2 className="text-lg font-semibold mb-4">Research Studies</h2>
             {studies.length > 0 ? (
               <div className="space-y-4">
                 {studies.map((study) => (
@@ -326,8 +326,7 @@ export function MetricsDashboard() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <span className="text-4xl">📋</span>
-                <p className="text-lg font-medium mt-3">No Studies Yet</p>
+                <p className="text-lg font-medium">No Studies Yet</p>
                 <p className="text-gray-500">Create a study to start A/B testing</p>
               </div>
             )}

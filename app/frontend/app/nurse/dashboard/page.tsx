@@ -45,27 +45,27 @@ interface Referral {
   };
 }
 
-const SPECIALTY_INFO: Record<string, { name: string; icon: string; color: string }> = {
-  cardiology: { name: 'Cardiology', icon: '❤️', color: 'bg-red-100 text-red-800' },
-  neurology: { name: 'Neurology', icon: '🧠', color: 'bg-purple-100 text-purple-800' },
-  orthopedics: { name: 'Orthopedics', icon: '🦴', color: 'bg-orange-100 text-orange-800' },
-  pediatrics: { name: 'Pediatrics', icon: '👶', color: 'bg-pink-100 text-pink-800' },
-  psychiatry: { name: 'Psychiatry', icon: '🧘', color: 'bg-indigo-100 text-indigo-800' },
-  emergency: { name: 'Emergency', icon: '🚑', color: 'bg-red-100 text-red-800' },
-  internal: { name: 'Internal Medicine', icon: '🩺', color: 'bg-blue-100 text-blue-800' },
-  surgery: { name: 'Surgery', icon: '⚕️', color: 'bg-green-100 text-green-800' },
-  dermatology: { name: 'Dermatology', icon: '🔬', color: 'bg-yellow-100 text-yellow-800' },
-  oncology: { name: 'Oncology', icon: '🎗️', color: 'bg-violet-100 text-violet-800' },
-  general: { name: 'General Practice', icon: '👨‍⚕️', color: 'bg-gray-100 text-gray-800' },
-  pulmonology: { name: 'Pulmonology', icon: '🫁', color: 'bg-sky-100 text-sky-800' },
-  gastroenterology: { name: 'Gastroenterology', icon: '🏥', color: 'bg-amber-100 text-amber-800' },
-  endocrinology: { name: 'Endocrinology', icon: '💉', color: 'bg-lime-100 text-lime-800' },
-  nephrology: { name: 'Nephrology', icon: '🫘', color: 'bg-teal-100 text-teal-800' },
-  rheumatology: { name: 'Rheumatology', icon: '🦴', color: 'bg-rose-100 text-rose-800' },
-  urology: { name: 'Urology', icon: '🏥', color: 'bg-cyan-100 text-cyan-800' },
-  infectious_disease: { name: 'Infectious Disease', icon: '🦠', color: 'bg-emerald-100 text-emerald-800' },
-  hematology: { name: 'Hematology', icon: '🩸', color: 'bg-red-100 text-red-800' },
-  geriatrics: { name: 'Geriatrics', icon: '👴', color: 'bg-slate-100 text-slate-800' },
+const SPECIALTY_INFO: Record<string, { name: string; color: string }> = {
+  cardiology: { name: 'Cardiology', color: 'bg-red-100 text-red-800' },
+  neurology: { name: 'Neurology', color: 'bg-purple-100 text-purple-800' },
+  orthopedics: { name: 'Orthopedics', color: 'bg-orange-100 text-orange-800' },
+  pediatrics: { name: 'Pediatrics', color: 'bg-pink-100 text-pink-800' },
+  psychiatry: { name: 'Psychiatry', color: 'bg-indigo-100 text-indigo-800' },
+  emergency: { name: 'Emergency', color: 'bg-red-100 text-red-800' },
+  internal: { name: 'Internal Medicine', color: 'bg-blue-100 text-blue-800' },
+  surgery: { name: 'Surgery', color: 'bg-green-100 text-green-800' },
+  dermatology: { name: 'Dermatology', color: 'bg-yellow-100 text-yellow-800' },
+  oncology: { name: 'Oncology', color: 'bg-violet-100 text-violet-800' },
+  general: { name: 'General Practice', color: 'bg-gray-100 text-gray-800' },
+  pulmonology: { name: 'Pulmonology', color: 'bg-sky-100 text-sky-800' },
+  gastroenterology: { name: 'Gastroenterology', color: 'bg-amber-100 text-amber-800' },
+  endocrinology: { name: 'Endocrinology', color: 'bg-lime-100 text-lime-800' },
+  nephrology: { name: 'Nephrology', color: 'bg-teal-100 text-teal-800' },
+  rheumatology: { name: 'Rheumatology', color: 'bg-rose-100 text-rose-800' },
+  urology: { name: 'Urology', color: 'bg-cyan-100 text-cyan-800' },
+  infectious_disease: { name: 'Infectious Disease', color: 'bg-emerald-100 text-emerald-800' },
+  hematology: { name: 'Hematology', color: 'bg-red-100 text-red-800' },
+  geriatrics: { name: 'Geriatrics', color: 'bg-slate-100 text-slate-800' },
 };
 
 const PRIORITY_COLORS = {
@@ -273,7 +273,7 @@ export default function NurseDashboardPage() {
         vitals: referPatient.vitals || {},
         triage_notes: referNotes,
         ai_suggested_specialty: aiSuggestedSpecialty || null,
-        ai_confidence: aiSuggestion?.specialty_confidence || (referPatient.ai_confidence ? parseFloat(referPatient.ai_confidence) : null),
+        ai_confidence: aiSuggestion?.specialty_confidence || referPatient.ai_confidence || null,
         nurse_override: nurseOverrode,
       });
       
@@ -319,11 +319,11 @@ export default function NurseDashboardPage() {
       
       // Check if it's a UUID validation error
       if (errorMessage.includes('Invalid patient ID') || errorMessage.includes('UUID') || errorMessage.includes('badly formed')) {
-        alert('⚠️ This patient is a demo/test patient. Please select a real patient from the "All Patients" tab to create a referral.');
+        alert('This patient is a demo/test patient. Please select a real patient from the "All Patients" tab to create a referral.');
       } else if (errorMessage.includes('not found')) {
-        alert('⚠️ Patient not found. Please select a valid patient.');
+        alert('Patient not found. Please select a valid patient.');
       } else if (errorMessage.includes('table does not exist')) {
-        alert('⚠️ Database setup required. Please contact administrator to run the SQL migration script.');
+        alert('Database setup required. Please contact administrator to run the SQL migration script.');
       } else {
         alert(`Failed to create referral: ${errorMessage}`);
       }
@@ -356,10 +356,10 @@ export default function NurseDashboardPage() {
         <div className="bg-gradient-to-r from-teal-600 to-cyan-600 rounded-2xl p-6 text-white shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold">
-                Good Morning, {user?.first_name || 'Nurse'} 👩‍⚕️
+              <h1 className="text-2xl font-bold text-black">
+                Good Morning, {user?.first_name || 'Nurse'}
               </h1>
-              <p className="text-teal-100 mt-1">Patient Triage & Routing Dashboard</p>
+              <p className="text-black mt-1">Patient Triage & Routing Dashboard</p>
             </div>
             <div className="text-right">
               <div className="text-3xl font-bold">{stats.totalWaiting}</div>
@@ -378,7 +378,7 @@ export default function NurseDashboardPage() {
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            🚑 Triage Queue
+            Triage Queue
           </button>
           <button
             onClick={() => setActiveTab('patients')}
@@ -388,7 +388,7 @@ export default function NurseDashboardPage() {
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            👥 All Patients
+            All Patients
           </button>
           <button
             onClick={() => setActiveTab('referrals')}
@@ -398,7 +398,7 @@ export default function NurseDashboardPage() {
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
           >
-            📋 My Referrals
+            My Referrals
           </button>
         </div>
 
@@ -475,8 +475,7 @@ export default function NurseDashboardPage() {
               
               {!aiLoading && !aiSuggestion && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                  <div className="flex items-start gap-2">
-                    <span className="text-lg">⚠️</span>
+                  <div>
                     <div>
                       <p className="text-sm font-medium text-amber-800">AI Suggestion Unavailable</p>
                       <p className="text-xs text-amber-700 mt-1">
@@ -491,10 +490,7 @@ export default function NurseDashboardPage() {
               {aiSuggestion && !aiLoading && (
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4">
                   <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">🤖</span>
-                      <h3 className="font-semibold text-gray-900">AI Triage Suggestion</h3>
-                    </div>
+                    <h3 className="font-semibold text-gray-900">AI Triage Suggestion</h3>
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       aiSuggestion.specialty_confidence > 0.8
                         ? 'bg-green-100 text-green-800'
@@ -512,7 +508,7 @@ export default function NurseDashboardPage() {
                       <span className={`px-3 py-1 rounded-lg text-sm font-semibold ${
                         SPECIALTY_INFO[aiSuggestion.specialty]?.color || 'bg-gray-100 text-gray-800'
                       }`}>
-                        {SPECIALTY_INFO[aiSuggestion.specialty]?.icon} {SPECIALTY_INFO[aiSuggestion.specialty]?.name || aiSuggestion.specialty}
+                        {SPECIALTY_INFO[aiSuggestion.specialty]?.name || aiSuggestion.specialty}
                       </span>
                     </div>
                     
@@ -549,7 +545,7 @@ export default function NurseDashboardPage() {
                   
                   <div className="mt-3 pt-3 border-t border-blue-200">
                     <p className="text-xs text-gray-600">
-                      💡 <strong>Nurse Decision:</strong> Review the AI suggestion above. You can accept it or override with your clinical judgment.
+                      <strong>Nurse Decision:</strong> Review the AI suggestion above. You can accept it or override with your clinical judgment.
                     </p>
                   </div>
                 </div>
@@ -572,7 +568,6 @@ export default function NurseDashboardPage() {
                           : 'border-gray-200'
                       }`}
                     >
-                      <div className="text-xl mb-1">{info.icon}</div>
                       <div className="text-xs font-medium text-gray-900">{info.name}</div>
                     </button>
                   ))}
@@ -764,7 +759,7 @@ function TriageQueueTab({
               onClick={() => window.location.reload()}
               className="px-2 py-1 bg-teal-500 hover:bg-teal-400 rounded text-white text-xs"
             >
-              🔄 Refresh
+              Refresh
             </button>
           </div>
         </div>
@@ -778,7 +773,7 @@ function TriageQueueTab({
 
         {error && (
           <div className="p-8 text-center">
-            <div className="text-red-500 text-4xl mb-4">⚠️</div>
+            <div className="text-red-500 text-2xl font-bold mb-4">!</div>
             <p className="text-red-600 font-medium">{error}</p>
             <button
               onClick={() => window.location.reload()}
@@ -791,7 +786,6 @@ function TriageQueueTab({
 
         {!loading && !error && triageQueue.length === 0 && (
           <div className="p-8 text-center">
-            <div className="text-gray-400 text-4xl mb-4">👥</div>
             <p className="text-gray-600 font-medium">No patients in the queue</p>
             <p className="text-sm text-gray-500 mt-1">
               Patients will appear here as they check in
@@ -829,7 +823,7 @@ function TriageQueueTab({
                       <div className="hidden md:flex gap-2 text-xs">
                         {patient.vitals.hr && (
                           <span className={`px-2 py-1 rounded ${patient.vitals.hr > 100 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-600'}`}>
-                            ❤️ {patient.vitals.hr}
+                            HR {patient.vitals.hr}
                           </span>
                         )}
                         {patient.vitals.spo2 && (
@@ -841,7 +835,7 @@ function TriageQueueTab({
                     )}
                     {patient.ai_suggested_specialty && (
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${SPECIALTY_INFO[patient.ai_suggested_specialty]?.color || 'bg-gray-100 text-gray-800'}`}>
-                        {SPECIALTY_INFO[patient.ai_suggested_specialty]?.icon} AI: {SPECIALTY_INFO[patient.ai_suggested_specialty]?.name}
+                        AI: {SPECIALTY_INFO[patient.ai_suggested_specialty]?.name}
                       </span>
                     )}
                     <button
@@ -910,7 +904,6 @@ function TriageQueueTab({
           </div>
         ) : (
           <div className="p-6 text-center text-gray-500">
-            <div className="text-4xl mb-4">👆</div>
             <p>Select a patient to view details</p>
           </div>
         )}
@@ -945,7 +938,7 @@ function AllPatientsTab({
           onClick={onRefresh}
           className="bg-blue-500 px-3 py-1 rounded text-sm text-white hover:bg-blue-400"
         >
-          🔄 Refresh
+          Refresh
         </button>
       </div>
       
@@ -1018,7 +1011,7 @@ function MyReferralsTab({
           onClick={onRefresh}
           className="bg-indigo-500 px-3 py-1 rounded text-sm text-white hover:bg-indigo-400"
         >
-          🔄 Refresh
+          Refresh
         </button>
       </div>
 
@@ -1029,7 +1022,6 @@ function MyReferralsTab({
         </div>
       ) : referrals.length === 0 ? (
         <div className="p-8 text-center text-gray-500">
-          <div className="text-4xl mb-4">📋</div>
           <p>No referrals yet</p>
           <p className="text-sm">Send patients to doctors to see them here</p>
         </div>
@@ -1043,7 +1035,7 @@ function MyReferralsTab({
                     {referral.patient?.name || 'Patient'}
                   </div>
                   <div className="text-sm text-gray-500">
-                    → {SPECIALTY_INFO[referral.target_specialty]?.icon} {SPECIALTY_INFO[referral.target_specialty]?.name || referral.target_specialty}
+                    → {SPECIALTY_INFO[referral.target_specialty]?.name || referral.target_specialty}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

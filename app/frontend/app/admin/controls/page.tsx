@@ -90,7 +90,7 @@ export default function AdminControlsPage() {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              ⚙️ System Management
+              System Management
             </button>
             <button
               onClick={() => setActiveTab('assurance')}
@@ -100,7 +100,7 @@ export default function AdminControlsPage() {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              🛡️ Assurance & Governance
+              Assurance & Governance
             </button>
             <button
               onClick={() => setActiveTab('referrals')}
@@ -110,7 +110,7 @@ export default function AdminControlsPage() {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              🔒 Referral Analytics
+              Referral Analytics
             </button>
           </div>
 
@@ -148,7 +148,7 @@ export default function AdminControlsPage() {
             <>
               {/* Assurance Dashboard - Shadow Tests, Rollouts, Bias/Drift */}
               <div className="mb-6 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl p-4 text-white">
-                <h2 className="text-lg font-semibold">🛡️ Runtime Assurance Layer</h2>
+                <h2 className="text-lg font-semibold">Runtime Assurance Layer</h2>
                 <p className="text-sm text-purple-100">
                   Monitor shadow tests, gradual rollouts, and detect bias/drift in adaptations
                 </p>

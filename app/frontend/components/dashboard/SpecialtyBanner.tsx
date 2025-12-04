@@ -10,7 +10,7 @@ import React from 'react';
 const SPECIALTY_CONFIG: Record<string, {
   name: string;
   namefi: string;
-  icon: string;
+  abbrev: string;
   color: string;
   bgGradient: string;
   greeting: string;
@@ -19,7 +19,7 @@ const SPECIALTY_CONFIG: Record<string, {
   general: {
     name: 'General Practice',
     namefi: 'Yleislääketiede',
-    icon: '🏥',
+    abbrev: 'GP',
     color: 'blue',
     bgGradient: 'from-blue-50 to-cyan-50',
     greeting: 'Your patients are waiting',
@@ -28,7 +28,7 @@ const SPECIALTY_CONFIG: Record<string, {
   internal: {
     name: 'Internal Medicine',
     namefi: 'Sisätaudit',
-    icon: '🫀',
+    abbrev: 'IM',
     color: 'red',
     bgGradient: 'from-red-50 to-orange-50',
     greeting: 'Complex cases ahead',
@@ -37,7 +37,7 @@ const SPECIALTY_CONFIG: Record<string, {
   cardiology: {
     name: 'Cardiology',
     namefi: 'Kardiologia',
-    icon: '❤️',
+    abbrev: 'CARD',
     color: 'rose',
     bgGradient: 'from-rose-50 to-pink-50',
     greeting: 'Cardiovascular health focus',
@@ -46,7 +46,7 @@ const SPECIALTY_CONFIG: Record<string, {
   neurology: {
     name: 'Neurology',
     namefi: 'Neurologia',
-    icon: '🧠',
+    abbrev: 'NEURO',
     color: 'purple',
     bgGradient: 'from-purple-50 to-violet-50',
     greeting: 'Neurological assessments',
@@ -55,7 +55,7 @@ const SPECIALTY_CONFIG: Record<string, {
   psychiatry: {
     name: 'Psychiatry',
     namefi: 'Psykiatria',
-    icon: '🧘',
+    abbrev: 'PSYCH',
     color: 'teal',
     bgGradient: 'from-teal-50 to-emerald-50',
     greeting: 'Mental health focus',
@@ -64,7 +64,7 @@ const SPECIALTY_CONFIG: Record<string, {
   pediatrics: {
     name: 'Pediatrics',
     namefi: 'Lastentaudit',
-    icon: '👶',
+    abbrev: 'PEDS',
     color: 'sky',
     bgGradient: 'from-sky-50 to-blue-50',
     greeting: 'Young patients need you',
@@ -73,7 +73,7 @@ const SPECIALTY_CONFIG: Record<string, {
   geriatrics: {
     name: 'Geriatrics',
     namefi: 'Geriatria',
-    icon: '👴',
+    abbrev: 'GERI',
     color: 'amber',
     bgGradient: 'from-amber-50 to-yellow-50',
     greeting: 'Senior care excellence',
@@ -82,7 +82,7 @@ const SPECIALTY_CONFIG: Record<string, {
   surgery: {
     name: 'Surgery',
     namefi: 'Kirurgia',
-    icon: '🔪',
+    abbrev: 'SURG',
     color: 'slate',
     bgGradient: 'from-slate-50 to-gray-50',
     greeting: 'Surgical precision',
@@ -91,7 +91,7 @@ const SPECIALTY_CONFIG: Record<string, {
   orthopedics: {
     name: 'Orthopedics',
     namefi: 'Ortopedia',
-    icon: '🦴',
+    abbrev: 'ORTH',
     color: 'zinc',
     bgGradient: 'from-zinc-50 to-stone-50',
     greeting: 'Musculoskeletal care',
@@ -100,7 +100,7 @@ const SPECIALTY_CONFIG: Record<string, {
   oncology: {
     name: 'Oncology',
     namefi: 'Onkologia',
-    icon: '🎗️',
+    abbrev: 'ONC',
     color: 'fuchsia',
     bgGradient: 'from-fuchsia-50 to-pink-50',
     greeting: 'Cancer care focus',
@@ -109,7 +109,7 @@ const SPECIALTY_CONFIG: Record<string, {
   pulmonology: {
     name: 'Pulmonology',
     namefi: 'Keuhkosairaudet',
-    icon: '🫁',
+    abbrev: 'PULM',
     color: 'cyan',
     bgGradient: 'from-cyan-50 to-sky-50',
     greeting: 'Respiratory health',
@@ -118,7 +118,7 @@ const SPECIALTY_CONFIG: Record<string, {
   endocrinology: {
     name: 'Endocrinology',
     namefi: 'Endokrinologia',
-    icon: '⚗️',
+    abbrev: 'ENDO',
     color: 'lime',
     bgGradient: 'from-lime-50 to-green-50',
     greeting: 'Metabolic balance',
@@ -127,7 +127,7 @@ const SPECIALTY_CONFIG: Record<string, {
   emergency: {
     name: 'Emergency Medicine',
     namefi: 'Ensihoito',
-    icon: '🚑',
+    abbrev: 'EM',
     color: 'red',
     bgGradient: 'from-red-50 to-rose-50',
     greeting: 'Critical care ready',
@@ -136,7 +136,7 @@ const SPECIALTY_CONFIG: Record<string, {
   nursing: {
     name: 'Nursing',
     namefi: 'Hoitotyö',
-    icon: '👩‍⚕️',
+    abbrev: 'RN',
     color: 'pink',
     bgGradient: 'from-pink-50 to-rose-50',
     greeting: 'Patient care excellence',
@@ -155,29 +155,29 @@ export function SpecialtyBanner({ specialty, userName }: SpecialtyBannerProps) {
   const timeGreeting = currentHour < 12 ? 'Good morning' : currentHour < 17 ? 'Good afternoon' : 'Good evening';
   
   return (
-    <div className={`bg-gradient-to-r ${config.bgGradient} rounded-2xl shadow border border-${config.color}-200 p-6`}>
+    <div className={`bg-gradient-to-r ${config.bgGradient} rounded-2xl shadow border border-gray-200 p-6`}>
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
-          <div className={`h-14 w-14 rounded-xl bg-${config.color}-100 flex items-center justify-center text-3xl shadow-sm`}>
-            {config.icon}
+          <div className="h-14 w-14 rounded-xl bg-gray-800 flex items-center justify-center text-lg font-bold text-white shadow-sm">
+            {config.abbrev}
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h2 className={`text-xl font-bold text-${config.color}-900`}>
+              <h2 className="text-xl font-bold text-gray-900">
                 {timeGreeting}, {userName || 'Doctor'}
               </h2>
-              <span className={`px-2 py-0.5 text-xs font-medium bg-${config.color}-100 text-${config.color}-800 rounded-full`}>
+              <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
                 {config.name}
               </span>
             </div>
-            <p className={`text-sm text-${config.color}-700 mb-3`}>{config.greeting}</p>
+            <p className="text-sm text-gray-700 mb-3">{config.greeting}</p>
             
             {/* Focus Areas */}
             <div className="flex flex-wrap gap-2">
               {config.focusAreas.map((area, index) => (
                 <span
                   key={index}
-                  className={`px-2.5 py-1 text-xs font-medium bg-white/70 text-${config.color}-800 rounded-lg border border-${config.color}-200`}
+                  className="px-2.5 py-1 text-xs font-medium bg-white text-gray-800 rounded-lg border border-gray-300 shadow-sm"
                 >
                   {area}
                 </span>
@@ -188,7 +188,7 @@ export function SpecialtyBanner({ specialty, userName }: SpecialtyBannerProps) {
         
         <a
           href="/settings"
-          className={`text-sm text-${config.color}-600 hover:text-${config.color}-800 font-medium flex items-center gap-1`}
+          className="text-sm text-gray-700 hover:text-gray-900 font-medium flex items-center gap-1"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />

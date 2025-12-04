@@ -1,0 +1,129 @@
+# EHR Backend Deployment for CSC Rahti
+# Apply with: oc apply -f rahti/backend.yaml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ehr-secrets
+type: Opaque
+stringData:
+  database-url: "postgresql://postgres.xxx:YOUR_PASSWORD@aws-0-region.pooler.supabase.com:6543/postgres"
+  jwt-secret: "your-secure-jwt-secret-at-least-32-characters"
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: ehr-backend
+spec:
+  source:
+    type: Git
+    git:
+      uri: "https://github.com/YOUR_USERNAME/YOUR_REPO.git"
+      ref: "main"
+    contextDir: "/"
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: devops/Dockerfile.backend
+  output:
+    to:
+      kind: ImageStreamTag
+      name: ehr-backend:latest
+  triggers:
+    - type: ConfigChange
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: ehr-backend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ehr-backend
+  labels:
+    app: ehr-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ehr-backend
+  template:
+    metadata:
+      labels:
+        app: ehr-backend
+    spec:
+      containers:
+      - name: backend
+        image: image-registry.openshift-image-registry.svc:5000/ehr-platform/ehr-backend:latest
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: ehr-secrets
+              key: database-url
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: ehr-secrets
+              key: jwt-secret
+        - name: CORS_ORIGINS
+          value: '["https://ehr-frontend-ehr-platform.rahtiapp.fi"]'
+        - name: ENVIRONMENT
+          value: "production"
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ehr-backend
+  labels:
+    app: ehr-backend
+spec:
+  selector:
+    app: ehr-backend
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: ehr-backend
+  labels:
+    app: ehr-backend
+spec:
+  to:
+    kind: Service
+    name: ehr-backend
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+

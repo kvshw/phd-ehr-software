@@ -27,18 +27,18 @@ interface Referral {
   };
 }
 
-const SPECIALTY_INFO: Record<string, { name: string; icon: string; color: string }> = {
-  cardiology: { name: 'Cardiology', icon: '❤️', color: 'bg-red-100 text-red-800' },
-  neurology: { name: 'Neurology', icon: '🧠', color: 'bg-purple-100 text-purple-800' },
-  orthopedics: { name: 'Orthopedics', icon: '🦴', color: 'bg-orange-100 text-orange-800' },
-  pediatrics: { name: 'Pediatrics', icon: '👶', color: 'bg-pink-100 text-pink-800' },
-  psychiatry: { name: 'Psychiatry', icon: '🧘', color: 'bg-indigo-100 text-indigo-800' },
-  emergency: { name: 'Emergency', icon: '🚑', color: 'bg-red-100 text-red-800' },
-  internal: { name: 'Internal Medicine', icon: '🩺', color: 'bg-blue-100 text-blue-800' },
-  surgery: { name: 'Surgery', icon: '⚕️', color: 'bg-green-100 text-green-800' },
-  dermatology: { name: 'Dermatology', icon: '🔬', color: 'bg-yellow-100 text-yellow-800' },
-  oncology: { name: 'Oncology', icon: '🎗️', color: 'bg-violet-100 text-violet-800' },
-  general: { name: 'General Practice', icon: '👨‍⚕️', color: 'bg-gray-100 text-gray-800' },
+const SPECIALTY_INFO: Record<string, { name: string; color: string }> = {
+  cardiology: { name: 'Cardiology', color: 'bg-red-100 text-red-800' },
+  neurology: { name: 'Neurology', color: 'bg-purple-100 text-purple-800' },
+  orthopedics: { name: 'Orthopedics', color: 'bg-orange-100 text-orange-800' },
+  pediatrics: { name: 'Pediatrics', color: 'bg-pink-100 text-pink-800' },
+  psychiatry: { name: 'Psychiatry', color: 'bg-indigo-100 text-indigo-800' },
+  emergency: { name: 'Emergency', color: 'bg-red-100 text-red-800' },
+  internal: { name: 'Internal Medicine', color: 'bg-blue-100 text-blue-800' },
+  surgery: { name: 'Surgery', color: 'bg-green-100 text-green-800' },
+  dermatology: { name: 'Dermatology', color: 'bg-yellow-100 text-yellow-800' },
+  oncology: { name: 'Oncology', color: 'bg-violet-100 text-violet-800' },
+  general: { name: 'General Practice', color: 'bg-gray-100 text-gray-800' },
 };
 
 const PRIORITY_COLORS = {
@@ -225,13 +225,12 @@ export function IncomingReferrals({ specialty }: { specialty?: string }) {
   if (referrals.length === 0) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
-        <div className="text-4xl mb-4">📬</div>
         <h3 className="text-lg font-semibold text-gray-700">No Incoming Referrals</h3>
         <p className="text-gray-500 text-sm mt-2">
           New patient referrals from nurses will appear here
         </p>
         <div className="mt-4 p-3 bg-blue-50 rounded-lg text-left text-sm text-blue-800">
-          <p className="font-medium mb-1">💡 To test referrals:</p>
+          <p className="font-medium mb-1">To test referrals:</p>
           <ol className="list-decimal list-inside space-y-1 text-xs">
             <li>Login as a <strong>Nurse</strong> (or create a nurse account)</li>
             <li>Go to <strong>All Patients</strong> tab</li>
@@ -247,10 +246,7 @@ export function IncomingReferrals({ specialty }: { specialty?: string }) {
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-2xl">📥</span>
-          <h2 className="text-lg font-semibold text-white">Incoming Referrals</h2>
-        </div>
+        <h2 className="text-lg font-semibold text-white">Incoming Referrals</h2>
         <span className="bg-white/20 px-3 py-1 rounded-full text-sm text-white">
           {referrals.filter(r => r.status === 'pending').length} pending
         </span>
@@ -276,7 +272,6 @@ export function IncomingReferrals({ specialty }: { specialty?: string }) {
                 {/* AI Prediction Badge */}
                 {referral.ai_suggested_specialty && (
                   <div className="flex items-center gap-2">
-                    <span className="text-xs">🤖</span>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       referral.nurse_override
                         ? 'bg-orange-100 text-orange-800 border border-orange-200'
@@ -376,33 +371,30 @@ export function IncomingReferrals({ specialty }: { specialty?: string }) {
                   ? 'bg-orange-50 border-orange-200'
                   : 'bg-blue-50 border-blue-200'
               }`}>
-                <div className="flex items-start gap-2">
-                  <span className="text-lg">🤖</span>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold text-gray-700">AI Triage Prediction:</span>
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        SPECIALTY_INFO[referral.ai_suggested_specialty]?.color || 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {SPECIALTY_INFO[referral.ai_suggested_specialty]?.icon} {SPECIALTY_INFO[referral.ai_suggested_specialty]?.name || referral.ai_suggested_specialty}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-semibold text-gray-700">AI Triage Prediction:</span>
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                      SPECIALTY_INFO[referral.ai_suggested_specialty]?.color || 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {SPECIALTY_INFO[referral.ai_suggested_specialty]?.name || referral.ai_suggested_specialty}
+                    </span>
+                    {referral.ai_confidence && (
+                      <span className="text-xs text-gray-600">
+                        ({(parseFloat(referral.ai_confidence) * 100).toFixed(0)}% confidence)
                       </span>
-                      {referral.ai_confidence && (
-                        <span className="text-xs text-gray-600">
-                          ({(parseFloat(referral.ai_confidence) * 100).toFixed(0)}% confidence)
-                        </span>
-                      )}
-                    </div>
-                    {referral.nurse_override && (
-                      <div className="text-xs text-orange-700 mt-1">
-                        ⚠️ <strong>Nurse Override:</strong> Nurse selected {SPECIALTY_INFO[referral.target_specialty]?.name || referral.target_specialty} instead of AI suggestion
-                      </div>
-                    )}
-                    {!referral.nurse_override && (
-                      <div className="text-xs text-green-700 mt-1">
-                        ✓ Nurse accepted AI suggestion
-                      </div>
                     )}
                   </div>
+                  {referral.nurse_override && (
+                    <div className="text-xs text-orange-700 mt-1">
+                      <strong>Nurse Override:</strong> Nurse selected {SPECIALTY_INFO[referral.target_specialty]?.name || referral.target_specialty} instead of AI suggestion
+                    </div>
+                  )}
+                  {!referral.nurse_override && (
+                    <div className="text-xs text-green-700 mt-1">
+                      Nurse accepted AI suggestion
+                    </div>
+                  )}
                 </div>
               </div>
             )}

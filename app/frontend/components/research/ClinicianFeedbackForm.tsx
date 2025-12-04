@@ -157,7 +157,7 @@ export function ClinicianFeedbackForm({
     <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6 max-w-2xl">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-gray-900 mb-2">
-          📋 Clinician Feedback Form
+          Clinician Feedback Form
         </h2>
         <p className="text-sm text-gray-600">
           Your feedback helps improve AI suggestions for clinical decision support.
@@ -175,7 +175,7 @@ export function ClinicianFeedbackForm({
         {/* Section 1: Clinical Assessment */}
         <div className="mb-8">
           <h3 className="text-md font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
-            📊 Clinical Assessment
+            Clinical Assessment
           </h3>
 
           <LikertScale
@@ -217,7 +217,7 @@ export function ClinicianFeedbackForm({
         {/* Section 2: Usability */}
         <div className="mb-8">
           <h3 className="text-md font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
-            ⚙️ Usability Assessment
+            Usability Assessment
           </h3>
 
           <LikertScale
@@ -297,7 +297,7 @@ export function ClinicianFeedbackForm({
 
         {/* Research Notice */}
         <p className="mt-4 text-xs text-gray-500 text-center">
-          🔬 This feedback is collected for academic research purposes.
+          This feedback is collected for academic research purposes.
           All data is anonymized and stored securely.
         </p>
       </form>

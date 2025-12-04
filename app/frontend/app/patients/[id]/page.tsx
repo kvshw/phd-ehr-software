@@ -48,7 +48,7 @@ export default function PatientDetailPage() {
     setAdaptationActive,
     setAdaptationExplanation,
   } = usePatientDetailStore();
-  const patientId = params.id as string;
+  const patientId = params?.id as string;
 
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);

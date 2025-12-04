@@ -27,14 +27,14 @@ export function TopHeader({ currentPage = 'Overview' }: TopHeaderProps) {
 
   // Navigation items with tracking
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: '📊', href: '/dashboard' },
-    { id: 'notes', label: 'Notes', icon: '📝' },
+    { id: 'overview', label: 'Overview', icon: '', href: '/dashboard' },
+    { id: 'notes', label: 'Notes', icon: '' },
     { id: 'document', label: 'Document', icon: '📄' },
-    { id: 'labs', label: 'Labs', icon: '🧪' },
+    { id: 'labs', label: 'Labs', icon: '' },
     { id: 'schedule', label: 'Schedule', icon: '📅' },
-    { id: 'doctor', label: 'Doctor', icon: '👨‍⚕️' },
-    { id: 'medicine', label: 'Medicine', icon: '💊' },
-    { id: 'analytics', label: 'Analytics', icon: '📈', href: '/research' },
+    { id: 'doctor', label: 'Doctor', icon: '' },
+    { id: 'medicine', label: 'Medicine', icon: '' },
+    { id: 'analytics', label: 'Analytics', icon: '', href: '/research' },
   ];
 
   // Close dropdown when clicking outside

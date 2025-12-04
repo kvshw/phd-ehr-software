@@ -427,7 +427,7 @@ class RegretAnalysisService:
             },
             "regret_curve": {
                 "data_points": len(analysis.regret_curve),
-                "curve": analysis.regret_curve[-20:],  # Last 20 points
+                "curve": analysis.regret_curve,  # All points for full visualization
             },
             "metadata": {
                 "analysis_period_days": time_range_days,

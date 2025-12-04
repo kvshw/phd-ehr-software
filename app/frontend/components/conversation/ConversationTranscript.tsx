@@ -86,7 +86,7 @@ export function ConversationTranscript({ sessionId }: ConversationTranscriptProp
               >
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-semibold">
-                    {transcript.speaker === 'doctor' ? '👨‍⚕️ Doctor' : '👤 Patient'}
+                    {transcript.speaker === 'doctor' ? 'Doctor' : 'Patient'}
                   </span>
                   {transcript.timestamp_seconds && (
                     <span className="text-xs text-gray-500">

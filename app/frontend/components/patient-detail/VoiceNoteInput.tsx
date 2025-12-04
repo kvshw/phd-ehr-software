@@ -178,9 +178,9 @@ export function VoiceNoteInput({
   };
 
   const languageOptions = [
-    { code: 'en-US', label: '🇬🇧 English', flag: '🇬🇧' },
-    { code: 'fi-FI', label: '🇫🇮 Suomi', flag: '🇫🇮' },
-    { code: 'sv-SE', label: '🇸🇪 Svenska', flag: '🇸🇪' },
+    { code: 'en-US', label: 'English (UK)', flag: 'EN' },
+    { code: 'fi-FI', label: 'Suomi', flag: 'FI' },
+    { code: 'sv-SE', label: 'Svenska', flag: 'SV' },
   ];
 
   const clinicalTemplates = [

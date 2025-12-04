@@ -28,14 +28,14 @@ interface DemoStep {
 const DEMO_STEPS: DemoStep[] = [
   {
     id: 'welcome',
-    title: '🎓 Welcome to the PhD Research Platform',
+    title: 'Welcome to the PhD Research Platform',
     description: 'This is a Self-Adaptive AI-Assisted Electronic Health Record (EHR) system designed for Finnish healthcare research. The system uses MAPE-K architecture to adapt the UI based on clinician behavior.',
     position: 'center',
     category: 'introduction',
   },
   {
     id: 'dashboard',
-    title: '📊 Patient Dashboard',
+    title: 'Patient Dashboard',
     description: 'The dashboard shows all patients with their key information at a glance. The layout adapts based on your role (doctor, nurse, researcher) and specialty.',
     target: '[data-demo="patient-list"]',
     position: 'bottom',
@@ -44,7 +44,7 @@ const DEMO_STEPS: DemoStep[] = [
   },
   {
     id: 'ai-suggestions',
-    title: '🤖 AI Clinical Suggestions',
+    title: 'AI Clinical Suggestions',
     description: 'The AI generates evidence-based clinical suggestions with confidence scores, explanations, and medical citations. Each suggestion includes GRADE evidence levels and links to clinical guidelines.',
     target: '[data-demo="ai-suggestions"]',
     position: 'left',
@@ -53,14 +53,14 @@ const DEMO_STEPS: DemoStep[] = [
   },
   {
     id: 'explainable-ai',
-    title: '📚 Explainable AI',
+    title: 'Explainable AI',
     description: 'Every AI suggestion includes:\n• Pathophysiological mechanism\n• Clinical guidelines (AHA, ESC, NICE)\n• PubMed citations\n• Limitations and clinical pearls\n\nThis transparency is crucial for clinician trust and academic rigor.',
     position: 'center',
     category: 'ai',
   },
   {
     id: 'mape-k',
-    title: '🔄 MAPE-K Self-Adaptation',
+    title: 'MAPE-K Self-Adaptation',
     description: 'The system continuously:\n• Monitors user behavior\n• Analyzes patterns\n• Plans UI adaptations\n• Executes changes\n• Stores knowledge\n\nThe UI adapts to your workflow automatically!',
     target: '[data-demo="adaptation-indicator"]',
     position: 'bottom',
@@ -69,21 +69,21 @@ const DEMO_STEPS: DemoStep[] = [
   },
   {
     id: 'adaptation-example',
-    title: '✨ Adaptation in Action',
+    title: 'Adaptation in Action',
     description: 'Watch how the system adapts: If you frequently check vitals before labs, the UI will reorder sections to match your workflow. The adaptation indicator shows when changes are applied.',
     position: 'center',
     category: 'mape-k',
   },
   {
     id: 'finnish-features',
-    title: '🇫🇮 Finnish Healthcare Integration',
+    title: 'Finnish Healthcare Integration',
     description: 'The system includes Finnish-specific features:\n• Henkilötunnus (Personal ID) validation\n• Kela Card integration\n• Municipality-based care\n• Finnish/Swedish/English support\n• Kanta service simulation',
     position: 'center',
     category: 'finnish',
   },
   {
     id: 'feedback-loop',
-    title: '📝 Feedback Collection',
+    title: 'Feedback Collection',
     description: 'Clinician feedback on AI suggestions feeds back into the system to improve future recommendations. This creates a learning loop essential for research validation.',
     target: '[data-demo="feedback-buttons"]',
     position: 'top',
@@ -92,22 +92,22 @@ const DEMO_STEPS: DemoStep[] = [
   },
   {
     id: 'research-analytics',
-    title: '📈 Research Analytics',
+    title: 'Research Analytics',
     description: 'The Research Dashboard provides:\n• Adaptation effectiveness metrics\n• AI suggestion acceptance rates\n• User behavior analytics\n• Exportable data for thesis analysis\n\nAll data is anonymized and GDPR-compliant.',
     position: 'center',
     category: 'research',
   },
   {
     id: 'safety',
-    title: '⚠️ Safety & Transparency',
+    title: 'Safety & Transparency',
     description: 'All AI outputs are clearly labeled as "Experimental". The system never makes autonomous decisions - it only suggests. Comprehensive audit trails ensure accountability.',
     position: 'center',
     category: 'ai',
   },
   {
     id: 'conclusion',
-    title: '🎉 Demo Complete!',
-    description: 'You\'ve seen the key features of this PhD research platform:\n\n✓ Self-Adaptive UI (MAPE-K)\n✓ Explainable AI Suggestions\n✓ Finnish Healthcare Integration\n✓ Research-Grade Analytics\n\nThank you for your attention!',
+    title: 'Demo Complete!',
+    description: 'You\'ve seen the key features of this PhD research platform:\n\n- Self-Adaptive UI (MAPE-K)\n- Explainable AI Suggestions\n- Finnish Healthcare Integration\n- Research-Grade Analytics\n\nThank you for your attention!',
     position: 'center',
     category: 'introduction',
   },
@@ -226,14 +226,8 @@ function DemoOverlay({ step, stepIndex, totalSteps }: { step: DemoStep; stepInde
   };
 
   const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'introduction': return '📖';
-      case 'ai': return '🤖';
-      case 'mape-k': return '🔄';
-      case 'finnish': return '🇫🇮';
-      case 'research': return '📊';
-      default: return '📌';
-    }
+    // Return null - we'll use SVG icons instead
+    return null;
   };
 
   const tooltipPosition = () => {
@@ -305,7 +299,6 @@ function DemoOverlay({ step, stepIndex, totalSteps }: { step: DemoStep; stepInde
       >
         {/* Category Header */}
         <div className={`${getCategoryColor(step.category)} px-6 py-3 flex items-center gap-3`}>
-          <span className="text-2xl">{getCategoryIcon(step.category)}</span>
           <span className="text-white font-medium capitalize">{step.category.replace('-', ' ')}</span>
           <span className="ml-auto text-white/80 text-sm">
             {stepIndex + 1} / {totalSteps}

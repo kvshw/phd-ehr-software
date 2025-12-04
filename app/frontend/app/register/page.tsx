@@ -7,29 +7,29 @@ import { apiClient } from '@/lib/apiClient';
 
 // Medical specialties for doctors
 const MEDICAL_SPECIALTIES = [
-  { id: 'cardiology', name: 'Cardiology', icon: '❤️' },
-  { id: 'neurology', name: 'Neurology', icon: '🧠' },
-  { id: 'orthopedics', name: 'Orthopedics', icon: '🦴' },
-  { id: 'pediatrics', name: 'Pediatrics', icon: '👶' },
-  { id: 'psychiatry', name: 'Psychiatry', icon: '🧘' },
-  { id: 'emergency', name: 'Emergency Medicine', icon: '🚑' },
-  { id: 'internal', name: 'Internal Medicine', icon: '🩺' },
-  { id: 'surgery', name: 'Surgery', icon: '⚕️' },
-  { id: 'dermatology', name: 'Dermatology', icon: '🔬' },
-  { id: 'oncology', name: 'Oncology', icon: '🎗️' },
-  { id: 'general', name: 'General Practice', icon: '👨‍⚕️' },
+  { id: 'cardiology', name: 'Cardiology' },
+  { id: 'neurology', name: 'Neurology' },
+  { id: 'orthopedics', name: 'Orthopedics' },
+  { id: 'pediatrics', name: 'Pediatrics' },
+  { id: 'psychiatry', name: 'Psychiatry' },
+  { id: 'emergency', name: 'Emergency Medicine' },
+  { id: 'internal', name: 'Internal Medicine' },
+  { id: 'surgery', name: 'Surgery' },
+  { id: 'dermatology', name: 'Dermatology' },
+  { id: 'oncology', name: 'Oncology' },
+  { id: 'general', name: 'General Practice' },
 ];
 
 // Nursing departments
 const NURSING_DEPARTMENTS = [
-  { id: 'emergency_triage', name: 'Emergency Triage', icon: '🚑' },
-  { id: 'inpatient', name: 'Inpatient Care', icon: '🏥' },
-  { id: 'outpatient', name: 'Outpatient Clinic', icon: '🏢' },
-  { id: 'icu', name: 'Intensive Care Unit', icon: '💓' },
-  { id: 'pediatric_nursing', name: 'Pediatric Nursing', icon: '👶' },
-  { id: 'surgical', name: 'Surgical Nursing', icon: '⚕️' },
-  { id: 'oncology_nursing', name: 'Oncology Nursing', icon: '🎗️' },
-  { id: 'mental_health', name: 'Mental Health', icon: '🧘' },
+  { id: 'emergency_triage', name: 'Emergency Triage' },
+  { id: 'inpatient', name: 'Inpatient Care' },
+  { id: 'outpatient', name: 'Outpatient Clinic' },
+  { id: 'icu', name: 'Intensive Care Unit' },
+  { id: 'pediatric_nursing', name: 'Pediatric Nursing' },
+  { id: 'surgical', name: 'Surgical Nursing' },
+  { id: 'oncology_nursing', name: 'Oncology Nursing' },
+  { id: 'mental_health', name: 'Mental Health' },
 ];
 
 type ClinicalRole = 'doctor' | 'nurse';
@@ -117,7 +117,9 @@ export default function RegisterPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 py-12 px-4">
         <div className="max-w-md w-full text-center space-y-6 bg-white rounded-2xl shadow-xl p-8">
           <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100">
-            <span className="text-4xl">✅</span>
+            <svg className="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-900">Registration Submitted!</h2>
           <p className="text-gray-600">
@@ -176,7 +178,11 @@ export default function RegisterPage() {
                 onClick={() => handleRoleSelect('doctor')}
                 className="p-8 border-2 border-gray-200 rounded-2xl hover:border-indigo-500 hover:bg-indigo-50 transition-all group text-center"
               >
-                <div className="text-5xl mb-4">👨‍⚕️</div>
+                <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <svg className="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
                 <h4 className="text-xl font-semibold text-gray-900 group-hover:text-indigo-600">Doctor</h4>
                 <p className="text-sm text-gray-500 mt-2">
                   Physician, Specialist, or General Practitioner
@@ -188,7 +194,11 @@ export default function RegisterPage() {
                 onClick={() => handleRoleSelect('nurse')}
                 className="p-8 border-2 border-gray-200 rounded-2xl hover:border-teal-500 hover:bg-teal-50 transition-all group text-center"
               >
-                <div className="text-5xl mb-4">👩‍⚕️</div>
+                <div className="h-16 w-16 mx-auto mb-4 rounded-full bg-teal-100 flex items-center justify-center">
+                  <svg className="h-8 w-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </div>
                 <h4 className="text-xl font-semibold text-gray-900 group-hover:text-teal-600">Nurse</h4>
                 <p className="text-sm text-gray-500 mt-2">
                   RN, LPN, Nurse Practitioner, or Care Coordinator
@@ -230,7 +240,6 @@ export default function RegisterPage() {
                       formData.specialty === spec.id ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'
                     }`}
                   >
-                    <div className="text-2xl mb-2">{spec.icon}</div>
                     <div className="text-sm font-medium text-gray-900">{spec.name}</div>
                   </button>
                 ))}
@@ -246,7 +255,6 @@ export default function RegisterPage() {
                       formData.department === dept.id ? 'border-teal-500 bg-teal-50' : 'border-gray-200'
                     }`}
                   >
-                    <div className="text-2xl mb-2">{dept.icon}</div>
                     <div className="text-sm font-medium text-gray-900">{dept.name}</div>
                   </button>
                 ))}

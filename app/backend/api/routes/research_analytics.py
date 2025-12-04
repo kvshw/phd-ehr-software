@@ -47,7 +47,7 @@ async def get_regret_report(
     user_id: Optional[UUID] = None,
     days: int = Query(default=30, ge=7, le=365),
     db: Session = Depends(get_db),
-    current_user=Depends(require_role(["researcher", "admin"])),
+    current_user=Depends(require_role(["researcher", "admin", "clinician", "doctor"])),
 ):
     """
     Get comprehensive regret analysis report for Thompson Sampling bandits.
@@ -77,7 +77,7 @@ async def get_theoretical_regret_bound(
     num_arms: int = Query(default=10, ge=1, le=100),
     time_horizon: int = Query(default=1000, ge=10, le=100000),
     db: Session = Depends(get_db),
-    current_user=Depends(require_role(["researcher", "admin"])),
+    current_user=Depends(require_role(["researcher", "admin", "clinician", "doctor"])),
 ):
     """
     Calculate theoretical Bayesian regret bound for Thompson Sampling.

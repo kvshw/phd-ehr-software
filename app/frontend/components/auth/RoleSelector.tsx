@@ -30,7 +30,7 @@ const roles: RoleOption[] = [
   {
     id: 'clinician',
     label: 'Doctor',
-    icon: '👨‍⚕️',
+    icon: 'DR',
     description: 'Access patient records, vitals, and AI suggestions',
     color: {
       bg: 'bg-blue-50',
@@ -43,7 +43,7 @@ const roles: RoleOption[] = [
   {
     id: 'nurse',
     label: 'Nurse',
-    icon: '👩‍⚕️',
+    icon: 'RN',
     description: 'Patient triage, routing, and care coordination',
     color: {
       bg: 'bg-teal-50',
@@ -56,7 +56,7 @@ const roles: RoleOption[] = [
   {
     id: 'researcher',
     label: 'Researcher',
-    icon: '📊',
+    icon: 'RS',
     description: 'View analytics, metrics, and research data',
     color: {
       bg: 'bg-purple-50',
@@ -69,7 +69,7 @@ const roles: RoleOption[] = [
   {
     id: 'admin',
     label: 'Administrator',
-    icon: '⚙️',
+    icon: 'AD',
     description: 'System controls and user management',
     color: {
       bg: 'bg-indigo-50',
@@ -119,7 +119,7 @@ export function RoleSelector({ selectedRole, onRoleSelect, disabled = false }: R
 
               {/* Role Icon */}
               <div className="text-center mb-2">
-                <div className="text-4xl mb-2">{role.icon}</div>
+                <div className={`text-lg font-bold mb-2 ${role.color.text}`}>{role.icon}</div>
                 <h3 className={`font-semibold ${role.color.text}`}>{role.label}</h3>
               </div>
 

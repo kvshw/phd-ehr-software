@@ -10,7 +10,7 @@ import { useAuthStore } from '@/store/authStore';
 import { adaptiveDashboardService, DashboardPlan } from '@/lib/adaptiveDashboardService';
 import { monitorService } from '@/lib/monitorService';
 
-interface DashboardSection {
+export interface DashboardSection {
   id: string;
   label: string;
   component: React.ReactNode;
@@ -133,7 +133,9 @@ export function AdaptiveDashboard({ sections, onFeatureClick }: AdaptiveDashboar
       {plan && plan.explanation && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
           <div className="flex items-center gap-2">
-            <span>🔄</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
             <span className="font-medium">Adaptive Layout Active</span>
             <span className="text-blue-600">•</span>
             <span className="text-xs">{plan.explanation}</span>
@@ -191,7 +193,7 @@ export function AdaptiveDashboard({ sections, onFeatureClick }: AdaptiveDashboar
       {/* Debug info (remove in production) */}
       {process.env.NODE_ENV === 'development' && plan && (
         <div className="fixed bottom-4 left-4 bg-black text-green-400 text-xs p-2 rounded font-mono z-50 max-w-xs">
-          <div>📊 Adaptive Plan Active</div>
+          <div>Adaptive Plan Active</div>
           <div>Features: {plan.feature_priority.length}</div>
           <div>Hidden: {plan.hidden_features.length}</div>
           <div>Updated: {lastUpdate.toLocaleTimeString()}</div>

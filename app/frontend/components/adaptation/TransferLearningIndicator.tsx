@@ -75,11 +75,11 @@ export function TransferLearningIndicator({
   const getStageIcon = () => {
     switch (status.stage) {
       case 'cold_start':
-        return '❄️';
+        return 'NEW';
       case 'warm_start':
-        return '🔥';
+        return 'EXP';
       default:
-        return '✨';
+        return 'ADV';
     }
   };
 
@@ -202,8 +202,8 @@ export function TransferLearningIndicatorCompact({ className = '' }: { className
 
   const getStageIcon = () => {
     switch (status.stage) {
-      case 'cold_start': return '❄️';
-      case 'warm_start': return '🔥';
+      case 'cold_start': return 'NEW';
+      case 'warm_start': return 'EXP';
       default: return null;
     }
   };

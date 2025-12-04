@@ -246,7 +246,7 @@ export function VoiceRecorder({ patientId, onTranscriptUpdate, onSessionComplete
               : 'border-purple-400 bg-purple-50 text-purple-700'
           } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
-          {currentSpeaker === 'doctor' ? '👨‍⚕️ Doctor' : '👤 Patient'}
+          {currentSpeaker === 'doctor' ? 'Doctor' : 'Patient'}
         </button>
 
         {transcript && (

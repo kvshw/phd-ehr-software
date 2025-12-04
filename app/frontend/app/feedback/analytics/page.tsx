@@ -421,7 +421,7 @@ export default function FeedbackAnalyticsPage() {
 
             {/* Confidence Adjustments */}
             <div className="bg-white border border-gray-200 rounded-xl shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">🧠 Self-Adaptive AI: Confidence Adjustments</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">Self-Adaptive AI: Confidence Adjustments</h2>
               <p className="text-sm text-gray-600 mb-4">
                 Based on clinician feedback, the AI automatically adjusts its confidence levels.
               </p>
@@ -450,7 +450,7 @@ export default function FeedbackAnalyticsPage() {
 
             {/* Learning Events */}
             <div className="bg-white border border-gray-200 rounded-xl shadow p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">📚 Learning Events History</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">Learning Events History</h2>
               <p className="text-sm text-gray-600 mb-4">
                 When the AI learns and adapts based on clinician feedback.
               </p>
@@ -511,7 +511,7 @@ export default function FeedbackAnalyticsPage() {
 
             {/* Export Section */}
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">📊 Export Data</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">Export Data</h2>
               <p className="text-sm text-gray-600 mb-4">
                 Export feedback data for academic analysis.
               </p>

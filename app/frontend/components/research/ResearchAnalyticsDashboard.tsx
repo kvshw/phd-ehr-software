@@ -180,7 +180,7 @@ export function ResearchAnalyticsDashboard() {
           : 'bg-amber-50 border-amber-300'
       }`}>
         <div className="flex items-center gap-3">
-          <span className="text-2xl">{isRealData ? '✅' : '⚠️'}</span>
+          <span className={`text-sm font-bold px-2 py-1 rounded ${isRealData ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{isRealData ? 'LIVE' : 'DEMO'}</span>
           <div className="flex-1">
             <h3 className={`font-semibold ${isRealData ? 'text-green-900' : 'text-amber-900'}`}>
               {isRealData ? 'Real Research Data' : 'Demo Data (No Real Usage Yet)'}
@@ -197,7 +197,7 @@ export function ResearchAnalyticsDashboard() {
       {/* Impact Metrics Banner - Shows Software Importance */}
       {data && (
         <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-6 text-white">
-          <h2 className="text-xl font-bold mb-4">🎯 Research Impact & Value Proposition</h2>
+          <h2 className="text-xl font-bold mb-4">Research Impact & Value Proposition</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-white/10 rounded-lg p-4 backdrop-blur">
               <div className="text-3xl font-bold">
@@ -248,7 +248,7 @@ export function ResearchAnalyticsDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">📊 Research Analytics</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Research Analytics</h1>
           <p className="text-gray-600 mt-1">MAPE-K Adaptation Effectiveness & User Behavior Metrics</p>
         </div>
         <div className="flex items-center gap-4">
@@ -282,28 +282,28 @@ export function ResearchAnalyticsDashboard() {
         <MetricCard
           title="Total Adaptations"
           value={data?.summary.total_adaptations || 0}
-          icon="🔄"
+          icon=""
           trend={+12}
           description="UI adaptations applied"
         />
         <MetricCard
           title="Adaptation Success Rate"
           value={`${((data?.summary.adaptation_success_rate || 0) * 100).toFixed(1)}%`}
-          icon="✅"
+          icon=""
           trend={+5.2}
           description="Adaptations not reverted"
         />
         <MetricCard
           title="Avg. Time Saved"
           value={`${(data?.summary.avg_time_saved_per_adaptation || 0).toFixed(1)}s`}
-          icon="⏱️"
+          icon=""
           trend={+2.1}
           description="Per adaptation"
         />
         <MetricCard
           title="Suggestion Acceptance"
           value={`${((data?.summary.suggestion_acceptance_rate || 0) * 100).toFixed(1)}%`}
-          icon="🤖"
+          icon=""
           trend={+3.4}
           description="AI suggestions accepted"
         />
@@ -313,10 +313,10 @@ export function ResearchAnalyticsDashboard() {
       <div className="border-b border-gray-200">
         <nav className="flex space-x-8">
           {[
-            { id: 'overview', label: 'Overview', icon: '📈' },
-            { id: 'adaptations', label: 'Adaptations', icon: '🔄' },
-            { id: 'suggestions', label: 'AI Suggestions', icon: '🤖' },
-            { id: 'behavior', label: 'User Behavior', icon: '👤' },
+            { id: 'overview', label: 'Overview', icon: '' },
+            { id: 'adaptations', label: 'Adaptations', icon: '' },
+            { id: 'suggestions', label: 'AI Suggestions', icon: '' },
+            { id: 'behavior', label: 'User Behavior', icon: '' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -346,7 +346,9 @@ export function ResearchAnalyticsDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <span className="text-2xl">📚</span>
+            <svg className="w-8 h-8 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
             <div>
               <h3 className="font-semibold text-blue-900">Research Data Quality</h3>
               <p className="text-sm text-blue-800 mt-1">
@@ -360,7 +362,7 @@ export function ResearchAnalyticsDashboard() {
         
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <span className="text-2xl">🎓</span>
+            <span className="text-lg font-bold text-indigo-600">PhD</span>
             <div>
               <h3 className="font-semibold text-purple-900">Why This Research Matters</h3>
               <p className="text-sm text-purple-800 mt-1">
@@ -377,7 +379,7 @@ export function ResearchAnalyticsDashboard() {
       {data && data.summary.total_adaptations > 0 && (
         <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-6">
           <h3 className="text-lg font-bold text-green-900 mb-4 flex items-center gap-2">
-            <span>🔬</span> Key Research Findings (Preliminary)
+            Key Research Findings (Preliminary)
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-lg p-4">
@@ -451,7 +453,7 @@ function OverviewTab({ data }: { data: ResearchData | null }) {
       {/* Key Findings */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg p-5">
-          <h4 className="font-semibold text-indigo-900 mb-3">🎯 MAPE-K Effectiveness</h4>
+          <h4 className="font-semibold text-indigo-900 mb-3">MAPE-K Effectiveness</h4>
           <ul className="space-y-2 text-sm text-indigo-800">
             <li>• <strong>{data.summary.total_adaptations}</strong> total UI adaptations applied</li>
             <li>• <strong>{(data.summary.adaptation_success_rate * 100).toFixed(1)}%</strong> success rate (not reverted)</li>
@@ -461,7 +463,7 @@ function OverviewTab({ data }: { data: ResearchData | null }) {
         </div>
         
         <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-5">
-          <h4 className="font-semibold text-green-900 mb-3">🤖 AI Suggestion Performance</h4>
+          <h4 className="font-semibold text-green-900 mb-3">AI Suggestion Performance</h4>
           <ul className="space-y-2 text-sm text-green-800">
             <li>• <strong>{data.suggestions.total}</strong> total suggestions generated</li>
             <li>• <strong>{(data.suggestions.acceptance_rate * 100).toFixed(1)}%</strong> acceptance rate</li>
@@ -474,7 +476,7 @@ function OverviewTab({ data }: { data: ResearchData | null }) {
       {/* Statistical Significance Note */}
       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
         <p className="text-sm text-amber-800">
-          <strong>📊 Statistical Note:</strong> With {data.summary.total_adaptations} adaptations and {data.suggestions.total} suggestions,
+          <strong>Statistical Note:</strong> With {data.summary.total_adaptations} adaptations and {data.suggestions.total} suggestions,
           these results provide a preliminary dataset for analysis. For publication-ready statistics,
           aim for n≥100 per condition with p&lt;0.05 significance threshold.
         </p>
