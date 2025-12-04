@@ -288,3 +288,44 @@ async def update_current_user_profile(
         primary_workplace=user.primary_workplace,
     )
 
+
+@router.post("/logout")
+async def logout(
+    request: Request,
+    response: Response,
+    current_user = Depends(get_current_user),
+):
+    """
+    Logout endpoint - clears authentication cookies.
+    Requires valid authentication to logout (prevents CSRF).
+    """
+    # Determine domain for cookies (same as login)
+    origin = request.headers.get("origin", "")
+    cookie_domain = None
+    if "rahtiapp.fi" in origin:
+        cookie_domain = ".2.rahtiapp.fi"
+    
+    # Clear cookies by setting them to expire immediately
+    response.set_cookie(
+        key="access_token",
+        value="",
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=0,  # Expire immediately
+        path="/",
+        domain=cookie_domain,
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value="",
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=0,  # Expire immediately
+        path="/",
+        domain=cookie_domain,
+    )
+    
+    return {"success": True, "message": "Logged out successfully"}
+

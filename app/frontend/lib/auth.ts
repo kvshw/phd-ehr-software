@@ -104,14 +104,23 @@ export async function refreshToken(refreshToken: string): Promise<LoginResponse>
 }
 
 /**
- * Logout user
+ * Logout user - calls backend to clear cookies
  */
 export async function logout(): Promise<void> {
-  if (typeof window !== 'undefined') {
-    await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
+  try {
+    // Call backend logout endpoint to clear cookies
+    await apiClient.post('/auth/logout', {}, {
+      withCredentials: true,
     });
+  } catch (error: any) {
+    // Even if the request fails, try to clear local state
+    console.warn('Logout request failed, but clearing local state:', error);
+  }
+  
+  // Clear any local storage or state if needed
+  if (typeof window !== 'undefined') {
+    // Redirect to login page
+    window.location.href = '/login';
   }
 }
 
